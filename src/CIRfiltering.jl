@@ -157,9 +157,6 @@ function rec_transition_CIR(Dts, x, δ, γ, σ)
 end
 
 function generate_CIR_trajectory(times, x0, δ, γ, σ)
-    θ1 = δ*σ^2
-    θ2 = 2*γ
-    θ3 = 2*σ
     Dts = diff(times)
     return rec_transition_CIR(Dts, [x0], δ, γ, σ)
 end

@@ -12,4 +12,9 @@ println("Testing common utility functions")
 println("Testing CIR filtering")
 @time include("tests_CIRfiltering.jl")
 
+
+println("Testing WF filtering")
+@time include("tests_WFfiltering.jl")
+
+
 toc()
