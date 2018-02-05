@@ -16,6 +16,22 @@ function log_binomial_safe_but_slow(n::Int64, k::Int64)
     end
 end
 
+@memoize function log_binomial_safe_but_slow_mem(n::Int64, k::Int64)
+    log_binomial_safe_but_slow(n::Int64, k::Int64)
+end
+
+function loghypergeom_pdf(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64)
+    return sum(log_binomial_safe_but_slow.(m,i)) - log_binomial_safe_but_slow(sm, si)
+end
+
+function loghypergeom_pdf_inner_mem(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64)
+    return sum(log_binomial_safe_but_slow_mem.(m,i)) - log_binomial_safe_but_slow_mem(sm, si)
+end
+
+function loghypergeom_pdf_mem(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64)
+    return loghypergeom_pdf_inner_mem(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64)
+end
+
 function descending_fact_no0(x::Real, n::Int64)
     return prod(x-i for i in 0:(n-1))
 end
