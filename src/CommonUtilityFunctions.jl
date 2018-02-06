@@ -55,3 +55,7 @@ function log_descending_fact(x::Real, n::Int64)
         return log_descending_fact_no0(x, n)
     end
 end
+
+function truncate_float(x, digits_after_comma)
+    round(x*10^digits_after_comma)/10^digits_after_comma
+end
