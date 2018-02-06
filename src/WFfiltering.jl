@@ -108,18 +108,14 @@ end
 
 sign_term_Cmmi(si::Int64) = sign_denominator_Cmmi(si)
 
-@memoize function logCmmi_mem_overflow_safe(sm::Int64, si::Int64, t::Number, sα::Number)
-    tmp = [-λm_mem(sm-k, sα)*t - log_denominator_Cmmi_nosign(si, k, sm, sα) for k in 0:si]
+function logCmmi_overflow_safe(sm::Int64, si::Int64, t::Number, sα::Number)
+    tmp = [-λm(sm-k, sα)*t - log_denominator_Cmmi_nosign(si, k, sm, sα) for k in 0:si]
     max_tmp = maximum(tmp)
     return sign_term_Cmmi(si)*sum(sign_denominator_Cmmi(k) * exp.(tmp[k+1] - max_tmp) for k in 0:si) |> log |> x -> x + maximum(tmp)
 end
 
-function loghypergeom_pdf(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64)
-    return sum(log_binomial_safe_but_slow.(m,i)) - log_binomial_safe_but_slow(sm, si)
-end
-
-@memoize function loghypergeom_pdf_mem(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64)
-    return loghypergeom_pdf(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64)
+@memoize function logCmmi_mem_overflow_safe(sm::Int64, si::Int64, t::Number, sα::Number)
+    return logCmmi_overflow_safe(sm::Int64, si::Int64, t::Number, sα::Number)
 end
 
 function logpmmi_raw_mem2(i::Array{Int64,1}, m::Array{Int64,1}, sm::Int64, si::Int64, t::Number, sα::Number)
@@ -128,7 +124,7 @@ function logpmmi_raw_mem2(i::Array{Int64,1}, m::Array{Int64,1}, sm::Int64, si::I
 end
 
 function logpmmi_mem2(i::Array{Int64,1}, m::Array{Int64,1}, sm::Int64, si::Int64, t::Number, sα::Number)
-    if maximum(i)==0
+    if maximum(i)==0 #probably faster to replace by testing all is == 0
 #         return -λm_mem(sm::Int64, sα::Number)*t
         return -λm(sm::Int64, sα::Number)*t
     else
@@ -143,7 +139,7 @@ function WF_prediction_for_one_m_debug_mem2(m::Array{Int64,1}, sα::Ty, t::Ty; w
         i = m.-n
         si = sum(i)
         sm = sum(m)
-        return wm*logpmmi_mem2(i::Array{Int64,1}, m::Array{Int64,1}, sm::Int64, si::Int64, t::Number, sα::Number) |> exp
+        return wm*(logpmmi_mem2(i::Array{Int64,1}, m::Array{Int64,1}, sm::Int64, si::Int64, t::Number, sα::Number) |> exp)
     end
 
     Dict( collect(n) => fun_n(n) for n in gm ) |> Accumulator
