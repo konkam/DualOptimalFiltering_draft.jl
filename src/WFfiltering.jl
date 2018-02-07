@@ -179,10 +179,10 @@ function filter_WF_mem2(α, data)
     wms_of_t = Dict()
 
 # update_WF_params(wms::Array{Ty,1}, α::Array{Ty,1}, Λ::Array{Array{Int64,1},1}, y::Array{Int64,2}) where {Ty<:Number}
-    filtered_Λ, filtered_wms = update_WF_params([1.], α, [repeat([0], inner = length(α))], data[0])
+    filtered_Λ, filtered_wms = update_WF_params([1.], α, [repeat([0], inner = length(α))], data[times[1]])
 
-    Λ_of_t[0] = filtered_Λ
-    wms_of_t[0] = filtered_wms
+    Λ_of_t[times[1]] = filtered_Λ
+    wms_of_t[times[1]] = filtered_wms
 
     for k in 1:(length(times)-1)
         println("Step index: $k")
