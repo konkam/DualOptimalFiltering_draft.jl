@@ -57,5 +57,5 @@ function log_descending_fact(x::Real, n::Int64)
 end
 
 function truncate_float(x, digits_after_comma)
-    round(x*10^digits_after_comma)/10^digits_after_comma
+    floor(x*10^digits_after_comma)/10^digits_after_comma
 end

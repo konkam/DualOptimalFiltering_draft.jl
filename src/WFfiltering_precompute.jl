@@ -41,11 +41,15 @@ end
 
 function precompute_terms(data::Dict{Float64,Array{Int64,2}}, sα::Number; digits_after_comma_for_time_precision = 4)
 
+    if (data |> keys |> collect |> sort |> diff |> x -> truncate_float.(x,14) |> unique |> length > 1)
+        error("Think twice about precomputing all terms, as the time intervals are not equal")
+    end
+
     println("Precomputing 3 times")
     @printf "%e" values(data) |> sum |> sum |> n -> n*(n-1)/2 |> BigFloat
     println(" terms")
 
-    log_Cmmi_dict = precompute_log_Cmmi(data, sα; digits_after_comma_for_time_precision = 3)
+    log_Cmmi_dict = precompute_log_Cmmi(data, sα; digits_after_comma_for_time_precision = 14)
     precomputed_log_binomial_coefficients = precompute_log_binomial_coefficients(data)
     log_ν_dict = precompute_log_first_term(data, sα)
 
