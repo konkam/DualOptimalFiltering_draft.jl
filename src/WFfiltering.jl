@@ -154,7 +154,9 @@ function predict_WF_params_debug_mem2(wms::Array{Ty,1}, sα::Ty, Λ::Array{Array
         res = merge(res, WF_prediction_for_one_m_debug_mem2(Λ[k], sα, t; wm = wms[k], debug = false))
     end
 
-    return keys(res) |> collect, values(res) |> collect
+    ks = keys(res) |> collect
+
+    return ks, [res[k] for k in ks]
 
 end
 
