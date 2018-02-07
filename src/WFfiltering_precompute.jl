@@ -114,10 +114,10 @@ function filter_WF_precomputed(α, data, log_ν_dict::Dict{Tuple{Int64, Int64}, 
     Λ_of_t = Dict()
     wms_of_t = Dict()
 
-    filtered_Λ, filtered_wms = update_WF_params([1.], α, [repeat([0], inner = length(α))], data[0])
+    filtered_Λ, filtered_wms = update_WF_params([1.], α, [repeat([0], inner = length(α))], data[times[1]])
 
-    Λ_of_t[0] = filtered_Λ
-    wms_of_t[0] = filtered_wms
+    Λ_of_t[times[1]] = filtered_Λ
+    wms_of_t[times[1]] = filtered_wms
 
     for k in 1:(length(times)-1)
         println("Step index: $k")
