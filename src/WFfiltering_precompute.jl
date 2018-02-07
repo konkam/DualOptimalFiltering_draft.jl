@@ -42,7 +42,7 @@ end
 function precompute_terms(data::Dict{Float64,Array{Int64,2}}, sα::Number; digits_after_comma_for_time_precision = 4)
 
     if (data |> keys |> collect |> sort |> diff |> x -> truncate_float.(x,14) |> unique |> length > 1)
-        error("Think twice about precomputing all terms, as the time intervals are not equal")
+        error("Think twice about precomputing all terms, as the time intervals are not equal") 
     end
 
     println("Precomputing 3 times")
