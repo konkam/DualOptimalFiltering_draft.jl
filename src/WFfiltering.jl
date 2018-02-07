@@ -188,6 +188,9 @@ function filter_WF_mem2(α, data)
         println("Step index: $k")
         println("Number of components: $(length(filtered_Λ))")
         filtered_Λ, filtered_wms = get_next_filtering_distribution_mem2(filtered_Λ, filtered_wms, times[k], times[k+1], α, sα, data[times[k+1]])
+        mask = filtered_wms .!= 0.
+        filtered_Λ = filtered_Λ[mask]
+        filtered_wms = filtered_wms[mask]
         Λ_of_t[times[k+1]] = filtered_Λ
         wms_of_t[times[k+1]] = filtered_wms
     end

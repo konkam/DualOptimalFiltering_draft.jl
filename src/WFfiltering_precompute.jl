@@ -42,7 +42,7 @@ end
 function precompute_terms(data::Dict{Float64,Array{Int64,2}}, sα::Number; digits_after_comma_for_time_precision = 4)
 
     if (data |> keys |> collect |> sort |> diff |> x -> truncate_float.(x,14) |> unique |> length > 1)
-        error("Think twice about precomputing all terms, as the time intervals are not equal") 
+        error("Think twice about precomputing all terms, as the time intervals are not equal")
     end
 
     println("Precomputing 3 times")
@@ -127,6 +127,9 @@ function filter_WF_precomputed(α, data, log_ν_dict::Dict{Tuple{Int64, Int64}, 
         println("Step index: $k")
         println("Number of components: $(length(filtered_Λ))")
         filtered_Λ, filtered_wms = get_next_filtering_distribution_precomputed(filtered_Λ, filtered_wms, times[k], times[k+1], α, sα, data[times[k+1]], log_ν_dict, log_Cmmi_dict, precomputed_log_binomial_coefficients)
+        mask = filtered_wms .!= 0.
+        filtered_Λ = filtered_Λ[mask]
+        filtered_wms = filtered_wms[mask]
         Λ_of_t[times[k+1]] = filtered_Λ
         wms_of_t[times[k+1]] = filtered_wms
     end

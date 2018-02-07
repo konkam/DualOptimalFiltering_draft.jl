@@ -31,7 +31,7 @@ end;
 @test size(rand(Dirichlet(4,0.3)) |> z-> DualOptimalFiltering.wright_fisher_PD1(z, 1.5, 50, 4)[:,2:end]*10 |> x -> round.(x) |> x -> Int64.(x) ) == (4,4)
 
 
-@testset "CIR filtering tests" begin
+@testset "WF filtering tests" begin
     srand(4)
     wfchain = rand(Dirichlet(4,0.3)) |> z-> DualOptimalFiltering.wright_fisher_PD1(z, 1.5, 50, 3)[:,2:end]*10 |> x -> round.(x) |> x -> Int64.(x)
     data = Dict(zip(linspace(0, 5, size(wfchain,2)), [wfchain[:,t:t]' for t in 1:size(wfchain,2)]))
