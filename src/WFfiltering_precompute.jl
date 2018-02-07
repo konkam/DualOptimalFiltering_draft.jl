@@ -90,7 +90,9 @@ function predict_WF_params_precomputed(wms::Array{Ty,1}, sα::Ty, Λ::Array{Arra
         res = merge(res, WF_prediction_for_one_m_precomputed(Λ[k], sα, t, log_ν_dict, log_Cmmi_dict, precomputed_log_binomial_coefficients; wm = wms[k]))
     end
 
-    return keys(res) |> collect, values(res) |> collect
+    ks = keys(res) |> collect
+
+    return ks, [res[k] for k in ks]
 
 end
 
