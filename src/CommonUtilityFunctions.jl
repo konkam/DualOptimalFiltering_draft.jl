@@ -3,6 +3,11 @@ function normalise(x)
     return x/sum(x)
 end
 
+function get_quantiles_from_mass(mass)
+    qinf = 0.5*(1-mass)
+    return (qinf, 1-qinf)
+end
+
 function log_binomial_safe_but_slow(n::Int64, k::Int64)
     assert(n>=0)
     assert(k>=0)
