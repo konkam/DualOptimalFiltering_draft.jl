@@ -131,6 +131,8 @@ function filter_CIR(δ, γ, σ, λ, data)
     θ_of_t[0] = filtered_θ
 
     for k in 1:(length(times)-1)
+        println("Step index: $k")
+        println("Number of components: $(length(filtered_Λ))")
         filtered_θ, filtered_Λ, filtered_wms = get_next_filtering_distribution(filtered_Λ, filtered_wms, filtered_θ, times[k], times[k+1], δ, γ, σ, λ, data[times[k+1]])
         Λ_of_t[times[k+1]] = filtered_Λ
         wms_of_t[times[k+1]] = filtered_wms
