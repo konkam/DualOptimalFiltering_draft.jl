@@ -46,12 +46,12 @@ function Cmmi_arb(sm::Int64, si::Int64, t::Number, sα::Number)
     return sgn * sum( exp(-λm_arb(sm-k, sα)*t) / denominator_Cmmi_arb(si, k, sm, sα) for k in 0:si)
 end
 
-function precompute_Cmmi_arb(data::Dict{Float64,Array{Int64,2}}, sα::Number; digits_after_comma_for_time_precision = 4)
+function precompute_Cmmi_arb(data::Dict{Float64,Array{Int64,2}}, sα::Number; digits_after_comma_for_time_precision = 4, override = false)
     smmax = values(data) |> sum |> sum
 #     𝛿ts = keys(data) |> collect |> sort |> diff
-    𝛿ts = keys(data) |> collect |> sort |> diff |> x -> DualOptimalFiltering.truncate_float.(x, 4) |> unique
+    𝛿ts = keys(data) |> collect |> sort |> diff |> x -> truncate_float.(x, 4) |> unique
 
-    if(length(𝛿ts)>1)
+    if !override&&(length(𝛿ts)>1)
         error("the time intervals are not constant, it may not be optimal to pre-compute all the Cmmi")
     end
     Cmmi_mem_dict = Dict{Tuple{Int64,Int64}, Nemo.arb}()
@@ -74,17 +74,18 @@ function precompute_binomial_coefficients_arb(data::Dict{Float64,Array{Int64,2}}
     return binomial_coeff_dict
 end
 
-function precompute_terms_arb(data::Dict{Float64,Array{Int64,2}}, sα::Number; digits_after_comma_for_time_precision = 4)
+function precompute_terms_arb(data::Dict{Float64,Array{Int64,2}}, sα::Number; digits_after_comma_for_time_precision = 4, override = false)
 
-    if (data |> keys |> collect |> sort |> diff |> x -> DualOptimalFiltering.truncate_float.(x,14) |> unique |> length > 1)
-        error("Think twice about precomputing all terms, as the time intervals are not equal")
+    if !override&&(data |> keys |> collect |> sort |> diff |> x -> truncate_float.(x,digits_after_comma_for_time_precision) |> unique |> length > 1)
+        println(data |> keys |> collect |> sort |> diff |> x -> truncate_float.(x,digits_after_comma_for_time_precision) |> unique)
+        error("Think twice about precomputing all terms, as the time intervals are not equal. You can go ahead using the option 'override = true.'")
     end
 
     println("Precomputing 3 times")
     @printf "%e" values(data) |> sum |> sum |> n -> n*(n-1)/2 |> BigFloat
     println(" terms")
 
-    Cmmi_dict = precompute_Cmmi_arb(data, sα; digits_after_comma_for_time_precision = 14)
+    Cmmi_dict = precompute_Cmmi_arb(data, sα; digits_after_comma_for_time_precision = digits_after_comma_for_time_precision, override = override)
     precomputed_binomial_coefficients = precompute_binomial_coefficients_arb(data)
     ν_dict = precompute_first_term_arb(data, sα)
 

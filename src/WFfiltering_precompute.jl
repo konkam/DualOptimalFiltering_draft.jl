@@ -11,12 +11,12 @@ function precompute_log_first_term(data::Dict{Float64,Array{Int64,2}}, sα::Numb
     return log_ν_dict
 end
 
-function precompute_log_Cmmi(data::Dict{Float64,Array{Int64,2}}, sα::Number; digits_after_comma_for_time_precision = 4)
+function precompute_log_Cmmi(data::Dict{Float64,Array{Int64,2}}, sα::Number; digits_after_comma_for_time_precision = 4, override = false)
     smmax = values(data) |> sum |> sum
 #     𝛿ts = keys(data) |> collect |> sort |> diff
     𝛿ts = keys(data) |> collect |> sort |> diff |> x -> truncate_float.(x, 4) |> unique
 
-    if(length(𝛿ts)>1)
+    if !override&&(length(𝛿ts)>1)
         error("the time intervals are not constant, it may not be optimal to pre-compute all the Cmmi")
     end
     log_Cmmi_mem_dict = Dict{Tuple{Int64,Int64}, Float64}()
@@ -39,17 +39,18 @@ function precompute_log_binomial_coefficients(data::Dict{Float64,Array{Int64,2}}
     return log_binomial_coeff_dict
 end
 
-function precompute_terms(data::Dict{Float64,Array{Int64,2}}, sα::Number; digits_after_comma_for_time_precision = 4)
+function precompute_terms(data::Dict{Float64,Array{Int64,2}}, sα::Number; digits_after_comma_for_time_precision = 4, override = false)
 
-    if (data |> keys |> collect |> sort |> diff |> x -> truncate_float.(x,14) |> unique |> length > 1)
-        error("Think twice about precomputing all terms, as the time intervals are not equal")
+    if !override&&(data |> keys |> collect |> sort |> diff |> x -> truncate_float.(x,digits_after_comma_for_time_precision) |> unique |> length > 1)
+        println(data |> keys |> collect |> sort |> diff |> x -> truncate_float.(x,digits_after_comma_for_time_precision) |> unique)
+        error("Think twice about precomputing all terms, as the time intervals are not equal. You can go ahead using the option 'override = true.'")
     end
 
     println("Precomputing 3 times")
     @printf "%e" values(data) |> sum |> sum |> n -> n*(n-1)/2 |> BigFloat
     println(" terms")
 
-    log_Cmmi_dict = precompute_log_Cmmi(data, sα; digits_after_comma_for_time_precision = 14)
+    log_Cmmi_dict = precompute_log_Cmmi(data, sα; digits_after_comma_for_time_precision = digits_after_comma_for_time_precision, override = override)
     precomputed_log_binomial_coefficients = precompute_log_binomial_coefficients(data)
     log_ν_dict = precompute_log_first_term(data, sα)
 
