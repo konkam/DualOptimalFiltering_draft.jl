@@ -6,7 +6,6 @@ function keep_last_k(x, k)
     end
 end
 
-
 function keep_above_threshold(Λ_of_t, wms_of_t, ε)
     Λ_of_t_kept = [Λ_of_t[i] for i in 1:length(Λ_of_t) if wms_of_t[i] >= ε]
     wms_of_t_kept = [wms_of_t[i] for i in 1:length(Λ_of_t) if wms_of_t[i] >= ε]
@@ -22,7 +21,8 @@ function filter_WF_precomputed_keep_fixed_number(α, data, log_ν_dict::Dict{Tup
     # println("filter_WF_mem2")
 
     function keep_fixed_number(Λ_of_t, wms_of_t)
-        keep_fixed_number_of_weights(Λ_of_t, wms_of_t, fixed_number)
+        Λ_of_t_kept, wms_of_t_kept = keep_fixed_number_of_weights(Λ_of_t, wms_of_t, fixed_number)
+        return Λ_of_t_kept, normalise(wms_of_t_kept)
     end
 
     filter_WF_precomputed_pruning(α, data, log_ν_dict, log_Cmmi_dict, precomputed_log_binomial_coefficients, keep_fixed_number)
