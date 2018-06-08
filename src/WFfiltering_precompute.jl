@@ -108,7 +108,7 @@ function get_next_filtering_distribution_precomputed(current_Λ, current_wms, cu
     return filtered_Λ, filtered_wms
 end
 
-function filter_WF_precomputed(α, data, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, precomputed_log_binomial_coefficients::Dict{Tuple{Int64, Int64}, Float64})
+function filter_WF_precomputed(α, data, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, precomputed_log_binomial_coefficients::Dict{Tuple{Int64, Int64}, Float64}; silence = false)
     # println("filter_WF_mem2")
 
     @assert length(α) == length(data[collect(keys(data))[1]])
@@ -125,8 +125,10 @@ function filter_WF_precomputed(α, data, log_ν_dict::Dict{Tuple{Int64, Int64}, 
     wms_of_t[times[1]] = filtered_wms
 
     for k in 1:(length(times)-1)
-        println("Step index: $k")
-        println("Number of components: $(length(filtered_Λ))")
+        if (!silence)
+            println("Step index: $k")
+            println("Number of components: $(length(filtered_Λ))")
+        end
         filtered_Λ, filtered_wms = get_next_filtering_distribution_precomputed(filtered_Λ, filtered_wms, times[k], times[k+1], α, sα, data[times[k+1]], log_ν_dict, log_Cmmi_dict, precomputed_log_binomial_coefficients)
         mask = filtered_wms .!= 0.
         filtered_Λ = filtered_Λ[mask]
@@ -142,9 +144,80 @@ end
 function get_log_dict(dict)
     k_dict = keys(dict)
     log_dict = Dict(zip(k_dict, Float64.(log.([DualOptimalFiltering.RR(dict[k]) for k in k_dict]) )))
+    if any(isnan.(log_dict |> values |> collect))
+        error("Log transformation of the dict returned at least one NaN, please check the precision of the values of the dict")
+    else
+        return log_dict
+    end
 end
 
 function precompute_log_terms_arb(data::Dict{Float64,Array{Int64,2}}, sα::Number; digits_after_comma_for_time_precision = 4, override = false)
     ν_dict, Cmmi_dict, precomputed_binomial_coefficients = DualOptimalFiltering.precompute_terms_arb(data, sα; digits_after_comma_for_time_precision = digits_after_comma_for_time_precision, override = override)
     return get_log_dict(ν_dict), get_log_dict(Cmmi_dict), get_log_dict(precomputed_binomial_coefficients)
 end
+
+function get_predictive_mixture_at_time(t, Λ_of_t, wms_of_t, sα, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, precomputed_log_binomial_coefficients::Dict{Tuple{Int64, Int64}, Float64})
+    observation_times = Λ_of_t |> keys |> collect |> sort
+    closest_observation_time = maximum(observation_times[observation_times.<t])
+    return predict_WF_params_precomputed(wms_of_t[closest_observation_time], sα, Λ_of_t[closest_observation_time], t-closest_observation_time, log_ν_dict, log_Cmmi_dict, precomputed_log_binomial_coefficients)
+end
+
+
+
+#
+#     In python hash(i)=i so it is very cheap but avoids collisions only for the case you have specified. In Julia hashing is more involved
+#
+# You can easily use hash(i)=i in Julia as well by defining a wrapper type for the keys, and when I do so I find that performance in the original benchmark is increased by almost a factor of 5, which makes it almost 3x faster than Python for me (in Julia 0.6):
+#
+# julia> struct FastHashInt{T<:Integer}; i::T; end
+#
+# julia> Base.:(==)(x::FastHashInt, y::FastHashInt) = x.i == y.i
+#        Base.hash(x::FastHashInt, h::UInt) = xor(UInt(x.i), h)
+#
+# julia> function dict_perf()
+#            n = 10^7
+#            x = Dict{Int,Int}()
+#            sizehint!(x, n)
+#            for i = 1:n
+#                x[i] = i
+#            end
+#            return x
+#        end
+# dict_perf (generic function with 1 method)
+#
+# julia> @time dict_perf(); @time dict_perf(); @time dict_perf();
+#   1.754449 seconds (1.48 k allocations: 272.081 MiB, 4.54% gc time)
+#   1.756465 seconds (11 allocations: 272.001 MiB, 4.38% gc time)
+#   1.715037 seconds (11 allocations: 272.001 MiB, 1.10% gc time)
+#
+# julia> function dict_perf2()
+#            n = 10^7
+#            x = Dict{FastHashInt{Int},Int}()
+#            sizehint!(x, n)
+#            for i = 1:n
+#                x[FastHashInt(i)] = i
+#            end
+#            return x
+#        end
+# dict_perf2 (generic function with 1 method)
+#
+# julia> @time dict_perf2(); @time dict_perf2(); @time dict_perf2();
+#   0.376183 seconds (1.37 k allocations: 272.073 MiB, 5.45% gc time)
+#   0.355044 seconds (11 allocations: 272.001 MiB, 3.26% gc time)
+#   0.350325 seconds (11 allocations: 272.001 MiB, 2.91% gc time)
+#
+# The Python 2 version of this takes 1 second on my machine:
+#
+# In [1]: def dict_performance():
+#     dic = dict()
+#     for i in xrange(10000000):
+#         dic[i] = i
+#
+# In [2]: %time dict_performance();
+# CPU times: user 873 ms, sys: 188 ms, total: 1.06 s
+# Wall time: 1.06 s
+#
+# (1.13 seconds in Python 3.) Update: In Julia 0.7, I get an additional factor of 2 speedup (0.18sec for dict_perf2).
+#
+# A moral of this story is that in cases where dictionary performance is critical, you might want a custom hashing function optimized for your use-case. The good news is that this is possible in pure Julia code.
+# source: https://discourse.julialang.org/t/poor-time-performance-on-dict/9656/13

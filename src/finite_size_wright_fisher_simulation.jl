@@ -186,7 +186,7 @@ function wright_fisher_PD1(z_init::Array{Float64,1}, θ::Float64, N::Int64, Nste
     wright_fisher_PD1_warmup(z_init::Array{Float64,1}, θ::Float64, N::Int64, Nsteps::Int64, warmup::Int64)
   else
     if warmup==0
-      start = z_init
+      start::Array{Float64,1} = z_init
     else
       K = length(z_init)
       start = L_steps_forward_PD1(z_init::Array{Float64,1}, θ::Float64, K::Int64, N::Int64, warmup*thin::Int64)

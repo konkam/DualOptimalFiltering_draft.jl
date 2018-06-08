@@ -145,5 +145,12 @@ end;
     Λ_of_t, wms_of_t = DualOptimalFiltering.filter_WF_precomputed_keep_fixed_number(α, data, log_ν_dict_arb, log_Cmmi_dict_arb, precomputed_log_binomial_coefficients_arb, 30)
     @test length(keys(Λ_of_t)) == 3
     @test length(keys(wms_of_t)) == 3
-    @test_throws AssertionError filter_WF(ones(2), data)
+
+    Λ_of_t, wms_of_t = DualOptimalFiltering.filter_WF_precomputed_keep_above_threshold(α, data, log_ν_dict_arb, log_Cmmi_dict_arb, precomputed_log_binomial_coefficients_arb, 0.0001)
+    @test length(keys(Λ_of_t)) == 3
+    @test length(keys(wms_of_t)) == 3
+
+    Λ_of_t, wms_of_t = DualOptimalFiltering.filter_WF_precomputed_keep_fixed_fraction(α, data, log_ν_dict_arb, log_Cmmi_dict_arb, precomputed_log_binomial_coefficients_arb, .99)
+    @test length(keys(Λ_of_t)) == 3
+    @test length(keys(wms_of_t)) == 3
 end;

@@ -33,3 +33,25 @@ end;
     [@test isreal(sum(k)) for k in wms_of_t |> values]
     [@test isreal(k) for k in θ_of_t |> values]
 end;
+
+@testset "CIR approximate filtering tests" begin
+    srand(4)
+
+    X = DualOptimalFiltering.generate_CIR_trajectory(linspace(0,2,20), 3, 3., 0.5, 1);
+    Y = map(λ -> rand(Poisson(λ),10), X);
+    data = Dict(zip(linspace(0,2,20), Y))
+
+
+    Λ_of_t, wms_of_t, θ_of_t = DualOptimalFiltering.filter_CIR_keep_fixed_number(3., 0.5, 1.,1., data, 10);
+
+    @test length(keys(Λ_of_t)) == 20
+    @test length(keys(wms_of_t)) == 20
+
+    Λ_of_t, wms_of_t = DualOptimalFiltering.filter_CIR_keep_above_threshold(3., 0.5, 1.,1., data, 0.0001)
+    @test length(keys(Λ_of_t)) == 20
+    @test length(keys(wms_of_t)) == 20
+
+    Λ_of_t, wms_of_t = DualOptimalFiltering.filter_CIR_fixed_fraction(3., 0.5, 1.,1., data, .99)
+    @test length(keys(Λ_of_t)) == 20
+    @test length(keys(wms_of_t)) == 20
+end;

@@ -117,7 +117,7 @@ function filter_CIR_debug(δ, γ, σ, λ, data)
 
 end
 
-function filter_CIR(δ, γ, σ, λ, data)
+function filter_CIR(δ, γ, σ, λ, data; silence = false)
 
     times = keys(data) |> collect |> sort
     Λ_of_t = Dict()
@@ -131,8 +131,10 @@ function filter_CIR(δ, γ, σ, λ, data)
     θ_of_t[0] = filtered_θ
 
     for k in 1:(length(times)-1)
-        println("Step index: $k")
-        println("Number of components: $(length(filtered_Λ))")
+        if (!silence)
+            println("Step index: $k")
+            println("Number of components: $(length(filtered_Λ))")
+        end
         filtered_θ, filtered_Λ, filtered_wms = get_next_filtering_distribution(filtered_Λ, filtered_wms, filtered_θ, times[k], times[k+1], δ, γ, σ, λ, data[times[k+1]])
         Λ_of_t[times[k+1]] = filtered_Λ
         wms_of_t[times[k+1]] = filtered_wms
@@ -161,4 +163,10 @@ end
 function generate_CIR_trajectory(times, x0, δ, γ, σ)
     Dts = diff(times)
     return rec_transition_CIR(Dts, [x0], δ, γ, σ)
+end
+
+function get_predictive_mixture_CIR_at_time(t, Λ_of_t, wms_of_t, δ::Ty, θ_of_t, γ::Ty, σ::Ty)  where Ty<:Number
+    observation_times = Λ_of_t |> keys |> collect |> sort
+    closest_observation_time = maximum(observation_times[observation_times.<t])
+    return predict_CIR_params(wms_of_t[closest_observation_time], δ, θ_of_t[closest_observation_time], γ, σ, Λ_of_t[closest_observation_time], t-closest_observation_time)
 end

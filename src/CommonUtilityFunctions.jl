@@ -1,3 +1,9 @@
+using DataFrames
+
+function bind_rows(dflist)
+    vcat(dflist...)
+end
+
 "Normalises a vector"
 function normalise(x)
     return x/sum(x)
@@ -63,4 +69,21 @@ end
 
 function truncate_float(x, digits_after_comma)
     floor(x*10^digits_after_comma)/10^digits_after_comma
+end
+
+function keep_last_k(x, k)
+    if length(x) <= k
+        return x
+    else
+        return x[(end-k+1):end]
+    end
+end
+
+function flat2(arr::Array{Array{T,1},1}) where T<:Number
+    rst = T[]
+    grep(v) = for x in v
+        if isa(x, Array) grep(x) else push!(rst, x) end
+    end
+    grep(arr)
+    rst
 end

@@ -1,7 +1,7 @@
 using Nemo
 
 ZZ = FlintZZ
-nbits = 256
+nbits = 256*4 # precision needed to be augmented because with a time step of 0.004, gave 0
 RR = RealField(nbits)
 gamma_arb(x) = gamma(RR(x))
 
