@@ -13,7 +13,7 @@ function logμπh(m::UnitRange{Int64}, θ, α, y)
     return logμπh_inside(m, θ, α, y)
 end
 
-μπh(m, θ, α, y) = exp(logμπh(m, θ, α, y))
+μπh(m, θ, α, y) = exp.(logμπh(m, θ, α, y))
 
 logμπh_param_δγ(m, θ, δ, y) = logμπh(m, θ, δ/2, y)
 logμmθ_param_δγ(m, θ, δ, y) = logμπh(m, θ, δ/2, y)
@@ -59,6 +59,12 @@ end
 
 T_CIR(y, θ) = θ + length(y)
 
+function next_wms_from_wms_prime(wms_prime, Λ_prime, y, θ_prime, α)#update
+    #Make sure we deal correctly with weights equal to 0
+    #Probably harmonise what can be improved in the filtering algorithm
+    unnormalised_wms = wms_prime .* DualOptimalFiltering.μπh(Λ_prime, θ_prime, α, y)
+    return unnormalised_wms |> DualOptimalFiltering.normalise
+end
 
 function next_log_wms_from_log_wms_prime(log_wms_prime, Λ_prime, y, θ_prime, α)#update
     #Make sure we deal correctly with weights equal to 0
@@ -135,6 +141,7 @@ end
 
 # function next_log_wms_prime_from_log_wms4(log_wms, Λ, Δt, θ, γ, σ)
 function next_log_wms_prime_from_log_wms(log_wms, Λ, Δt, θ, γ, σ)
+    #The speed gain seems like a modest 20%, but much less allocations though.
     nΛ = length(Λ)
     maxΛ = maximum(Λ)
     wms_prime = zeros(maxΛ+1)
