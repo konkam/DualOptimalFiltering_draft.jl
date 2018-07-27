@@ -11,4 +11,8 @@
     for i in 1:length(res)
         @test res[i] == [1,  2, 3, 1, 2, 3, 1, 2, 3][i]
     end
+    ff = DualOptimalFiltering.create_gamma_mixture_pdf(1.0, 0.8, 1:3, (1:3)/sum(1:3))
+    @test ff(0.3) ≈ 0.07920359132797428 atol=10.0^(-10)
+    cc = DualOptimalFiltering.create_gamma_mixture_cdf(1.0, 0.8, 1:3, (1:3)/sum(1:3))
+    @test cc(0.3) ≈ 0.01541885435694441 atol=10.0^(-10)
 end;
