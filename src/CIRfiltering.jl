@@ -13,65 +13,87 @@ function compute_quantile_mixture_hpi(δ, θ, Λ, wms, q::Float64)
     return fzero(x -> f(x)-q, 0, 10^9)
 end
 
-function update_CIR_params_debug(wms::Array{Ty,1}, δ::Ty, θ::Ty, λ::Ty, Λ, y::Array{Tz,1}; debug = false) where {Ty<:Number,Tz<:Integer}
-    ny = sum(y)
-    J = length(y)
-    function lpga(m)
-#         θ^(δ/2+m) / (θ+λ)^(δ/2+m+ny) * gamma(δ/2+m+ny)/gamma(δ/2+m)/prod([factorial(yi) for yi in y])
-        lres = (δ/2+m)*log(θ) - (δ/2+m+ny)*log(θ+J*λ) + lgamma(δ/2+m+ny) - lgamma(δ/2+m) - sum([lfact(yi) for yi in y])
-        return lres
-    end
-
-    pga(m) = exp(lpga(m))
-
-    filter_ = wms .== 0
-
-    lwms_hat = log.(wms) .+ map(lpga, Λ)
-
-    wms_hat = exp.(lwms_hat)
-    wms_hat[filter_] = 0
-    wms_hat = wms_hat |> normalise
-
-    if debug&&any(isnan, wms_hat)
-        println("NAs in update step")
-        println("wms")
-        println(wms)
-        println("lpga")
-        println(map(lpga, Λ))
-        println("pga")
-        println(map(pga, Λ))
-        println("wms_hat")
-        println(wms_hat)
-    end
-
-    return θ + J*λ, Λ + ny, wms_hat
-end
+# function update_CIR_params_debug(wms::Array{Ty,1}, δ::Ty, θ::Ty, λ::Ty, Λ, y::Array{Tz,1}; debug = false) where {Ty<:Number,Tz<:Integer}
+#     ny = sum(y)
+#     J = length(y)
+#     function lpga(m)
+# #         θ^(δ/2+m) / (θ+λ)^(δ/2+m+ny) * gamma(δ/2+m+ny)/gamma(δ/2+m)/prod([factorial(yi) for yi in y])
+#         lres = (δ/2+m)*log(θ) - (δ/2+m+ny)*log(θ+J*λ) + lgamma(δ/2+m+ny) - lgamma(δ/2+m) - sum([lfact(yi) for yi in y])
+#         return lres
+#     end
+#
+#     pga(m) = exp(lpga(m))
+#
+#     filter_ = wms .== 0
+#
+#     lwms_hat = log.(wms) .+ map(lpga, Λ)
+#
+#     wms_hat = exp.(lwms_hat)
+#     wms_hat[filter_] = 0
+#     wms_hat = wms_hat |> normalise
+#
+#     if debug&&any(isnan, wms_hat)
+#         println("NAs in update step")
+#         println("wms")
+#         println(wms)
+#         println("lpga")
+#         println(map(lpga, Λ))
+#         println("pga")
+#         println(map(pga, Λ))
+#         println("wms_hat")
+#         println(wms_hat)
+#     end
+#
+#     return θ + J*λ, Λ + ny, wms_hat
+# end
 
 function update_CIR_params(wms::Array{Ty,1}, δ::Ty, θ::Ty, λ::Ty, Λ, y::Array{Tz,1}) where {Ty<:Number,Tz<:Integer}
-    update_CIR_params_debug(wms::Array{Ty,1}, δ::Ty, θ::Ty, λ::Ty, Λ, y::Array{Tz,1}; debug = false)
+    α = δ/2#Alternative parametrisation
+
+    ny = sum(y)
+    J = length(y)
+
+    return θ + J*λ, Λ + ny, next_wms_from_wms_prime(wms, Λ, y, θ, α)
 end
 
+function update_CIR_params_debug(wms::Array{Ty,1}, δ::Ty, θ::Ty, λ::Ty, Λ, y::Array{Tz,1}; debug = false) where {Ty<:Number,Tz<:Integer}
+    update_CIR_params(wms, δ, θ, λ, Λ, y)
+end
+# function update_CIR_params(wms::Array{Ty,1}, δ::Ty, θ::Ty, λ::Ty, Λ, y::Array{Tz,1}) where {Ty<:Number,Tz<:Integer}
+#     update_CIR_params_debug(wms::Array{Ty,1}, δ::Ty, θ::Ty, λ::Ty, Λ, y::Array{Tz,1}; debug = false)
+# end
+
+# function predict_CIR_params_debug(wms::Array{Ty,1}, δ::Ty, θ::Ty, γ::Ty, σ::Ty, Λ, t::Ty; debug = false) where Ty<:Number
+    # M = maximum(Λ)
+    # minm = minimum(Λ)
+    #
+    # w_dict = Dict(zip(Λ, wms))
+    # p = γ/σ^2*1/(θ*exp(2*γ*t) + γ/σ^2 - θ)
+    #
+    # function wmpm_mmi(m, mmi)
+    #     w_dict[m]*pdf(Binomial(m, p), mmi)
+    # end
+    #
+    # θ_new = p * θ * exp(2*γ*t)
+    # Λ_new = 0:M
+    # wms_new = map(mmi -> sum(Float64[wmpm_mmi(m, mmi) for m in M:-1:max(mmi,minm)]), 0:M)
+    #
+    # if debug&&any(isnan, wms_new)
+    #     println("NAs in predict step")
+    #     println(wms_new)
+    # end
+
+#     return θ_new, Λ_new, wms_new
+#
+# end
+
 function predict_CIR_params_debug(wms::Array{Ty,1}, δ::Ty, θ::Ty, γ::Ty, σ::Ty, Λ, t::Ty; debug = false) where Ty<:Number
-    M = maximum(Λ)
-    minm = minimum(Λ)
 
-    w_dict = Dict(zip(Λ, wms))
     p = γ/σ^2*1/(θ*exp(2*γ*t) + γ/σ^2 - θ)
-
-    function wmpm_mmi(m, mmi)
-        w_dict[m]*pdf(Binomial(m, p), mmi)
-    end
-
     θ_new = p * θ * exp(2*γ*t)
-    Λ_new = 0:M
-    wms_new = map(mmi -> sum(Float64[wmpm_mmi(m, mmi) for m in M:-1:max(mmi,minm)]), 0:M)
+    Λ_new = 0:maximum(Λ)
 
-    if debug&&any(isnan, wms_new)
-        println("NAs in predict step")
-        println(wms_new)
-    end
-
-    return θ_new, Λ_new, wms_new
+    return θ_new, Λ_new, next_wms_prime_from_wms(wms, Λ, t, θ, γ, σ)
 
 end
 
