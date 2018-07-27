@@ -87,3 +87,15 @@ function flat2(arr::Array{Array{T,1},1}) where T<:Number
     grep(arr)
     rst
 end
+
+function create_gamma_mixture_pdf(δ, θ, Λ, wms)
+    #use 1/θ because of the way the Gamma distribution is parameterised in Julia Distributions.jl
+    return x -> sum(wms.*Float64[pdf(Gamma(δ/2 + m, 1/θ),x) for m in Λ])
+end
+
+function create_gamma_mixture_cdf(δ, θ, Λ, wms)
+    function gamma_mixture_cdf(x::T) where T<:Real
+        return sum(wms.*Float64[cdf(Gamma(δ/2 + m, 1./θ), x) for m in Λ])
+    end
+    return gamma_mixture_cdf
+end
