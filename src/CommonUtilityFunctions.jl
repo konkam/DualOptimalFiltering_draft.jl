@@ -95,7 +95,7 @@ end
 
 function create_gamma_mixture_cdf(δ, θ, Λ, wms)
     function gamma_mixture_cdf(x::T) where T<:Real
-        return sum(wms.*Float64[cdf(Gamma(δ/2 + m, 1./θ), x) for m in Λ])
+        return sum(wms.*Float64[cdf(Gamma(δ/2 + m, 1 ./ θ), x) for m in Λ])
     end
     return gamma_mixture_cdf
 end

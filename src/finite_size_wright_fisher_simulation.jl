@@ -10,7 +10,7 @@ function perform_mutation(z, U::Array{Float64,2})
 end
 
 function perform_immigration_mutation(z::Array{Float64,1}, α::Float64, θ::Float64, K::Int64, N::Int64, r::Array{Float64,1}, p::Array{Float64,1})
-  return z + 1./N * 1./2. * ( (θ + α)/(K-1)*(1-z) - (θ + α)*z + α*p*sum(r) - α*r )
+  return z + 1 ./ N * 1 ./ 2. * ( (θ + α)/(K-1)*(1-z) - (θ + α)*z + α*p*sum(r) - α*r )
 end
 
 function perform_PD1_mutation(z::Array{Float64,1}, θ::Float64, K::Int64, N::Int64)
@@ -19,7 +19,7 @@ end
 
 # function perform_resampling(z::Array{Float64,1}, N::Int64)
 function perform_resampling(z, N::Int64)
-  return 1./N * rand(Multinomial(N,z |> collect))
+  return 1 ./ N * rand(Multinomial(N,z |> collect))
 end
 
 # convert(::Type{Bool}, x::Array{Any}) = broadcast(Bool, x)
@@ -347,7 +347,7 @@ end
 # N = 1000
 # iter = 5*10^6
 # thinplot = 100
-# rand(Dirichlet(10,0.3)) |> z -> 1./N * rand(Multinomial(N,z)) |> sum
+# rand(Dirichlet(10,0.3)) |> z -> 1 ./ N * rand(Multinomial(N,z)) |> sum
 #
 # srand(1)
 # rand(Dirichlet(K,0.3)) |> z -> wright_fisher_PD2_new_parametrisation(z, alpha, theta, N::Int64, 3)
