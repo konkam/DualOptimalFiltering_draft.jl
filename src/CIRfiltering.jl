@@ -56,6 +56,12 @@ function update_CIR_params(wms::Array{Ty,1}, δ::Ty, θ::Ty, λ::Ty, Λ, y::Arra
     return θ + J*λ, Λ + ny, next_wms_from_wms_prime(wms, Λ, y, θ, α)
 end
 
+function update_CIR_params_logweights(logweights::Array{Ty,1}, δ::Ty, θ::Ty, λ::Ty, Λ, y::Array{Tz,1}) where {Ty<:Number,Tz<:Integer}
+    α = δ/2#Alternative parametrisation
+
+    return T_CIR(y, θ), t_CIR(y, Λ), next_log_wms_from_log_wms_prime(logweights, Λ, y, θ, α)
+end
+
 function update_CIR_params_debug(wms::Array{Ty,1}, δ::Ty, θ::Ty, λ::Ty, Λ, y::Array{Tz,1}; debug = false) where {Ty<:Number,Tz<:Integer}
     update_CIR_params(wms, δ, θ, λ, Λ, y)
 end
@@ -97,6 +103,12 @@ function predict_CIR_params_debug(wms::Array{Ty,1}, δ::Ty, θ::Ty, γ::Ty, σ::
 
 end
 
+function predict_CIR_params_logweights(logweights::Array{Ty,1}, δ::Ty, θ::Ty, γ::Ty, σ::Ty, Λ, Δt::Ty; debug = false) where Ty<:Number
+
+    return θ_prime_from_θ_CIR(θ, Δt, γ, σ), Λ_prime_1D(Λ), next_log_wms_prime_from_log_wms(logweights, Λ, Δt, θ, γ, σ)
+
+end
+
 function predict_CIR_params(wms::Array{Ty,1}, δ::Ty, θ::Ty, γ::Ty, σ::Ty, Λ, t::Ty) where Ty<:Number
     predict_CIR_params_debug(wms, δ, θ, γ, σ, Λ, t; debug = false)
 end
@@ -113,6 +125,13 @@ function get_next_filtering_distribution(current_Λ, current_wms, current_θ, cu
     filtered_θ, filtered_Λ, filtered_wms = update_CIR_params(predicted_wms, δ, predicted_θ, λ, predicted_Λ, next_y)
 
     return filtered_θ, filtered_Λ, filtered_wms
+end
+
+function get_next_filtering_distribution_logweights(current_Λ, current_logweights, current_θ, current_time, next_time, δ, γ, σ, λ, next_y)
+    predicted_θ, predicted_Λ, predicted_logweights = predict_CIR_params_logweights(current_logweights, δ, current_θ, γ, σ, current_Λ, next_time-current_time)
+    filtered_θ, filtered_Λ, filtered_logweights = update_CIR_params_logweights(predicted_logweights, δ, predicted_θ, λ, predicted_Λ, next_y)
+
+    return filtered_θ, filtered_Λ, filtered_logweights
 end
 
 function filter_CIR_debug(δ, γ, σ, λ, data)
@@ -160,6 +179,34 @@ function filter_CIR(δ, γ, σ, λ, data; silence = false)
         filtered_θ, filtered_Λ, filtered_wms = get_next_filtering_distribution(filtered_Λ, filtered_wms, filtered_θ, times[k], times[k+1], δ, γ, σ, λ, data[times[k+1]])
         Λ_of_t[times[k+1]] = filtered_Λ
         wms_of_t[times[k+1]] = filtered_wms
+        θ_of_t[times[k+1]] = filtered_θ
+    end
+
+    return Λ_of_t, wms_of_t, θ_of_t
+
+end
+
+function filter_CIR_logweights(δ, γ, σ, λ, data; silence = false)
+
+    times = keys(data) |> collect |> sort
+    Λ_of_t = Dict()
+    wms_of_t = Dict()
+    θ_of_t = Dict()
+
+    filtered_θ, filtered_Λ, filtered_logweights = update_CIR_params_logweights([0.], δ, γ/σ^2, λ, [0], data[0])
+
+    Λ_of_t[0] = filtered_Λ
+    wms_of_t[0] = exp.(filtered_logweights) # = 1.
+    θ_of_t[0] = filtered_θ
+
+    for k in 1:(length(times)-1)
+        if (!silence)
+            println("Step index: $k")
+            println("Number of components: $(length(filtered_Λ))")
+        end
+        filtered_θ, filtered_Λ, filtered_logweights = get_next_filtering_distribution_logweights(filtered_Λ, filtered_logweights, filtered_θ, times[k], times[k+1], δ, γ, σ, λ, data[times[k+1]])
+        Λ_of_t[times[k+1]] = filtered_Λ
+        wms_of_t[times[k+1]] = exp.(filtered_logweights)
         θ_of_t[times[k+1]] = filtered_θ
     end
 
