@@ -28,7 +28,7 @@ function compute_U(Θ::Float64, α::Float64, N::Int64, K::Int64)
   U = fill((Θ + α)/(2*N*(K-1)), K, K)
 
   for k in 1:K
-    U[k,k] = 1.-(Θ + α)/(2.*N)
+    U[k,k] = 1 .- (Θ + α)/(2 .* N)
   end
 
   return U
@@ -38,7 +38,7 @@ function compute_U_simple(Θ::Float64, α::Float64, N::Int64, K::Int64)
   U = fill(Θ/(2*N*(K-1)), K, K)
 
   for k in 1:K
-    U[k,k] = 1.-Θ/(2.*N)
+    U[k,k] = 1 .- Θ/(2 .* N)
   end
 
   return U
