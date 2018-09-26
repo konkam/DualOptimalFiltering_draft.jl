@@ -41,7 +41,7 @@ function t_CIR(y::Array{T, 1}, m::UnitRange{Int64}) where T<:Number
     return t_CIR_inside(y::Array{T, 1}, m)
 end
 
-function Λ_prime_1D(Λ::Array{T,1}) where T<:Integer
+function Λ_prime_1D(Λ::Union{Array{T,1}, UnitRange{Int64}}) where T<:Integer
     return 0:maximum(Λ)
 end
 

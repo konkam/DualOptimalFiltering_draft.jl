@@ -2,7 +2,7 @@
 
 @test DualOptimalFiltering.compute_quantile_mixture_hpi(1.5, 0.4, [3,4], [0.3, 0.7], 0.05) |> isreal
 
-@test DualOptimalFiltering.compute_quantile_mixture_hpi(1., 1., [0], [1], 0.025) ≈ quantile(Gamma(1./2 + 0, 1/1.),0.025) atol=10.0^(-5)
+@test DualOptimalFiltering.compute_quantile_mixture_hpi(1., 1., [0], [1], 0.025) ≈ quantile(Gamma(1 ./ 2 + 0, 1/1.),0.025) atol=10.0^(-5)
 
 # DualOptimalFiltering.update_CIR_params([0.5, 0.5], 1., θ, 1., [0, 1], [5]) |> println
 
@@ -44,7 +44,7 @@ end;
     [@test isreal(k) for k in θ_of_t |> values]
     Λ_of_t_logweights, logweights_of_t, θ_of_t_logweights = DualOptimalFiltering.filter_CIR_logweights(3., 0.5, 1.,1.,data);
     times = logweights_of_t |> keys |> collect |> sort
-    @test maximum([maximum(Λ_of_t[t] - Λ_of_t_logweights[t]) for t in times]) == 0
+    @test maximum([maximum(collect(Λ_of_t[t]) .- collect(Λ_of_t_logweights[t])) for t in times]) == 0
     @test θ_of_t_logweights == θ_of_t
     for t in times
         for i in 1:length(logweights_of_t[t])
