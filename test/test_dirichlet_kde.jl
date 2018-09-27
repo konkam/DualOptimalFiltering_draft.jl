@@ -1,7 +1,7 @@
 @testset "test kernel function" begin
     @test DualOptimalFiltering.dirichletkernel_oneval([0.2,0.3,0.5], [0.16,  0.64,  0.2], 1.2) ≈ 2.3904148155639433 atol=10.0^(-5)
     @test DualOptimalFiltering.dirichletkernel_oneval([0.0,0.5,0.5], [0.16,  0.64,  0.2], 1.2) == 0
-    srand(1)
+    Random.seed!(1)
     X  = rand(Dirichlet(ones(4)),10)'
     w = ones(size(X, 1))
     dirichletkernel([0.2,0.3,0.4, 0.1], X, 1.2, w, size(X, 1))
@@ -13,7 +13,7 @@ end;
 
 
 @testset "test bandwidth selection functions" begin
-    srand(1)
+    Random.seed!(1)
     X  = rand(Dirichlet(ones(4)),10)'
     @test DualOptimalFiltering.midrange(X) ≈ 0.4139298224327084  atol=10.0^(-5)
     @test  DualOptimalFiltering.lcv(X, dirichletkernel, DualOptimalFiltering.midrange(X), ones(size(X, 1)), size(X, 1)) ≈ -16.896937547749225  atol=10.0^(-5)

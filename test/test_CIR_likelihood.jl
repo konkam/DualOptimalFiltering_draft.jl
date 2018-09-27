@@ -82,7 +82,7 @@ end;
 
 @testset "Testing the transition functions" begin
 
-    srand(1)
+    Random.seed!(1)
 
     δ = 3.
     γ = 2.5

@@ -1,8 +1,10 @@
+using Nemo
+
 @testset "update WF Tests" begin
-    srand(2)
-    p = rand(Dirichlet(ones(5)*1./5))
-    data = rand(Multinomial(10, p),7)'
-    tmp = DualOptimalFiltering.update_WF_params_debug([1., 0.1], ones(5)*1./5, [0*collect(1:5), collect(1:5)], data)
+    Random.seed!(2)
+    p = rand(Dirichlet(ones(5)*1 ./ 5))
+    data = rand(Multinomial(10, p),7)' |> collect
+    tmp = DualOptimalFiltering.update_WF_params_debug([1., 0.1], ones(5)*1 ./ 5, [0*collect(1:5), collect(1:5)], data)
     @test tmp[1] == [[4, 0, 17, 23, 26], [5, 2, 20, 27, 31]]
     # @test tmp[2] == [0.578617, 0.421383]
     @test tmp[2][1] ≈ 0.578617 atol=10.0^(-5)
@@ -22,7 +24,7 @@ end;
     num_m = length(Λ_test)
 
 
-    tmp = DualOptimalFiltering.predict_WF_params_debug_mem2(rand(Dirichlet(ones(num_m)*1./num_m)), 2., Λ_test, 1.)
+    tmp = DualOptimalFiltering.predict_WF_params_debug_mem2(rand(Dirichlet(ones(num_m)*1 ./ num_m)), 2., Λ_test, 1.)
     @test sum(tmp[2]) ≈ 1.0 atol=10.0^(-5)
     # [@test tmp[3][k] ≈ [0.686096, 0.268465, 0.0420196, 0.0032884, 0.000128673, 2.01396e-6][k] atol=10.0^(-5) for k in 1:6]
 end;
@@ -32,9 +34,9 @@ end;
 
 
 @testset "WF filtering tests" begin
-    srand(4)
+    Random.seed!(4)
     wfchain = rand(Dirichlet(4,0.3)) |> z-> DualOptimalFiltering.wright_fisher_PD1(z, 1.5, 50, 3)[:,2:end]*10 |> x -> round.(x) |> x -> Int64.(x)
-    data = Dict(zip(linspace(0, 5, size(wfchain,2)), [wfchain[:,t:t]' for t in 1:size(wfchain,2)]))
+    data = Dict(zip(range(0, stop = 5, length = size(wfchain,2)), [collect(collect(wfchain[:,t:t]')) for t in 1:size(wfchain,2)]))
     Λ_of_t, wms_of_t = DualOptimalFiltering.filter_WF_mem2(ones(4), data)
     @test length(keys(Λ_of_t)) == 3
     @test length(keys(wms_of_t)) == 3
@@ -58,10 +60,10 @@ end;
     α = ones(K)
     Pop_size = 15
     Ntimes = 3
-    srand(4)
+    Random.seed!(4)
     wfchain = rand(Dirichlet(K,0.3)) |> z-> DualOptimalFiltering.wright_fisher_PD1(z, 1.5, 50, Ntimes)[:,2:end]
     wfobs = [rand(Multinomial(Pop_size, wfchain[:,k])) for k in 1:size(wfchain,2)] |> l -> hcat(l...)
-    data = Dict(zip(linspace(0, 5, size(wfobs,2)) , [wfobs[:,t:t]' for t in 1:size(wfobs,2)]))
+    data = Dict(zip(range(0, stop = 5, length = size(wfobs,2)) , [collect(wfobs[:,t:t]') for t in 1:size(wfobs,2)]))
 
     # @test typeof(DualOptimalFiltering.precompute_first_term_arb(data, 2.1)) == Dict{Tuple{Int64,Int64},Nemo.arb}
     # @test typeof(DualOptimalFiltering.precompute_Cmmi_arb(data, 2.1; digits_after_comma_for_time_precision = 4)) == Dict{Tuple{Int64,Int64},Nemo.arb}
@@ -86,7 +88,7 @@ end;
     @test typeof(tst[1]) == Array{Array{Int64,1},1}
     @test length(tst[1]) == data[0] |> vec |> x -> x + 1 |> prod
     @test typeof(tst[2]) == Array{Nemo.arb,1}
-    @test tst[2][1] |> Float64 ≈ DualOptimalFiltering.RR(2.625750848545005910749955597435596715743893777059224787555683102089318453052e-25) |> Float64
+    @test tst[2] |> maximum |> Float64 ≈ DualOptimalFiltering.RR(3.283355446254534349775154307302980723140249096519099004203325815166831910683284717001451262829839399401265574599515405165802819335492436554998704454097884778532838203319157325251376571099287891671831950981963004164219499754794414832713825647744090848712184190798413101073296264180491550058924125892571494506e-15) |> Float64
 
 
 end;
@@ -96,15 +98,15 @@ end;
     α = ones(K)
     Pop_size = 15
     Ntimes = 3
-    srand(4)
+    Random.seed!(4)
     wfchain = rand(Dirichlet(K,0.3)) |> z-> DualOptimalFiltering.wright_fisher_PD1(z, 1.5, 50, Ntimes)[:,2:end]
     wfobs = [rand(Multinomial(Pop_size, wfchain[:,k])) for k in 1:size(wfchain,2)] |> l -> hcat(l...)
-    data = Dict(zip(linspace(0, 5, size(wfobs,2)) , [wfobs[:,t:t]' for t in 1:size(wfobs,2)]))
+    data = Dict(zip(range(0, stop = 5, length = size(wfobs,2)) , [collect(wfobs[:,t:t]') for t in 1:size(wfobs,2)]))
 
     tst = DualOptimalFiltering.update_WF_params_arb([DualOptimalFiltering.RR(1.)], α, [data[0] |> vec], data[0])
     @test (tst[1][1]) == [4, 18, 8]
     @test tst[2][1] |> Float64 == 1.
-    tst = DualOptimalFiltering.update_WF_params_arb([DualOptimalFiltering.RR(.7), DualOptimalFiltering.RR(.3)], α, [data[0] |> vec, data[0] |> vec |> x -> x+2], data[0])
+    tst = DualOptimalFiltering.update_WF_params_arb([DualOptimalFiltering.RR(.7), DualOptimalFiltering.RR(.3)], α, [data[0] |> vec, data[0] |> vec |> x -> x .+ 2], data[0])
     @test sum(tst[2]) |> Float64 == 1.
 
 end;
@@ -113,13 +115,13 @@ end;
     α = ones(K)
     Pop_size = 15
     Ntimes = 3
-    srand(4)
+    Random.seed!(4)
     wfchain = rand(Dirichlet(K,0.3)) |> z-> DualOptimalFiltering.wright_fisher_PD1(z, 1.5, 50, Ntimes)[:,2:end]
     wfobs = [rand(Multinomial(Pop_size, wfchain[:,k])) for k in 1:size(wfchain,2)] |> l -> hcat(l...)
-    data = Dict(zip(linspace(0, 5, size(wfobs,2)) , [wfobs[:,t:t]' for t in 1:size(wfobs,2)]))
+    data = Dict(zip(range(0, stop = 5, length = size(wfobs,2)) , [collect(wfobs[:,t:t]') for t in 1:size(wfobs,2)]))
 
     ν_dict_arb, Cmmi_dict_arb, precomputed_binomial_coefficients_arb = DualOptimalFiltering.precompute_terms_arb(data, sum(α); digits_after_comma_for_time_precision = 4)
-    tst = DualOptimalFiltering.get_next_filtering_distribution_precomputed_arb([data[0] |> vec, data[0] |> vec |> x -> x+2], [DualOptimalFiltering.RR(.7), DualOptimalFiltering.RR(.3)], 0.3, 0.7, α, sum(α), data[0], ν_dict_arb, Cmmi_dict_arb, precomputed_binomial_coefficients_arb)
+    tst = DualOptimalFiltering.get_next_filtering_distribution_precomputed_arb([data[0] |> vec, data[0] |> vec |> x -> x .+ 2], [DualOptimalFiltering.RR(.7), DualOptimalFiltering.RR(.3)], 0.3, 0.7, α, sum(α), data[0], ν_dict_arb, Cmmi_dict_arb, precomputed_binomial_coefficients_arb)
     # println(tst[1])
     @test length(tst[1]) == 420
     @test sum(tst[2]) |> Float64 == 1.
@@ -136,10 +138,10 @@ end;
 end;
 
 @testset "WF approximate filtering tests" begin
-    srand(4)
+    Random.seed!(4)
     α = ones(4)
     wfchain = rand(Dirichlet(4,0.3)) |> z-> DualOptimalFiltering.wright_fisher_PD1(z, 1.5, 50, 3)[:,2:end]*10 |> x -> round.(x) |> x -> Int64.(x)
-    data = Dict(zip(linspace(0, 5, size(wfchain,2)), [wfchain[:,t:t]' for t in 1:size(wfchain,2)]))
+    data = Dict(zip(range(0, stop = 5, length = size(wfchain,2)), [collect(wfchain[:,t:t]') for t in 1:size(wfchain,2)]))
     log_ν_dict_arb, log_Cmmi_dict_arb, precomputed_log_binomial_coefficients_arb = DualOptimalFiltering.precompute_log_terms_arb(data, sum(α); digits_after_comma_for_time_precision = 4)
 
     Λ_of_t, wms_of_t = DualOptimalFiltering.filter_WF_precomputed_keep_fixed_number(α, data, log_ν_dict_arb, log_Cmmi_dict_arb, precomputed_log_binomial_coefficients_arb, 30)

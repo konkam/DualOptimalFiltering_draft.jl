@@ -1,6 +1,7 @@
 module DualOptimalFiltering
 
 # package code goes here
+using Printf
 
 export generate_CIR_trajectory, filter_CIR, filter_WF, bind_rows, Hellinger_dist_1D, dirichletkernel
 

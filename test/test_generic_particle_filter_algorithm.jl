@@ -26,7 +26,7 @@ end;
 
 @testset "test particle filter algorithm for CIR process" begin
 
-    srand(0)
+    Random.seed!(0)
 
     Δt = 0.1
     δ = 3.
@@ -49,26 +49,38 @@ end;
     logGt = DualOptimalFiltering.create_log_potential_functions_CIR(data)
     RS(W) = rand(Categorical(W), length(W))
 
-    srand(0)
+    Random.seed!(0)
+    @test Mt[0.1](3) ≈ 8.418659447049441 atol=10.0^(-7)
+    @test Mt[0.1](3.1) ≈ 2.1900629888259893 atol=10.0^(-7)
+    @test Mt[0.2](3.1) ≈ 2.6844105017153863 atol=10.0^(-7)
+    @test Mt[time_grid[3]](3.1) ≈ 1.3897782586244247 atol=10.0^(-7)
+
+    @test Gt[0.1](3) ≈ 2.2129511996787992e-8 atol=10.0^(-7)
+    @test Gt[0.1](3.1) ≈ 3.7273708205666865e-8 atol=10.0^(-7)
+    @test Gt[0.2](3.1) ≈ 0.03877426525100398 atol=10.0^(-7)
+    @test Gt[time_grid[3]](3.1) ≈ 0.03877426525100398 atol=10.0^(-7)
+
+    Random.seed!(0)
+    # srand(0)
     pf = DualOptimalFiltering.generic_particle_filtering(Mt, Gt, Nparts, RS)
 
     @test typeof(pf) == Dict{String,Array{Float64,2}}
     marginal_lik_factors = DualOptimalFiltering.marginal_likelihood_factors(pf)
     # println(marginal_lik_factors)
-    res = [0.00506393, 0.000919112, 0.0075905, 0.00210651]
+    res = [ 0.005063925135653128, 0.0013145849369714938, 0.014640244207811792, 0.0017270473953601316]
     for k in 1:Nsteps
         @test marginal_lik_factors[k] ≈ res[k] atol=10.0^(-7)
     end
     @test DualOptimalFiltering.marginal_likelihood(pf, DualOptimalFiltering.marginal_likelihood_factors)  ≈ prod(res) atol=10.0^(-7)
     @test length(DualOptimalFiltering.sample_from_filtering_distributions(pf, 10, 2)) == 10
 
-    srand(0)
+    Random.seed!(0)
     pf_logweights = DualOptimalFiltering.generic_particle_filtering_logweights(Mt, logGt, Nparts, RS)
 
     @test typeof(pf_logweights) == Dict{String,Array{Float64,2}}
     marginal_loglik_factors = DualOptimalFiltering.marginal_loglikelihood_factors(pf_logweights)
     # println(marginal_loglik_factors)
-    res = [-5.28561, -6.9921, -4.88086, -6.16272]
+    res = [ -5.285613377888339, -6.634234300460378, -4.223981089726635, -6.361342036441921]
     for k in 1:Nsteps
         @test marginal_loglik_factors[k] ≈ res[k] atol=5*10.0^(-5)
     end
@@ -76,23 +88,23 @@ end;
     @test length(DualOptimalFiltering.sample_from_filtering_distributions_logweights(pf_logweights, 10, 2)) == 10
     #
 
-    srand(0)
+    Random.seed!(0)
     pf_adaptive = DualOptimalFiltering.generic_particle_filtering_adaptive_resampling(Mt, Gt, Nparts, RS)
 
     marginal_lik_factors = DualOptimalFiltering.marginal_likelihood_factors_adaptive_resampling(pf_adaptive)
     # println(marginal_lik_factors)
-    res = [0.00506393, 0.000919112, 0.0075905, 0.00210651]
+    res = [0.005063925135653128, 0.0013145849369714936, 0.014640244207811792, 0.0020015945094952942]
     for k in 1:Nsteps
         @test marginal_lik_factors[k] ≈ res[k] atol=10.0^(-7)
     end
     @test DualOptimalFiltering.marginal_likelihood(pf_adaptive, DualOptimalFiltering.marginal_likelihood_factors) ≈ prod(res) atol=10.0^(-7)
     @test length(DualOptimalFiltering.sample_from_filtering_distributions(pf_adaptive, 10, 2)) == 10
 
-    srand(0)
+    Random.seed!(0)
     pf_adaptive_logweights = DualOptimalFiltering.generic_particle_filtering_adaptive_resampling_logweights(Mt, logGt, Nparts, RS)
     marginal_loglik_factors = DualOptimalFiltering.marginal_loglikelihood_factors_adaptive_resampling(pf_adaptive_logweights)
     # println(marginal_loglik_factors)
-    res = [-5.28561, -6.9921, -4.88086, -6.16272]
+    res = [ -5.285613377888339, -6.634234300460378, -4.223981089726635, -6.213811161313297]
     for k in 1:Nsteps
         @test marginal_loglik_factors[k] ≈ res[k] atol=5*10.0^(-5)
     end

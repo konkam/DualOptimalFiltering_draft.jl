@@ -19,7 +19,7 @@ function dirichletkernel(x::RealVector, xdata::RealMatrix, λ::Real, w::Vector, 
 end
 
 function midrange(x::RealMatrix)
-    mapslices(xvec -> quantile(xvec, [.25, .75]), x, 1) |> x -> x[2,:] - x[1,:] |> maximum
+    mapslices(xvec -> quantile(xvec, [.25, .75]), x, dims = 1) |> x -> x[2,:] - x[1,:] |> maximum
 #     lq, uq = quantile(x, [.25, .75])
 #     uq - lq
 end

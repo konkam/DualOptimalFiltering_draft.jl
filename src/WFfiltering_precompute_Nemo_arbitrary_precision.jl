@@ -3,7 +3,7 @@ using Nemo
 ZZ = FlintZZ
 nbits = 256*4 # precision needed to be augmented because with a time step of 0.004, gave 0
 RR = RealField(nbits)
-gamma_arb(x) = gamma(RR(x))
+gamma_arb(x) = Nemo.gamma(RR(x))
 
 function normalise_arb(x)
     return x*1 ./ sum(x)
@@ -32,7 +32,8 @@ end
 
 function denominator_Cmmi_arb(si::Int64, k::Int64, sm::Int64, sα::Number)
     #already checked that it works for k = 0 and k = si
-    tuples_to_compute = product(k, chain(0:(k-1), (k+1):si))#all the k, h pairs involved
+    # tuples_to_compute = product(k, chain(0:(k-1), (k+1):si))#all the k, h pairs involved
+    tuples_to_compute = Iterators.product(k, Iterators.flatten((0:(k-1), (k+1):si)))#all the k, h pairs involved
     return prod(λm_arb(sm-t[1], sα) - λm_arb(sm-t[2], sα) for t in tuples_to_compute)
 end
 
@@ -109,7 +110,7 @@ function pmmi_precomputed_arb(i::Array{Int64,1}, m::Array{Int64,1}, sm::Int64, s
 end
 
 function WF_prediction_for_one_m_precomputed_arb(m::Array{Int64,1}, sα::Ty, t::Ty, ν_dict_arb::Dict{Tuple{Int64, Int64}, Nemo.arb}, Cmmi_dict_arb::Dict{Tuple{Int64, Int64}, Nemo.arb}, precomputed_binomial_coefficients_arb::Dict{Tuple{Int64, Int64}, Nemo.fmpz}; wm = 1) where {Ty<:Number}
-    gm = map(x -> 0:x, m) |> vec |> x -> product(x...)
+    gm = map(x -> 0:x, m) |> vec |> x -> Iterators.product(x...)
 
     function fun_n(n)
         i = m.-n
@@ -157,10 +158,10 @@ function update_WF_params_arb(wms::Array{Nemo.arb,1}, α::Array{Ty,1}, Λ::Array
     # and the second the column (index of the dimension) (as in matrix mathematical notation)
     @assert length(wms) == size(Λ, 1)
 
-    nJ = sum(y, 2) |> vec#sum_j=1^K n_ij
-    nK = sum(y, 1) |> vec#sum_i=1^J n_ij
+    nJ = sum(y, dims = 2) |> vec#sum_j=1^K n_ij
+    nK = sum(y, dims = 1) |> vec#sum_i=1^J n_ij
     sy = sum(y)
-    J = size(y,1)
+    J = size(y, 1)
     sα = sum(α)
 
     first_term = prod(Nemo.fac.(nJ))*RR(1.)/prod(Nemo.fac.(y))

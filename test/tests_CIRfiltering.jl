@@ -30,13 +30,13 @@ end;
     [@test exp(tmp[3][k]) ≈ [0.686096, 0.268465, 0.0420196, 0.0032884, 0.000128673, 2.01396e-6][k] atol=10.0^(-5) for k in 1:6]
 end;
 
-@test length(DualOptimalFiltering.generate_CIR_trajectory(linspace(0,2,20), 3, 3., 0.5, 1)) == 20
+@test length(DualOptimalFiltering.generate_CIR_trajectory(range(0, stop = 2, length = 20), 3, 3., 0.5, 1)) == 20
 
 @testset "CIR filtering tests" begin
-    srand(0)
-    X = DualOptimalFiltering.generate_CIR_trajectory(linspace(0,2,20), 3, 3., 0.5, 1);
+    Random.seed!(0)
+    X = DualOptimalFiltering.generate_CIR_trajectory(range(0, stop = 2, length = 20), 3, 3., 0.5, 1);
     Y = map(λ -> rand(Poisson(λ),10), X);
-    data = Dict(zip(linspace(0,2,20), Y))
+    data = Dict(zip(range(0, stop = 2, length = 20), Y))
     Λ_of_t, wms_of_t, θ_of_t = DualOptimalFiltering.filter_CIR_debug(3., 0.5, 1.,1.,data);
     [@test isreal(k) for k in Λ_of_t |> keys]
     [@test isinteger(sum(k)) for k in Λ_of_t |> values]
@@ -54,11 +54,11 @@ end;
 end;
 
 @testset "CIR approximate filtering tests" begin
-    srand(4)
+    Random.seed!(4)
 
-    X = DualOptimalFiltering.generate_CIR_trajectory(linspace(0,2,20), 3, 3., 0.5, 1);
+    X = DualOptimalFiltering.generate_CIR_trajectory(range(0, stop = 2, length = 20), 3, 3., 0.5, 1);
     Y = map(λ -> rand(Poisson(λ),10), X);
-    data = Dict(zip(linspace(0,2,20), Y))
+    data = Dict(zip(range(0, stop = 2, length = 20), Y))
 
 
     Λ_of_t, wms_of_t, θ_of_t = DualOptimalFiltering.filter_CIR_keep_fixed_number(3., 0.5, 1.,1., data, 10);

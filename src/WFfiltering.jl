@@ -1,4 +1,4 @@
-using IterTools, DataStructures, Memoize
+using IterTools, DataStructures, Memoize, SpecialFunctions
 
 function update_WF_params_debug(wms::Array{Ty,1}, α::Array{Ty,1}, Λ::Array{Array{Int64,1},1}, y::Array{Int64,2}; debug = true) where Ty<:Number
     #y is a matrix of dimension J*K, with K the dimension of the process
@@ -7,14 +7,14 @@ function update_WF_params_debug(wms::Array{Ty,1}, α::Array{Ty,1}, Λ::Array{Arr
     # and the second the column (index of the dimension) (as in matrix mathematical notation)
     @assert length(wms) == size(Λ, 1)
 
-    nJ = sum(y, 2) |> vec#sum_j=1^K n_ij
-    nK = sum(y, 1) |> vec#sum_i=1^J n_ij
+    nJ = sum(y, dims = 2) |> vec#sum_j=1^K n_ij
+    nK = sum(y, dims = 1) |> vec#sum_i=1^J n_ij
     sy = sum(y)
     J = size(y,1)
     sα = sum(α)
 
 
-    first_term = sum(lfact.(nJ) - sum(lfact.(y), 2))
+    first_term = sum(lfactorial.(nJ) - sum(lfactorial.(y), dims = 2))
 
 
     function lpga(m::Array{Int64,1})
@@ -31,7 +31,7 @@ function update_WF_params_debug(wms::Array{Ty,1}, α::Array{Ty,1}, Λ::Array{Arr
     lwms_hat = log.(wms) .+ map(lpga, Λ)
 
     wms_hat = exp.(lwms_hat)
-    wms_hat[filter_] = 0
+    wms_hat[filter_] .= 0
     wms_hat = wms_hat |> normalise
 
     if debug&&any(isnan, wms_hat)
@@ -73,7 +73,7 @@ end
 
 function denominator_Cmmi(si::Int64, k::Int64, sm::Int64, sα::Number)
     #already checked that it works for k = 0 and k = si
-    tuples_to_compute = product(k, chain(0:(k-1), (k+1):si))#all the k, h pairs involved
+    tuples_to_compute = Iterators.product(k, Iterators.flatten((0:(k-1), (k+1):si)))#all the k, h pairs involved
     return prod(λm(sm-t[1], sα) - λm(sm-t[2], sα) for t in tuples_to_compute)
 end
 
@@ -90,11 +90,11 @@ end
 
 function log_denominator_Cmmi_nosign(si::Int64, k::Int64, sm::Int64, sα::Number)
     if k==0
-        return lfact(si) - si*log(2) + log_descending_fact_no0(2*sm + sα - 2, si)
+        return lfactorial(si) - si*log(2) + log_descending_fact_no0(2*sm + sα - 2, si)
     elseif k==si
-        return lfact(si) - si*log(2) + log_descending_fact_no0(2*sm + sα - si-1, si)
+        return lfactorial(si) - si*log(2) + log_descending_fact_no0(2*sm + sα - si-1, si)
     else
-        return -1.0 .* si * log(2) + lfact(k) + lfact(si-k) + log_descending_fact_no0(2*sm + sα - 2*k - 2, si-k) + log_descending_fact_no0(2*sm + sα - k - 1, k)
+        return -1.0 .* si * log(2) + lfactorial(k) + lfactorial(si-k) + log_descending_fact_no0(2*sm + sα - 2*k - 2, si-k) + log_descending_fact_no0(2*sm + sα - k - 1, k)
     end
 end
 
@@ -133,7 +133,7 @@ function logpmmi_mem2(i::Array{Int64,1}, m::Array{Int64,1}, sm::Int64, si::Int64
 end
 
 function WF_prediction_for_one_m_debug_mem2(m::Array{Int64,1}, sα::Ty, t::Ty; wm = 1, debug = true) where {Ty<:Number}
-    gm = map(x -> 0:x, m) |> vec |> x -> product(x...)
+    gm = map(x -> 0:x, m) |> vec |> x -> Iterators.product(x...)
 
     function fun_n(n)
         i = m.-n
@@ -148,7 +148,7 @@ end
 
 function predict_WF_params_debug_mem2(wms::Array{Ty,1}, sα::Ty, Λ::Array{Array{Int64,1},1}, t::Ty; debug = true) where {Ty<:Number}
 
-    res = Accumulator(Array{Int64,1}, Float64)
+    res = Accumulator{Array{Int64,1}, Float64}()
 
     for k in 1:length(Λ)
         res = merge(res, WF_prediction_for_one_m_debug_mem2(Λ[k], sα, t; wm = wms[k], debug = false))

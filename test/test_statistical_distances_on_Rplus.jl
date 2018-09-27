@@ -1,7 +1,7 @@
 using StatsBase, Distributions
 
 @testset "test high level statistical distances" begin
-    srand(0)
+    Random.seed!(0)
     smp = rand(Gamma(), 50)
     cc = DualOptimalFiltering.create_gamma_mixture_cdf(1.0, 0.8, 1:3, (1:3)/sum(1:3))
     res = DualOptimalFiltering.CvM_distance(cc, ff, 0, Inf)

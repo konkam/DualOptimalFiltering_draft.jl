@@ -7,7 +7,8 @@
     @test res[2] < 10.0^(-5)
 end;
 
-res = DualOptimalFiltering.αΛ_to_α(1:3, [[4,5,6], [1,3,2]])
+res = DualOptimalFiltering.αΛ_to_α(1:3 |> collect, [[4,5,6], [1,3,2]])
+# println(res)
 for i in 1:length(res)
     @test  res[i] ==  [5, 7, 9, 2, 5, 5][i]
 end

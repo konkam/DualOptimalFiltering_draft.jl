@@ -1,6 +1,6 @@
-using RCall
+using RCall, Pkg
 
-R"""Rcpp::sourceCpp($(joinpath(Pkg.dir("DualOptimalFiltering"), "src", "dirichlet_mixture_gsl.cpp")))
+R"""Rcpp::sourceCpp($(joinpath(dirname(pathof(DualOptimalFiltering)), "dirichlet_mixture_gsl.cpp")))
 # create_dirichlet_mixture_gsl = function(alpha, lambda, weights){
 #     lambda_vec = unlist(lambda)
 #     dirichlet_mixture = function(x){
@@ -86,7 +86,7 @@ R"compute_L2_distance_between_two_mixtures_of_Dirichlet_alpha = function (alpha_
 # end
 
 function compute_hellinger_distance_between_two_Dirichlet_mixtures_alpha(α1, weights_1, α2, weights_2, K::Int64)
-    R"""Rcpp::sourceCpp($(joinpath(Pkg.dir("DualOptimalFiltering"), "src", "dirichlet_mixture_gsl.cpp")))
+    R"""Rcpp::sourceCpp($(joinpath(dirname(pathof(DualOptimalFiltering)), "dirichlet_mixture_gsl.cpp")))
     create_dirichlet_mixture_gsl_alpha = function(alpha, weights){
         dirichlet_mixture = function(x){
             ddirichlet_mixture_gsl_arma(x, alpha, weights)
@@ -144,12 +144,15 @@ function compute_L2_distance_between_two_Dirichlet_mixtures_alpha(α1, weights_1
     R"compute_L2_distance_between_two_mixtures_of_Dirichlet_alpha($α1, $weights_1, $α2, $weights_2, $K)"
 end
 
-function αΛ_to_α(α, Λ)
+function αΛ_to_α(α::Array{T,1}, Λ) where T<:Number
     it = Base.Iterators.cycle(α)
-    st = start(it)
+    # st = start(it)
+    # st = iterate(it)[2]
+    st = 1
     res = Λ |> flat2
     for i in 1:length(res)
-        (ii, st) = next(it, st)
+        # (ii, st) = next(it, st)
+        (ii, st) = iterate(it, st)
         res[i] += ii
     end
     return res

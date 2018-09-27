@@ -75,7 +75,7 @@ function logpmmi_precomputed(i::Array{Int64,1}, m::Array{Int64,1}, sm::Int64, si
 end
 
 function WF_prediction_for_one_m_precomputed(m::Array{Int64,1}, sα::Ty, t::Ty, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, precomputed_log_binomial_coefficients::Dict{Tuple{Int64, Int64}, Float64}; wm = 1) where {Ty<:Number}
-    gm = map(x -> 0:x, m) |> vec |> x -> product(x...)
+    gm = map(x -> 0:x, m) |> vec |> x -> Iterators.product(x...)
 
     function fun_n(n)
         i = m.-n
@@ -90,7 +90,7 @@ end
 
 function predict_WF_params_precomputed(wms::Array{Ty,1}, sα::Ty, Λ::Array{Array{Int64,1},1}, t::Ty, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, precomputed_log_binomial_coefficients::Dict{Tuple{Int64, Int64}, Float64}; wm = 1) where {Ty<:Number}
 
-    res = Accumulator(Array{Int64,1}, Float64)
+    res = Accumulator{Array{Int64,1}, Float64}()
 
     for k in 1:length(Λ)
         res = merge(res, WF_prediction_for_one_m_precomputed(Λ[k], sα, t, log_ν_dict, log_Cmmi_dict, precomputed_log_binomial_coefficients; wm = wms[k]))

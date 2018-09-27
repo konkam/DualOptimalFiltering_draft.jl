@@ -17,7 +17,7 @@ function compute_marginal_CI(α, Λ_of_t, wms_of_t; mass = 0.95)
     qinfCI, qupCI = get_quantiles_from_mass(mass)
     K = length(α)
     times = Λ_of_t |> keys |> collect |> sort
-    product(times, 1:K) |>
+    Iterators.product(times, 1:K) |>
         collect |>
         x -> map(pr -> DataFrame(time = pr[1],
             margin = pr[2],

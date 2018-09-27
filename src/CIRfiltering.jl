@@ -18,7 +18,7 @@ end
 #     J = length(y)
 #     function lpga(m)
 # #         θ^(δ/2+m) / (θ+λ)^(δ/2+m+ny) * gamma(δ/2+m+ny)/gamma(δ/2+m)/prod([factorial(yi) for yi in y])
-#         lres = (δ/2+m)*log(θ) - (δ/2+m+ny)*log(θ+J*λ) + lgamma(δ/2+m+ny) - lgamma(δ/2+m) - sum([lfact(yi) for yi in y])
+#         lres = (δ/2+m)*log(θ) - (δ/2+m+ny)*log(θ+J*λ) + lgamma(δ/2+m+ny) - lgamma(δ/2+m) - sum([lfactorial(yi) for yi in y])
 #         return lres
 #     end
 #
@@ -53,7 +53,7 @@ function update_CIR_params(wms::Array{Ty,1}, δ::Ty, θ::Ty, λ::Ty, Λ, y::Arra
     ny = sum(y)
     J = length(y)
 
-    return θ + J*λ, Λ + ny, next_wms_from_wms_prime(wms, Λ, y, θ, α)
+    return θ + J*λ, Λ .+ ny, next_wms_from_wms_prime(wms, Λ, y, θ, α)
 end
 
 function update_CIR_params_logweights(logweights::Array{Ty,1}, δ::Ty, θ::Ty, λ::Ty, Λ, y::Array{Tz,1}) where {Ty<:Number,Tz<:Integer}

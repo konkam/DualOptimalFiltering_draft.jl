@@ -15,9 +15,9 @@ function get_quantiles_from_mass(mass)
 end
 
 function log_binomial_safe_but_slow(n::Int64, k::Int64)
-    assert(n>=0)
-    assert(k>=0)
-    assert(k<=n)
+    @assert n >= 0
+    @assert k >= 0
+    @assert k <= n
     if k == 0 || k == n
         return 0
     elseif k == 1 || k == n-1

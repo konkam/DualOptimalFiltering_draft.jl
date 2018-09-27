@@ -14,7 +14,7 @@ function perform_immigration_mutation(z::Array{Float64,1}, α::Float64, θ::Floa
 end
 
 function perform_PD1_mutation(z::Array{Float64,1}, θ::Float64, K::Int64, N::Int64)
-  return z + 1/(2*N) * ( -θ * z + θ/(K-1)*(1-z))
+  return z .+ 1/(2*N) * ( -θ * z + θ/(K-1)*(1 .- z))
 end
 
 # function perform_resampling(z::Array{Float64,1}, N::Int64)
@@ -121,7 +121,7 @@ end
 function wright_fisher_PD1_bare(z_init::Array{Float64,1}, θ::Float64, N::Int64, Nsteps::Int64)
   K = length(z_init)
   # println("1")/
-  res = Array{Float64}(K, Nsteps + 1)
+  res = Array{Float64, 2}(undef, K, Nsteps + 1)
   res[:,1] = z_init
 
   # zstar = copy(z_init)
