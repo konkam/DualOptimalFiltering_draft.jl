@@ -1,4 +1,6 @@
 using Roots, IterTools, DataFrames, DataFramesMeta, RCall
+R"library(tidyverse)"
+
 function compute_quantile_beta_mixture(α, Λ, wms, margin, q::Float64)
     function Beta_mixture_cdf(x::Real)
         return sum(wms.*Float64[cdf(Beta(m[margin] + α[margin], sum(m .+ α) - m[margin] - α[margin]),x) for m in Λ])
@@ -31,8 +33,8 @@ function for_one_marginal(α, margin, Λ_of_t, wms_of_t)
     times = Λ_of_t |> keys |> collect |> sort
 
     marginal_psi_t = [create_marginal_beta_mixture(α, Λ_of_t[t], wms_of_t[t], margin) for t in times]
-    [DataFrame(x = linspace(0, 1, 100)) |> df -> @transform(df, dens = f.(:x)) for f in marginal_psi_t] |>
-dfs -> map((dfi, ti) -> transform(dfi, time = ti, variable = "x$margin"), dfs, times) |>
+    [DataFrame(x = range(0, stop = 1, length = 100)) |> df -> @transform(df, dens = f.(:x)) for f in marginal_psi_t] |>
+dfs -> map((dfi, ti) -> @transform(dfi, time = ti, variable = "x$margin"), dfs, times) |>
     dfs -> vcat(dfs...)
 end
 

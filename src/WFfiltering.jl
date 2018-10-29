@@ -19,10 +19,10 @@ function update_WF_params_debug(wms::Array{Ty,1}, α::Array{Ty,1}, Λ::Array{Arr
 
     function lpga(m::Array{Int64,1})
         sm = sum(m)
-        second_term = lgamma(sα + sm)
-        third_term = sum(lgamma.(α + m + nK))
-        fourth_term = -lgamma(sα + sm + sy)
-        fifth_term = -sum(lgamma.(α + m))
+        second_term = SpecialFunctions.lgamma(sα + sm)
+        third_term = sum(SpecialFunctions.lgamma.(α + m + nK))
+        fourth_term = -SpecialFunctions.lgamma(sα + sm + sy)
+        fifth_term = -sum(SpecialFunctions.lgamma.(α + m))
         return first_term + second_term + third_term + fourth_term + fifth_term
     end
 

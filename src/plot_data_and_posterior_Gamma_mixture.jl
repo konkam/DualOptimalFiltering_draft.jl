@@ -4,9 +4,9 @@ function plot_data_and_posterior_distribution(δ, θ_of_t, Λ_of_t, wms_of_t, da
     expect_mixture = [sum(wms_of_t[t].*(δ/2 + Λ_of_t[t]) ./ θ_of_t[t]) for t in times]
     qt0025 = [DualOptimalFiltering.compute_quantile_mixture_hpi(δ, θ_of_t[t], Λ_of_t[t], wms_of_t[t], 0.025) for t in keys(data) |> collect |> sort];
     qt0975 = [DualOptimalFiltering.compute_quantile_mixture_hpi(δ, θ_of_t[t], Λ_of_t[t], wms_of_t[t], 0.975) for t in keys(data) |> collect |> sort];
-    R"$([f.(linspace(0, maximum(data |> values |> collect |> x -> vcat(x...)), 200)) for f in psi_t] |> x -> hcat(x...)) %>%
+    R"$([f.(range(0, stop = maximum(data |> values |> collect |> x -> vcat(x...)), length = 200)) for f in psi_t] |> x -> hcat(x...)) %>%
         as_tibble %>%
-        mutate(x = $(linspace(0, maximum(data |> values |> collect |> x -> vcat(x...)), 200))) %>%
+        mutate(x = $(range(0, stop = maximum(data |> values |> collect |> x -> vcat(x...)), length = 200))) %>%
         gather(time, value, -x) %>%
         mutate(time = gsub('V','',time) %>% as.numeric) %>%
         mutate(time = $(Λ_of_t |> keys |> collect |> sort) %>% unlist %>% (function(x) x[time])) %>%

@@ -15,7 +15,8 @@ end
 
 
 function first_term_pmmi_arb(si::Int64, sm::Int64, sα::Number)
-    return λm_arb.((sm-si+1):sm, sα) |> prod
+    # return λm_arb.((sm-si+1):sm, sα) |> prod
+    return prod(λm_arb(s, sα) for s in (sm-si+1):sm)
 end
 
 
