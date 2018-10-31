@@ -17,9 +17,9 @@ using RCall
 @testset "Test RCpp functions" begin
     R"library(tidyverse)
     x = c(0.2401053, 0.3672329, 0.3926618)"
-    res = R"ddirichlet_mixture_gsl_arma(x, rep(rep(1.1,3),6), 6 %>% rep(1./.,.))" |> Float64
+    res = R"ddirichlet_mixture_gsl_arma(x, rep(rep(1.1,3),6), 6 %>% rep(1./.,.))" |> xx -> convert(Float64, xx)
     @test res ≈ 2.226413 atol=10.0^(-5)
-    res = R"ddirichlet_gsl_arma(x , rep(1.1,3))"  |> Float64
+    res = R"ddirichlet_gsl_arma(x , rep(1.1,3))"  |> xx -> convert(Float64, xx)
     @test res ≈ 2.226413 atol=10.0^(-5)
     # R"set.seed(0)
     # lambda = rpois(30, lambda = 3)"
