@@ -89,6 +89,7 @@ end
 
 function plot_marginal_posterior_credible_interval_and_data_given_marginalCI_with_hidden_state(α, Λ_of_t, wms_of_t, data_, wfchain, marginal_CI)
     times = Λ_of_t |> keys |> collect |> sort
+    R"library(tidyverse)"
 
     R"$data_ %>%
         (function(lst){
