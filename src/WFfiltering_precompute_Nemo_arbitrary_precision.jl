@@ -6,7 +6,7 @@ RR = RealField(nbits)
 gamma_arb(x) = Nemo.gamma(RR(x))
 
 function normalise_arb(x)
-    return x*1 ./ sum(x)
+    return x .* [1 / sum(x)]
 end
 
 function λm_arb(sm::Int64, sα::Number)
