@@ -1,24 +1,5 @@
 using StatsFuns, Distributions
 
-function rCIR(n::Integer, Dt::Real, x0::Real, δ, γ, σ)
-    β = γ/σ^2*exp(2*γ*Dt)/(exp(2*γ*Dt)-1)
-    if n == 1
-        ks = rand(Poisson(γ/σ^2*x0/(exp(2*γ*Dt)-1)))
-        return rand(Gamma(ks+δ/2, 1/β))
-    else
-        ks = rand(Poisson(γ/σ^2*x0/(exp(2*γ*Dt)-1)), n)
-        return rand.(Gamma.(ks+δ/2, 1/β))
-    end
-end
-
-function create_Mt(Δt, δ, γ, σ)
-    function Mt(X)
-#         Aind = DualOptimalFiltering.indices_from_multinomial_sample_slow(A)
-        return rCIR.(1, Δt, X, δ, γ, σ)
-    end
-    return Mt
-end
-
 @testset "Test ESS functions" begin
     @test DualOptimalFiltering.ESS(repeat([1], inner = 10)./10) ≈ 10 atol=10.0^(-7)
     @test DualOptimalFiltering.logESS(repeat([1], inner = 10)./10 |> v -> log.(v)) ≈ log(10) atol=10.0^(-7)

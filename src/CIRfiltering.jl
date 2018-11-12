@@ -214,11 +214,13 @@ function filter_CIR_logweights(δ, γ, σ, λ, data; silence = false)
 
 end
 
-function transition_CIR(n::Integer, Dt::Real, x0::Real, δ, γ, σ)
-    ks = rand(Poisson(γ/σ^2*x0/(exp(2*γ*Dt)-1)), n)
-    rate = γ/σ^2*exp(2*γ*Dt)/(exp(2*γ*Dt)-1)
-    xs = Float64[rand(Gamma(k+δ/2, 1/rate)) for k in ks]
-end
+# function transition_CIR(n::Integer, Dt::Real, x0::Real, δ, γ, σ)
+#     ks = rand(Poisson(γ/σ^2*x0/(exp(2*γ*Dt)-1)), n)
+#     rate = γ/σ^2*exp(2*γ*Dt)/(exp(2*γ*Dt)-1)
+#     xs = Float64[rand(Gamma(k+δ/2, 1/rate)) for k in ks]
+# end
+
+transition_CIR(n::Integer, Dt::Real, x0::Real, δ, γ, σ) = rCIR(n::Integer, Dt::Real, x0::Real, δ, γ, σ)
 
 function rec_transition_CIR(Dts, x, δ, γ, σ)
     x_new = transition_CIR(1, Dts[1], x[end], δ, γ, σ)
