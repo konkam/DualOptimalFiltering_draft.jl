@@ -1,3 +1,5 @@
+using StatsFuns
+
 function logμπh(m::Integer, θ, α, y)
     # Be careful that the NegativeBinomial is not parameterised as in Wikipedia, p replaced by 1-p
     return logpdf.(NegativeBinomial(α + m ,θ/(1+θ)), y) |> sum
@@ -86,58 +88,6 @@ function next_wms_prime_from_wms(wms, Λ, Δt, θ, γ, σ)
     end
     return wms_prime
 end
-
-# function next_log_wms_prime_from_log_wms(log_wms, Λ, Δt, θ, γ, σ)
-#     nΛ = length(Λ)
-#     maxΛ = maximum(Λ)
-#     log_wms_prime = zeros(maxΛ+1)
-#     p = γ/σ^2*1/(θ*exp(2*γ*Δt) + γ/σ^2 - θ)
-#     for n in 0:maxΛ
-#         idx = n+1
-#         m_greater_than_n_filter = Λ .>= n
-#         log_wms_prime[idx] = StatsFuns.logsumexp(log_wms[m_greater_than_n_filter] .+ logpdf.(Binomial.(Λ[m_greater_than_n_filter], p), n))
-#     end
-#     return log_wms_prime
-# end
-#
-# function next_log_wms_prime_from_log_wms2(log_wms, Λ, Δt, θ, γ, σ)
-#     nΛ = length(Λ)
-#     maxΛ = maximum(Λ)
-#     log_wms_prime = zeros(maxΛ+1)
-#     p = γ/σ^2*1/(θ*exp(2*γ*Δt) + γ/σ^2 - θ)
-#     @inbounds for k in 1:length(Λ)
-#         m = Λ[k]
-#         for n in 0:m
-#             idx = n+1
-#             if log_wms_prime[idx] == 0
-#                 log_wms_prime[idx] = log_wms[k] + logpdf(Binomial(m, p), n)
-#             else
-#                 log_wms_prime[idx] = logaddexp(log_wms_prime[idx], log_wms[k] + logpdf(Binomial(m, p), n))
-#             end
-#         end
-#     end
-#     return log_wms_prime
-# end
-#
-# function next_log_wms_prime_from_log_wms3(log_wms, Λ, Δt, θ, γ, σ)
-#     nΛ = length(Λ)
-#     maxΛ = maximum(Λ)
-#     log_wms_prime = zeros(maxΛ+1)
-#     log_wms_prime .= -Inf
-#     p = γ/σ^2*1/(θ*exp(2*γ*Δt) + γ/σ^2 - θ)
-#     for k in 1:length(Λ)
-#         m = Λ[k]
-#         for n in 0:m
-#             idx = n+1
-#             # if log_wms_prime[idx] == 0
-#             #     log_wms_prime[idx] = log_wms[k] + logpdf(Binomial(m, p), n)
-#             # else
-#                 log_wms_prime[idx] = logaddexp(log_wms_prime[idx], log_wms[k] + logpdf(Binomial(m, p), n))
-#             # end
-#         end
-#     end
-#     return log_wms_prime
-# end
 
 # function next_log_wms_prime_from_log_wms4(log_wms, Λ, Δt, θ, γ, σ)
 function next_log_wms_prime_from_log_wms(log_wms, Λ, Δt, θ, γ, σ)
