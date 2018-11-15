@@ -22,6 +22,7 @@ include("plot_data_and_posterior_Gamma_mixture.jl")
 include("statistical_distances_on_the_simplex.jl")
 include("statistical_distances_on_Rplus.jl")
 include("dirichlet_kde.jl")
-include("generic_particle_filter_algorithm.jl")
+# include("generic_particle_filter_algorithm.jl")
 include("CIR_likelihood.jl")
+include("WF_particle_filter.jl")
 end # module
