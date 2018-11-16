@@ -57,9 +57,9 @@ version = "0.2.0"
 
 [[Compat]]
 deps = ["Base64", "Dates", "DelimitedFiles", "Distributed", "InteractiveUtils", "LibGit2", "Libdl", "LinearAlgebra", "Markdown", "Mmap", "Pkg", "Printf", "REPL", "Random", "Serialization", "SharedArrays", "Sockets", "SparseArrays", "Statistics", "Test", "UUIDs", "Unicode"]
-git-tree-sha1 = "2d9e14d19bad3f9ad5cc5e4cffabc3cfa59de825"
+git-tree-sha1 = "ec61a16eed883ad0cfa002d7489b3ce6d039bb9a"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "1.3.0"
+version = "1.4.0"
 
 [[Conda]]
 deps = ["Compat", "JSON", "VersionParsing"]
@@ -129,7 +129,7 @@ version = "0.16.4"
 
 [[ExactWrightFisher]]
 deps = ["Distributions", "ProgressMeter", "Random", "SpecialFunctions", "StatsFuns", "Test"]
-git-tree-sha1 = "7180d26d60c8ed5384fdf48a581a81f807d238ad"
+git-tree-sha1 = "6520ba7e1b978b19c145b791f1cc3c7625eb9ecf"
 repo-rev = "master"
 repo-url = "https://github.com/konkam/ExactWrightFisher.jl"
 uuid = "8c1589a6-e1d0-11e8-3509-29fca4fccf6a"
@@ -137,7 +137,7 @@ version = "0.1.0"
 
 [[FeynmanKacParticleFilters]]
 deps = ["Distributions", "Random", "StatsFuns", "Test"]
-git-tree-sha1 = "54f3ea2171d6b444cd6b01a1651ef73651ad784e"
+git-tree-sha1 = "bb9ac03e29daa5b30c3cb0a638ab87abbcb3b98b"
 repo-rev = "master"
 repo-url = "https://github.com/konkam/FeynmanKacParticleFilters.jl"
 uuid = "b43f8e06-e683-11e8-294f-8d3ef32cb08c"
