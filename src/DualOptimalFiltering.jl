@@ -25,4 +25,6 @@ include("dirichlet_kde.jl")
 # include("generic_particle_filter_algorithm.jl")
 include("CIR_likelihood.jl")
 include("WF_particle_filter.jl")
+include("exact_L2_distances.jl")
+
 end # module
