@@ -10,7 +10,7 @@ end
 function L2_dist_1D(pdf1, pdf2, infbound, supbound)
     squared_res = CvM_distance(pdf1, pdf2, infbound, supbound)
     #using a conservative error bound
-    return (sqrt(squared_res[1]), squared_res[2])
+    return (sqrt(squared_res[1]), sqrt(squared_res[2]))
 end
 
 L2_dist_1D(pdf1, pdf2) = L2_dist_1D(pdf1, pdf2, 0, Inf)

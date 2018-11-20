@@ -61,7 +61,7 @@ R"compute_L2_distance_between_two_mixtures_of_Dirichlet_alpha = function (alpha_
     }
 
     res = SimplicialCubature::adaptIntegrateSimplex(f_to_integrate, S, maxEvals = 10^6)
-    return(c(res$integral, res$estAbsError))
+    return(sqrt(c(res$integral, res$estAbsError)))
 }"
 
 
@@ -117,14 +117,14 @@ end
 # end
 
 function compute_L2_distance_between_two_Dirichlet_mixtures_alpha(α1, weights_1, α2, weights_2, K::Int64)
-    # R"""Rcpp::sourceCpp($(joinpath(Pkg.dir("DualOptimalFiltering"), "src", "dirichlet_mixture_gsl.cpp")))
-    # create_dirichlet_mixture_gsl_alpha = function(alpha, weights){
-    #     dirichlet_mixture = function(x){
-    #         ddirichlet_mixture_gsl_arma(x, alpha, weights)
-    #     }
-    #     return(dirichlet_mixture)
-    # }
-    # """
+    R"""Rcpp::sourceCpp($(joinpath(dirname(pathof(DualOptimalFiltering)), "dirichlet_mixture_gsl.cpp")))
+    create_dirichlet_mixture_gsl_alpha = function(alpha, weights){
+        dirichlet_mixture = function(x){
+            ddirichlet_mixture_gsl_arma(x, alpha, weights)
+        }
+        return(dirichlet_mixture)
+    }
+    """
     R"compute_L2_distance_between_two_mixtures_of_Dirichlet_alpha = function (alpha_1, weights_1, alpha_2, weights_2, K){
 
         f1 = create_dirichlet_mixture_gsl_alpha(alpha_1, weights_1)
@@ -138,8 +138,9 @@ function compute_L2_distance_between_two_Dirichlet_mixtures_alpha(α1, weights_1
             (f1_simplex(x)-f2_simplex(x))^2
         }
 
+        #conservative error bound
         res = SimplicialCubature::adaptIntegrateSimplex(f_to_integrate, S, maxEvals = 10^6)
-        return(c(res$integral, res$estAbsError))
+        return(c(sqrt(res$integral), sqrt(res$estAbsError)))
     }"
     R"compute_L2_distance_between_two_mixtures_of_Dirichlet_alpha($α1, $weights_1, $α2, $weights_2, $K)"
 end
@@ -149,7 +150,7 @@ function αΛ_to_α(α::Array{T,1}, Λ) where T<:Number
     # st = start(it)
     # st = iterate(it)[2]
     st = 1
-    res = Λ |> flat2
+    res = Float64.(Λ |> flat2)
     for i in 1:length(res)
         # (ii, st) = next(it, st)
         (ii, st) = iterate(it, st)
