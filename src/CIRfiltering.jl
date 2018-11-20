@@ -1,11 +1,21 @@
 using Roots
 using Distributions
 
-function create_mixture_hpi(δ, θ, Λ, wms)
+function create_mixture_density(δ, θ, Λ, wms)
     #use 1/θ because of the way the Gamma distribution is parameterised in Julia Distributions.jl
     return x -> sum(wms.*Float64[pdf(Gamma(δ/2 + m, 1/θ),x) for m in Λ])
 end
 
+function create_mixture_parameters(δ, θ, Λ, wms)
+    α = [δ/2 + m for m in Λ]
+    β = [θ for m in Λ]
+    return α, β
+end
+
+function create_mixture(δ, θ, Λ, wms)
+    #use 1/θ because of the way the Gamma distribution is parameterised in Julia Distributions.jl
+    return [Gamma(δ/2 + m, 1/θ) for m in Λ]
+end
 
 function compute_quantile_mixture_hpi(δ, θ, Λ, wms, q::Float64)
     #use 1/θ because of the way the Gamma distribution is parameterised in Julia Distributions.jl
@@ -47,7 +57,7 @@ end
 #     return θ + J*λ, Λ + ny, wms_hat
 # end
 
-function update_CIR_params(wms::Array{Ty,1}, δ::Ty, θ::Ty, λ::Ty, Λ, y::Array{Tz,1}) where {Ty<:Number,Tz<:Integer}
+function update_CIR_params(wms::Array{Ty,1}, δ::Real, θ::Real, λ::Real, Λ, y::Array{Tz,1}) where {Ty<:Number,Tz<:Integer}
     α = δ/2#Alternative parametrisation
 
     ny = sum(y)
