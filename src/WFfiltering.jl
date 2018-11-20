@@ -1,5 +1,13 @@
 using IterTools, DataStructures, Memoize, SpecialFunctions
 
+function create_dirichlet_mixture(α::Array{T, 1}, Λ::Array{Array{U,1},1}) where {T <: Real, U <:Integer}
+    α_mixt = Array{Array{T,1},1}(undef, length(Λ))
+    for i in 1:length(Λ)
+        α_mixt[i] = α .+ Λ[i]
+    end
+    return α_mixt
+end
+
 function update_WF_params_debug(wms::Array{Ty,1}, α::Array{Ty,1}, Λ::Array{Array{Int64,1},1}, y::Array{Int64,2}; debug = true) where Ty<:Number
     #y is a matrix of dimension J*K, with K the dimension of the process
     # and J the number of observations
