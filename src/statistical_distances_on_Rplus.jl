@@ -7,6 +7,14 @@ function Hellinger_dist_1D(d, dref, infbound, supbound)
     return (1-res[1], res[2])
 end
 
+function L2_dist_1D(pdf1, pdf2, infbound, supbound)
+    squared_res = CvM_distance(pdf1, pdf2, infbound, supbound)
+    #using a conservative error bound
+    return (sqrt(squared_res[1]), squared_res[2])
+end
+
+L2_dist_1D(pdf1, pdf2) = L2_dist_1D(pdf1, pdf2, 0, Inf)
+
 # function KS_distance(cdf_1, cdf_2)
 #     f(x) = -abs(cdf_1(x) - cdf_2(x))
 #     # return result = optimize(f, 0., 1.) |> Optim.minimum |> abs
