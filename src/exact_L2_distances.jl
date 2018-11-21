@@ -39,7 +39,9 @@ function log_L2_dist_Gamma_mixtures(logw1, αlist_1, βlist_1, logw2, αlist_2, 
     I = length(logw1)
     J = length(logw2)
     first_logterm = logsumexp(logw1[i] + logw1[j] + log_int_prod_2_Gammas(αlist_1[i], βlist_1[i], αlist_1[j], βlist_1[j]) for (i,j) in Base.Iterators.product(1:I, 1:I))
+
     second_logterm =  logsumexp(logw2[i] + logw2[j] + log_int_prod_2_Gammas(αlist_2[i], βlist_2[i], αlist_2[j], βlist_2[j]) for (i,j) in Base.Iterators.product(1:J, 1:J))
+
     third_log_term = logsumexp(log(2) + logw1[i] + logw2[j] + log_int_prod_2_Gammas(αlist_1[i], βlist_1[i], αlist_2[j], βlist_2[j]) for (i,j) in Base.Iterators.product(1:I, 1:J))
 
     # println([first_logterm, second_logterm, third_log_term])
