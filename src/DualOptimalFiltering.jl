@@ -26,5 +26,6 @@ include("dirichlet_kde.jl")
 include("CIR_likelihood.jl")
 include("WF_particle_filter.jl")
 include("exact_L2_distances.jl")
+include("kde_for_pf_samples.jl")
 
 end # module
