@@ -6,14 +6,6 @@ function create_mixture_density(δ, θ, Λ, wms)
     return x -> sum(wms.*Float64[pdf(Gamma(δ/2 + m, 1/θ),x) for m in Λ])
 end
 
-function create_gamma_mixture_density_αβ(α_list::AbstractArray{T,1}, β_list::AbstractArray{U,1}, wms::AbstractArray{V,1}) where {T <: Real, U <: Real, V <: Real}
-    #use 1/θ because of the way the Gamma distribution is parameterised in Julia Distributions.jl
-    function res(x::Real)
-        sum(wms[i] * pdf(Gamma(α_list[i], 1/β_list[i]), x) for i in 1:length(wms))
-    end
-    return res
-end
-
 function create_gamma_mixture_parameters(δ, θ, Λ, wms)
     α = [δ/2 + m for m in Λ]
     β = [θ for m in Λ]

@@ -25,3 +25,12 @@ function create_gamma_kde_mixture_parameters(smp::Array{T,1}) where T <: Real
 
     return α_list, repeat([β], length(α_list))
 end
+
+
+function create_gamma_mixture_density_αβ(α_list::AbstractArray{T,1}, β_list::AbstractArray{U,1}, wms::AbstractArray{V,1}) where {T <: Real, U <: Real, V <: Real}
+    #use 1/θ because of the way the Gamma distribution is parameterised in Julia Distributions.jl
+    function res(x::Real)
+        sum(wms[i] * pdf(Gamma(α_list[i], 1/β_list[i]), x) for i in 1:length(wms))
+    end
+    return res
+end
