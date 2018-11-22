@@ -6,7 +6,7 @@ function create_mixture_density(δ, θ, Λ, wms)
     return x -> sum(wms.*Float64[pdf(Gamma(δ/2 + m, 1/θ),x) for m in Λ])
 end
 
-function create_gamma_mixture_parameters(δ, θ, Λ, wms)
+function create_gamma_mixture_parameters(δ, θ, Λ)
     α = [δ/2 + m for m in Λ]
     β = [θ for m in Λ]
     return α, β
