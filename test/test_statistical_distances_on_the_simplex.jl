@@ -3,8 +3,7 @@
     @test res[1] ≈ 1.974305e-02 atol=10.0^(-5)
     @test res[2] < 10.0^(-6)
     res = DualOptimalFiltering.compute_L2_distance_between_two_Dirichlet_mixtures(ones(3), [[1,1,1], [1,1,1]], [0.5,0.5], [[1,1,3], [1,2,1]], [0.2,0.8])
-    @test res[1] ≈ 2.812121e-01 atol=10.0^(-5)
-    @test res[2] < 10.0^(-5)
+    @test res[1] ≈ 0.5302943091026591 atol=10.0^(-5)
 end;
 
 res = DualOptimalFiltering.αΛ_to_α(1:3 |> collect, [[4,5,6], [1,3,2]])
