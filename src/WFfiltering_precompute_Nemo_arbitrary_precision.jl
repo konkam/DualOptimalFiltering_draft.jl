@@ -3,6 +3,9 @@ using Nemo
 ZZ = FlintZZ
 nbits = 256*4 # precision needed to be augmented because with a time step of 0.004, gave 0
 RR = RealField(nbits)
+R(x::Number) = RR(x)
+R(x::Vector{T}) where T <: Number = RR.(x)
+
 gamma_arb(x) = Nemo.gamma(RR(x))
 
 function normalise_arb(x)

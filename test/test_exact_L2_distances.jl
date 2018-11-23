@@ -4,11 +4,17 @@ using ExactWrightFisher
     # @test_warn AssertionError DualOptimalFiltering.log_int_prod_2_Gammas(0.5, 0.5, 0.5, 1)
     @test DualOptimalFiltering.log_int_prod_2_Gammas(1, 1, 1, 1) == -log(2)
     @test DualOptimalFiltering.log_int_prod_2_Gammas(2, 0.5, 1, 0.5) == log(0.5^2*0.5 )
+    @test DualOptimalFiltering.log_int_prod_2_Gammas(0.1, 1.2, 1.1, 0.3) ≈ Float64(log(DualOptimalFiltering.prod_2_gammas_arb(0.1, 1.2, 1.1, 0.3) ))
+
     @test DualOptimalFiltering.int_prod_2_Gammas(1, 1, 1, 1) == 0.5
     @test DualOptimalFiltering.int_prod_2_Gammas(2, 0.5, 1, 0.5) ≈ 0.5^2*0.5
 
+
+
     @test_nowarn DualOptimalFiltering.log_L2_dist_Gamma_mixtures(log.([0.2,0.3,0.5]), [1,2,3], [1,2,4], log.([0.6,0.4]), [1,2], [4,2])
     @test !isfinite(DualOptimalFiltering.log_L2_dist_Gamma_mixtures(log.([0.2,0.3,0.5]), [1,2,3], [1,2,4], log.([0.2,0.3,0.5]), [1,2,3], [1,2,4]))
+
+    @test DualOptimalFiltering.log_L2_dist_Gamma_mixtures(log.([0.2,0.3,0.5]), [1,2,3], [1,2,4], log.([0.6,0.4]), [1,2], [4,2]) ≈ Float64(log(DualOptimalFiltering.L2_dist_Gamma_mixtures_arb([0.2,0.3,0.5], [1,2,3], [1,2,4], [0.6,0.4], [1,2], [4,2])))
 
     Random.seed!(0)
     δ = 3.
