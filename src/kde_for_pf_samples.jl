@@ -24,6 +24,9 @@ function bwlscv(xdata::RealVector, kernel::Function)
 
     xlb, xub = extrema(xdata)
     h0=midrange(xdata)
+    if h0==0
+        h0 = mean(xdata)
+    end
     hlb = h0/n
     hub = h0
     if kernel == betakernel
@@ -34,7 +37,7 @@ function bwlscv(xdata::RealVector, kernel::Function)
         log1_xdata = log.(1.0 .- xdata)
         return Optim.minimizer(Optim.optimize(h -> KernelEstimator.Jh(xdata, logxdata, log1_xdata, kernel, h, w, n, xlb,xub), hlb, hub, iterations=200,abs_tol=h0/n^2))
     elseif kernel == gammakernel
-        # xlb = 0.0
+        xlb = 0.0
         logxdata = log.(xdata)
         return Optim.minimizer(Optim.optimize(h -> KernelEstimator.Jh(xdata, logxdata, kernel, h, w, n, xlb,xub), hlb, hub, iterations=200,abs_tol=h0/n^2))
     end
