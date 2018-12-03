@@ -15,10 +15,13 @@ julia> bar([1, 2], [1, 2])
 ```
 """
 function create_gamma_kde_mixture_parameters_one_β(smp::Array{T,1}) where T <: Real
-    # bw = bwlscv(smp, gammakernel)
-    bw = bwlcv(smp, gammakernel)
-
-    return smp ./ bw .+ 1, 1/bw
+    bw = bwlscv(smp, gammakernel)
+    # bw = bwlcv(smp, gammakernel)
+    if bw==0
+        stop("bandwidth estimation by least square cross validation failed")
+    else
+        return smp ./ bw .+ 1, 1/bw
+    end
 end
 
 function create_gamma_kde_mixture_parameters(smp::Array{T,1}) where T <: Real
