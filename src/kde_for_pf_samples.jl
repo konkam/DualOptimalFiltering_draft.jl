@@ -19,7 +19,7 @@ function bwlscv(xdata::RealVector, kernel::Function)
     h0=bwnormal(xdata)
     #when n is large, leaveoneout is more expensive than numeric integration
     if kernel == gaussiankernel && n<200
-        return Optim.minimizer(Optim.optimize(h -> Jh(xdata, h, w, n), 0.01*h0, 10*h0, iterations=200, abs_tol=h0/n))
+        return Optim.minimizer(Optim.optimize(h -> KernelEstimator.Jh(xdata, h, w, n), 0.01*h0, 10*h0, iterations=200, abs_tol=h0/n))
     end
 
     xlb, xub = extrema(xdata)
@@ -32,13 +32,13 @@ function bwlscv(xdata::RealVector, kernel::Function)
         hub = 0.25
         logxdata = log.(xdata)
         log1_xdata = log.(1.0 .- xdata)
-        return Optim.minimizer(Optim.optimize(h -> Jh(xdata, logxdata, log1_xdata, kernel, h, w, n, xlb,xub), hlb, hub, iterations=200,abs_tol=h0/n^2))
+        return Optim.minimizer(Optim.optimize(h -> KernelEstimator.Jh(xdata, logxdata, log1_xdata, kernel, h, w, n, xlb,xub), hlb, hub, iterations=200,abs_tol=h0/n^2))
     elseif kernel == gammakernel
         # xlb = 0.0
         logxdata = log.(xdata)
-        return Optim.minimizer(Optim.optimize(h -> Jh(xdata, logxdata, kernel, h, w, n, xlb,xub), hlb, hub, iterations=200,abs_tol=h0/n^2))
+        return Optim.minimizer(Optim.optimize(h -> KernelEstimator.Jh(xdata, logxdata, kernel, h, w, n, xlb,xub), hlb, hub, iterations=200,abs_tol=h0/n^2))
     end
-    return Optim.minimizer(Optim.optimize(h -> Jh(xdata, kernel, h, w, n, xlb,xub), hlb, hub, iterations=200,abs_tol=h0/n^2))
+    return Optim.minimizer(Optim.optimize(h -> KernelEstimator.Jh(xdata, kernel, h, w, n, xlb,xub), hlb, hub, iterations=200,abs_tol=h0/n^2))
 end
 
 
