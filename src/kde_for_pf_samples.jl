@@ -15,7 +15,8 @@ julia> bar([1, 2], [1, 2])
 ```
 """
 function create_gamma_kde_mixture_parameters_one_β(smp::Array{T,1}) where T <: Real
-    bw = bwlscv(smp, gammakernel)
+    # bw = bwlscv(smp, gammakernel)
+    bw = bwlcv(smp, gammakernel)
 
     return smp ./ bw .+ 1, 1/bw
 end
