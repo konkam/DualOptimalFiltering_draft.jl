@@ -1,3 +1,4 @@
+import StatsBase: RealVector, RealMatrix
 using KernelEstimator
 
 """
@@ -85,4 +86,35 @@ function create_gamma_mixture_density_αβ(α_list::AbstractArray{T,1}, β_list:
         sum(wms[i] * pdf(Gamma(α_list[i], 1/β_list[i]), x) for i in 1:length(wms))
     end
     return res
+end
+
+
+"""
+    create_gamma_kde_mixture_parameters(smp::Array{Float64,1})
+
+This is using Aitchison, J., & Lauder, I. J. (1985). Kernel density estimation for compositional data. Applied Statistics, 129–137.
+
+# Examples
+```julia-repl
+julia> using Distributions, Random
+julia> Random.seed!(0);
+julia> xdata = rand(Dirichlet([0.3,5.,2.3]), 5)
+3×5 Array{Float64,2}:
+ 0.103154  0.000797253  0.0274887  0.0004612  0.069083
+ 0.525477  0.48484      0.620501   0.220089   0.500526
+ 0.371369  0.514362     0.352011   0.77945    0.430391
+ julia> create_Dirichlet_kde_mixture_parameters(smp::RealMatrix)
+```
+"""
+function create_Dirichlet_kde_mixture_parameters(xdata)
+    bw = bwlscv(smp, dirichletkernel)
+    # if bw == 0
+    #     bw = bwlcv(smp, gammakernel)
+    # end
+    # bw = bwlcv(smp, gammakernel)
+    if bw==0
+        error("bandwidth estimation by least square cross validation failed")
+    else
+        return 1 .+ xdata ./ λ
+    end
 end
