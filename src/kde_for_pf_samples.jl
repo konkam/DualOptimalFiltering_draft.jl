@@ -23,9 +23,9 @@ function bwlscv(xdata::RealVector, kernel::Function)
     end
 
     xlb, xub = extrema(xdata)
-    h0=midrange(xdata)
-    if h0==0
-        h0 = mean(xdata)
+    h0=KernelEstimator.midrange(xdata)
+    if h0==0 #Algorithm returns 0 when h0=0. This happens when there are many ties, mixdrange can return 0
+        h0 = median(xdata)
     end
     hlb = h0/n
     hub = h0
