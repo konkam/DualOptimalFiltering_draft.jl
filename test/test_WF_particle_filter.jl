@@ -21,4 +21,8 @@ using FeynmanKacParticleFilters
     @test_nowarn Mt[time_grid_WF3[2]](α_vec / sum(α_vec))
     @test_nowarn pf_adaptive = FeynmanKacParticleFilters.generic_particle_filtering_adaptive_resampling_logweights(Mt, logGt, Nparts, RS)
 
+    data_WF3 = Dict(zip(time_grid_WF3 , [wfobs_WF3[:,t:t]' for t in 1:size(wfobs_WF3,2)]))
+
+    @test_nowarn FeynmanKacParticleFilters.create_potential_functions(data_WF3, DualOptimalFiltering.multinomial_logpotential)
+
 end;
