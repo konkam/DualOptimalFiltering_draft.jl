@@ -125,7 +125,7 @@ function create_Dirichlet_kde_mixture_parameters(xdata::RealMatrix)
     end
 end
 
-function create_Dirichlet_kde_mixture_parameters(xdata::Array{RealVector, 1})
+function create_Dirichlet_kde_mixture_parameters(xdata::Array{Array{Float64,1},1})
     λ = DualOptimalFiltering.bwlcv(xdata, dirichletkernel)
     # if bw == 0
     #     bw = bwlcv(smp, gammakernel)
