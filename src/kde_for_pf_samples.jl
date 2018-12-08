@@ -124,3 +124,16 @@ function create_Dirichlet_kde_mixture_parameters(xdata::RealMatrix)
         return 1 .+ xdata ./ λ
     end
 end
+
+function create_Dirichlet_kde_mixture_parameters(xdata::Array{RealVector, 1})
+    λ = DualOptimalFiltering.bwlcv(xdata, dirichletkernel)
+    # if bw == 0
+    #     bw = bwlcv(smp, gammakernel)
+    # end
+    # bw = bwlcv(smp, gammakernel)
+    if λ==0
+        error("bandwidth estimation by least square cross validation failed")
+    else
+        return 1 .+ xdata ./ λ
+    end
+end
