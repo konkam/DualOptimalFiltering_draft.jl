@@ -11,6 +11,11 @@ using Distributions, Random
     for i in 1:length(w)
         @test w[i] .≈ res[i] atol=10.0^(-5)
     end
+    X_list = [X[i,:] for i in 1:size(X,1)]
+    dirichletkernel([0.2,0.3,0.4, 0.1], X, 1.2, w, size(X, 1))
+    for i in 1:length(w)
+        @test w[i] .≈ res[i] atol=10.0^(-5)
+    end
 end;
 
 
@@ -23,4 +28,8 @@ end;
     @test DualOptimalFiltering.bwlcv_large_bounds(X, dirichletkernel) ≈ 1.082464656143667  atol=10.0^(-5)
     @test DualOptimalFiltering.minus_log_leaveoneout(X, dirichletkernel, DualOptimalFiltering.midrange(X), ones(size(X, 1)), size(X, 1)) ≈ -37.72556390035346  atol=10.0^(-5)
     @test DualOptimalFiltering.bwloo_large_bounds(X, dirichletkernel) ≈ 1.082464656143667  atol=10.0^(-5)
+    X_list = [X[i,:] for i in 1:size(X,1)]
+    @test DualOptimalFiltering.midrange(X_list) ≈ 0.4139298224327084  atol=10.0^(-5)
+    @test  DualOptimalFiltering.lcv(X_list, dirichletkernel, DualOptimalFiltering.midrange(X_list), ones(size(X, 1)), size(X, 1)) ≈ -16.896937547749225  atol=10.0^(-5)
+    @test DualOptimalFiltering.bwlcv(X_list, dirichletkernel) ≈ 0.4072186731744858  atol=10.0^(-5)
 end;

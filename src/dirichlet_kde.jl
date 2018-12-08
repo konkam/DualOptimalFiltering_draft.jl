@@ -18,11 +18,28 @@ function dirichletkernel(x::RealVector, xdata::RealMatrix, λ::Real, w::Vector, 
     nothing
 end
 
+function dirichletkernel(x::RealVector, xdata::Array{Array{Float64,1},1}, λ::Real, w::Vector, n::Int; log = false)
+    # w .= mapslices(xdatavec -> dirichletkernel_oneval(x, xdatavec, λ), xdata, 2) |> vec
+    for i in 1:length(w)
+        w[i] = dirichletkernel_oneval(x, xdata[i], λ; log = log)
+    end
+    nothing
+end
+
 function midrange(x::RealMatrix)
     mapslices(xvec -> quantile(xvec, [.25, .75]), x, dims = 1) |> x -> x[2,:] - x[1,:] |> maximum
 #     lq, uq = quantile(x, [.25, .75])
 #     uq - lq
 end
+
+# midrange(x::Array{Array{Float64,1},1}) = midrange.(x) |> maximum
+# midrange(x::Array{Array{Int64,1},1}) = midrange.(x) |> maximum
+
+ff(x)::Float64 = max(midrange([xi[1] for xi in x]), midrange([xi[2] for xi in x]), midrange([xi[3] for xi in x]))
+
+midrange(x::Array{Array{Float64,1},1})::Float64 = ff(x)
+
+midrange(x::Array{Array{Int64,1},1})::Float64 = ff(x)
 
 function lcv(xdata::RealMatrix, kernel::Function, h::Real, w::Vector, n::Int)
 #     -mean(kerneldensity(xdata,xdata,kernel,h)) + mean(map(kernel, xdata, xdata, h))
@@ -38,6 +55,21 @@ function lcv(xdata::RealMatrix, kernel::Function, h::Real, w::Vector, n::Int)
     end
     -ll
 end
+
+function lcv(xdata::Array{Array{Float64,1},1}, kernel::Function, h::Real, w::Vector, n::Int)
+    #     -mean(kerneldensity(xdata,xdata,kernel,h)) + mean(map(kernel, xdata, xdata, h))
+    ind = 1
+    ind_end = 1+n
+    ll = 0.0
+    @inbounds while ind < ind_end
+        kernel(xdata[ind], xdata, h, w, n)
+        w[ind] = 0.0
+        ll += log(mean(w))
+        ind += 1
+    end
+    -ll
+end
+
 function bwlcv(xdata::RealMatrix, kernel::Function)
     #This function seems to hit against the higher bound
     n = size(xdata,1)
@@ -45,6 +77,21 @@ function bwlcv(xdata::RealMatrix, kernel::Function)
     h0=midrange(xdata)
     if h0==0 #Algorithm returns 0 when h0=0. This happens when there are many ties, mixdrange can return 0
         h0 = median(xdata)
+    end
+    hlb = h0/n^2
+    hub = h0
+    if kernel==betakernel
+        hub = 0.25
+    end
+    return Optim.minimizer(Optim.optimize(h->lcv(xdata,kernel,h,w,n), hlb, hub, iterations=200,abs_tol=h0/n^2))
+end
+
+function bwlcv(xdata::Array{Array{Float64,1},1}, kernel::Function)
+    n = length(xdata)
+    w = zeros(n)
+    h0=midrange(xdata)
+    if h0==0 #Algorithm returns 0 when h0=0. This happens when there are many ties, mixdrange can return 0
+        h0 = median.(xdata) |> median
     end
     hlb = h0/n^2
     hub = h0
