@@ -43,6 +43,9 @@ function bwlcv(xdata::RealMatrix, kernel::Function)
     n = size(xdata,1)
     w = zeros(n)
     h0=midrange(xdata)
+    if h0==0 #Algorithm returns 0 when h0=0. This happens when there are many ties, mixdrange can return 0
+        h0 = median(xdata)
+    end
     hlb = h0/n^2
     hub = h0
     if kernel==betakernel
@@ -55,6 +58,9 @@ function bwlcv_large_bounds(xdata::RealMatrix, kernel::Function)
     n = size(xdata,1)
     w = zeros(n)
     h0=midrange(xdata)
+    if h0==0 #Algorithm returns 0 when h0=0. This happens when there are many ties, mixdrange can return 0
+        h0 = median(xdata)
+    end
     hlb = h0/n^2
     hub = h0*10
     if kernel==betakernel
@@ -84,6 +90,9 @@ function bwloo_large_bounds(xdata::RealMatrix, kernel::Function)
     n = size(xdata,1)
     w = zeros(n)
     h0=midrange(xdata)
+    if h0==0 #Algorithm returns 0 when h0=0. This happens when there are many ties, mixdrange can return 0
+        h0 = median(xdata)
+    end
     hlb = h0/n^2
     hub = h0#*10
     if kernel==betakernel
