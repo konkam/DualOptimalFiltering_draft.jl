@@ -15,5 +15,5 @@ end;
     @test 1 == 1
     Random.seed!(0);
     xdata = rand(Dirichlet([0.3,5.,2.3]), 5)
-    @test_nowarn create_Dirichlet_kde_mixture_parameters(xdata)
+    @test_nowarn DualOptimalFiltering.create_Dirichlet_kde_mixture_parameters(xdata)
 end;
