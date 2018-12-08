@@ -90,10 +90,11 @@ end
 
 
 """
-    create_gamma_kde_mixture_parameters(smp::Array{Float64,1})
+    create_gamma_kde_mixture_parameters(xdata::RealMatrix)
 
 This is using Aitchison, J., & Lauder, I. J. (1985). Kernel density estimation for compositional data. Applied Statistics, 129–137.
 Optimal bandwidth selection is performed using a likelihood criterion, as in the article, which may not be the best choice.
+The type RealMatrix is inherited from package StatsFuns
 
 # Examples
 ```julia-repl
@@ -111,7 +112,7 @@ julia> xdata = rand(Dirichlet([0.3,5.,2.3]), 5)
  1.0974   1.1349   1.09232  1.20442  1.11288
 ```
 """
-function create_Dirichlet_kde_mixture_parameters(xdata)
+function create_Dirichlet_kde_mixture_parameters(xdata::RealMatrix)
     λ = DualOptimalFiltering.bwlcv_large_bounds(xdata, dirichletkernel)
     # if bw == 0
     #     bw = bwlcv(smp, gammakernel)
