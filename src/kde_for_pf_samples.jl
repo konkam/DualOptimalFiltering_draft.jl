@@ -93,6 +93,7 @@ end
     create_gamma_kde_mixture_parameters(smp::Array{Float64,1})
 
 This is using Aitchison, J., & Lauder, I. J. (1985). Kernel density estimation for compositional data. Applied Statistics, 129–137.
+Optimal bandwidth selection is performed using a likelihood criterion, as in the article, which may not be the best choice.
 
 # Examples
 ```julia-repl
@@ -103,16 +104,20 @@ julia> xdata = rand(Dirichlet([0.3,5.,2.3]), 5)
  0.103154  0.000797253  0.0274887  0.0004612  0.069083
  0.525477  0.48484      0.620501   0.220089   0.500526
  0.371369  0.514362     0.352011   0.77945    0.430391
- julia> create_Dirichlet_kde_mixture_parameters(smp::RealMatrix)
+ julia> create_Dirichlet_kde_mixture_parameters(xdata)
+ 3×5 Array{Float64,2}:
+ 1.02705  1.00021  1.00721  1.00012  1.01812
+ 1.13781  1.12716  1.16273  1.05772  1.13127
+ 1.0974   1.1349   1.09232  1.20442  1.11288
 ```
 """
 function create_Dirichlet_kde_mixture_parameters(xdata)
-    bw = bwlscv(smp, dirichletkernel)
+    λ = DualOptimalFiltering.bwlcv_large_bounds(xdata, dirichletkernel)
     # if bw == 0
     #     bw = bwlcv(smp, gammakernel)
     # end
     # bw = bwlcv(smp, gammakernel)
-    if bw==0
+    if λ==0
         error("bandwidth estimation by least square cross validation failed")
     else
         return 1 .+ xdata ./ λ
