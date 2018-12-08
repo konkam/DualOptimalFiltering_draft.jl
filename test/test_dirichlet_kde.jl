@@ -1,3 +1,5 @@
+using Distributions, Random
+
 @testset "test kernel function" begin
     @test DualOptimalFiltering.dirichletkernel_oneval([0.2,0.3,0.5], [0.16,  0.64,  0.2], 1.2) ≈ 2.3904148155639433 atol=10.0^(-5)
     @test DualOptimalFiltering.dirichletkernel_oneval([0.0,0.5,0.5], [0.16,  0.64,  0.2], 1.2) == 0
