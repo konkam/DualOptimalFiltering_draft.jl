@@ -14,6 +14,8 @@ end;
 @testset "test Dirichlet kde function" begin
     @test 1 == 1
     Random.seed!(0);
-    xdata = rand(Dirichlet([0.3,5.,2.3]), 5)
+    xdata = rand(Dirichlet([0.3,5.,2.3]), 5)'
     @test_nowarn DualOptimalFiltering.create_Dirichlet_kde_mixture_parameters(xdata)
+    xdata_list = [xdata[i,:] for i in 1:size(xdata,1)]
+    @test_nowarn DualOptimalFiltering.create_Dirichlet_kde_mixture_parameters(xdata_list)
 end;
