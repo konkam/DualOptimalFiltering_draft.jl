@@ -91,7 +91,7 @@ function bwlcv(xdata::Array{Array{Float64,1},1}, kernel::Function)
     w = zeros(n)
     h0=midrange(xdata)
     if h0==0 #Algorithm returns 0 when h0=0. This happens when there are many ties, mixdrange can return 0
-        h0 = median.(xdata) |> median
+        h0 = median(xdata |> Base.Iterators.flatten)
     end
     hlb = h0/n^2
     hub = h0

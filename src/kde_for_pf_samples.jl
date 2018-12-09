@@ -134,6 +134,6 @@ function create_Dirichlet_kde_mixture_parameters(xdata::Array{Array{Float64,1},1
     if λ==0
         error("bandwidth estimation by least square cross validation failed")
     else
-        return 1 .+ xdata ./ λ
+        return Array{Float64,1}[1 .+ x ./ λ for x in xdata]
     end
 end
