@@ -1,9 +1,28 @@
 using StatsFuns
 
-function logμπh(m::Integer, θ, α, y)
+function logμπh_NegBin(m::Integer, θ, α, y::Integer)
     # Be careful that the NegativeBinomial is not parameterised as in Wikipedia, p replaced by 1-p
-    return logpdf.(NegativeBinomial(α + m ,θ/(1+θ)), y) |> sum
+    return logpdf(NegativeBinomial(α + m ,θ/(1+θ)), y)
 end
+function logμπh_NegBin(m::Integer, θ, α, y::AbstractArray{T, 1}; λ = 1) where T <: Integer
+    s = sum(y)
+    n = length(y)
+    p = θ/(θ+n*λ)
+    # Be careful that the NegativeBinomial is not parameterised as in Wikipedia, p replaced by 1-p
+    return logpdf.(NegativeBinomial(α + m, p), s) + lfactorial(s)-s*log(n) - sum(lfactorial.(y))
+end
+
+function logμπh_another_param(m::Integer, θ, α, y::Integer; λ = 1)
+    return y*log(λ) + (α+m)*log(θ) + lgamma(m+y+α) - lfactorial(y) - lgamma(α+m) - (y+α+m) * log(θ + λ)
+end
+function logμπh_another_param(m::Integer, θ, α, y::AbstractArray{T, 1}; λ = 1) where T <: Integer
+    s = sum(y)
+    n = length(y)
+    return s*log(λ) + (α+m)*log(θ) + lgamma(m+s+α) - sum(lfactorial.(y)) - lgamma(α+m) - (s+α+m) * log(θ + n*λ)
+end
+
+logμπh = logμπh_another_param
+
 function logμπh_inside(m, θ, α, y)
     return map(mm -> logμπh(mm::Integer, θ, α, y), m)
 end
@@ -160,6 +179,95 @@ function log_likelihood(δ, γ, σ, λ, data)
         Λ_prime = Λ_prime_1D(Λ)
         θ_prime = θ_prime_from_θ_CIR(θ, Δt, γ, σ)
         log_wms_prime = next_log_wms_prime_from_log_wms(log_wms, Λ, Δt, θ, γ, σ)
+
+        res[next_t] = res[t] + logμν_i_minus_1(Λ_prime, log_wms_prime, θ_prime, data[next_t], δ)
+
+    end
+
+    return res
+end
+
+
+function log_likelihood_CIR_keep_fixed_number(δ, γ, σ, λ, data, fixed_number::Int64; silence = false)
+    # println("filter_WF_mem2")
+
+    function prune_keeping_fixed_number_log_wms(Λ_of_t, log_wms_of_t)
+        Λ_of_t_kept, log_wms_of_t_kept = keep_fixed_number_of_weights(Λ_of_t, log_wms_of_t, fixed_number)
+        return Λ_of_t_kept, log_wms_of_t_kept .- logsumexp(log_wms_of_t_kept)
+    end
+
+    log_likelihood_pruning(δ, γ, σ, λ, data, prune_keeping_fixed_number_log_wms; silence = silence)
+
+end
+
+function log_likelihood_CIR_keep_above_threshold(δ, γ, σ, λ, data, ε::Float64; silence = false)
+    # println("filter_WF_mem2")
+
+    function prune_keeping_above_threshold_log_wms(Λ_of_t, log_wms_of_t)
+        Λ_of_t_kept, log_wms_of_t_kept = keep_above_threshold(Λ_of_t, log_wms_of_t, log(ε))
+        return Λ_of_t_kept, log_wms_of_t_kept .- logsumexp(log_wms_of_t_kept)
+    end
+
+    log_likelihood_pruning(δ, γ, σ, λ, data, prune_keeping_above_threshold_log_wms; silence = silence)
+
+end
+
+function log_likelihood_CIR_fixed_fraction(δ, γ, σ, λ, data, fraction::Float64; silence = false)
+    # println("filter_WF_mem2")
+    function prune_keeping_fixed_fraction_log_wms(Λ_of_t, log_wms_of_t)
+        Λ_of_t_kept, wms_of_t_kept = keep_fixed_fraction(Λ_of_t, exp.(log_wms_of_t), fraction)
+        return Λ_of_t_kept, log.(normalise(wms_of_t_kept))
+    end
+
+    log_likelihood_pruning(δ, γ, σ, λ, data, prune_keeping_fixed_fraction_log_wms; silence = silence)
+
+end
+
+function log_likelihood_pruning(δ, γ, σ, λ, data, do_the_pruning_log_wms::Function; silence = false)
+    times = data |> keys |> collect |> sort
+
+    α = δ/2#Alternative parametrisation
+
+    res = Dict()
+
+    res[times[1]] = logμπh_param_δγ(0, γ/σ^2, δ, data[times[1]])
+
+    #Prior
+    Λ_prime = [0]
+    θ_prime = γ/σ^2
+
+    #1st update
+    Λ = next_Λ_from_Λ_prime(Λ_prime, data[times[1]], t_CIR)
+    θ = θ_from_θ_prime(data[times[1]], θ_prime, T_CIR)
+    log_wms = [0]
+
+    pruned_Λ, pruned_log_wms = do_the_pruning_log_wms(Λ, log_wms)
+
+    #1st prediction
+    Λ_prime = Λ_prime_1D(pruned_Λ)
+    log_wms_prime = next_log_wms_prime_from_log_wms(pruned_log_wms, pruned_Λ, times[2]-times[1], θ, γ, σ)
+    θ_prime = θ_prime_from_θ_CIR(θ, times[2]-times[1], γ, σ)
+
+    res[times[2]] = res[times[1]] + logμν_i_minus_1(Λ_prime, log_wms_prime, θ_prime, data[times[2]], δ)
+
+    for i in 2:(length(times)-1)
+        t = times[i]
+        next_t = times[i+1]
+        Δt = next_t-t
+
+        #Update
+        Λ = next_Λ_from_Λ_prime(Λ_prime, data[t], t_CIR)
+        θ = θ_from_θ_prime(data[t], θ_prime, T_CIR)
+        log_wms = next_log_wms_from_log_wms_prime(log_wms_prime, Λ_prime, data[t], θ_prime, α)
+
+        #Pruning
+        pruned_Λ, pruned_log_wms = do_the_pruning_log_wms(Λ, log_wms)
+
+
+         #Prediction
+        Λ_prime = Λ_prime_1D(pruned_Λ)
+        θ_prime = θ_prime_from_θ_CIR(θ, Δt, γ, σ)
+        log_wms_prime = next_log_wms_prime_from_log_wms(pruned_log_wms, pruned_Λ, Δt, θ, γ, σ)
 
         res[next_t] = res[t] + logμν_i_minus_1(Λ_prime, log_wms_prime, θ_prime, data[next_t], δ)
 
