@@ -9,6 +9,11 @@ function keep_fixed_number_of_weights(Λ_of_t, wms_of_t, k)
     keep_above_threshold(Λ_of_t, wms_of_t, last_w)
 end
 
+function keep_fixed_number_of_logweights(Λ_of_t, log_wms_of_t, k)
+    last_log_w = log_wms_of_t |> sort |> x -> keep_last_k(x, k) |> x -> x[1] #smallest weight kept
+    keep_above_threshold(Λ_of_t, log_wms_of_t, last_log_w)
+end
+
 function keep_fixed_fraction(Λ_of_t, wms_of_t, fraction)
     #Could be made slightly faster by avoiding some inclusion tests.
     #Could even use the threshold
