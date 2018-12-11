@@ -21,7 +21,7 @@ function logμπh(m::Integer, θ, α, y::AbstractArray{T, 1}; λ = 1) where T <:
     return s*log(λ) + (α+m)*log(θ) + lgamma(m+s+α) - sum(lfactorial.(y)) - lgamma(α+m) - (s+α+m) * log(θ + n*λ)
 end
 
-logμπh = logμπh_another_param
+# logμπh = logμπh_another_param
 
 function logμπh_inside(m, θ, α, y)
     return map(mm -> logμπh(mm::Integer, θ, α, y), m)
