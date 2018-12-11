@@ -1,4 +1,4 @@
-using StatsFuns
+using StatsFuns, SpecialFunctions
 
 function logμπh_NegBin(m::Integer, θ, α, y::Integer)
     # Be careful that the NegativeBinomial is not parameterised as in Wikipedia, p replaced by 1-p
@@ -13,12 +13,12 @@ function logμπh_NegBin(m::Integer, θ, α, y::AbstractArray{T, 1}; λ = 1) whe
 end
 
 function logμπh(m::Integer, θ, α, y::Integer; λ = 1)
-    return y*log(λ) + (α+m)*log(θ) + lgamma(m+y+α) - lfactorial(y) - lgamma(α+m) - (y+α+m) * log(θ + λ)
+    return y*log(λ) + (α+m)*log(θ) + SpecialFunctions.lgamma(m+y+α) - lfactorial(y) - SpecialFunctions.lgamma(α+m) - (y+α+m) * log(θ + λ)
 end
 function logμπh(m::Integer, θ, α, y::AbstractArray{T, 1}; λ = 1) where T <: Integer
     s = sum(y)
     n = length(y)
-    return s*log(λ) + (α+m)*log(θ) + lgamma(m+s+α) - sum(lfactorial.(y)) - lgamma(α+m) - (s+α+m) * log(θ + n*λ)
+    return s*log(λ) + (α+m)*log(θ) + SpecialFunctions.lgamma(m+s+α) - sum(lfactorial.(y)) - SpecialFunctions.lgamma(α+m) - (s+α+m) * log(θ + n*λ)
 end
 
 # logμπh = logμπh_another_param
