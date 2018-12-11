@@ -12,10 +12,10 @@ function logμπh_NegBin(m::Integer, θ, α, y::AbstractArray{T, 1}; λ = 1) whe
     return logpdf.(NegativeBinomial(α + m, p), s) + lfactorial(s)-s*log(n) - sum(lfactorial.(y))
 end
 
-function logμπh_another_param(m::Integer, θ, α, y::Integer; λ = 1)
+function logμπh(m::Integer, θ, α, y::Integer; λ = 1)
     return y*log(λ) + (α+m)*log(θ) + lgamma(m+y+α) - lfactorial(y) - lgamma(α+m) - (y+α+m) * log(θ + λ)
 end
-function logμπh_another_param(m::Integer, θ, α, y::AbstractArray{T, 1}; λ = 1) where T <: Integer
+function logμπh(m::Integer, θ, α, y::AbstractArray{T, 1}; λ = 1) where T <: Integer
     s = sum(y)
     n = length(y)
     return s*log(λ) + (α+m)*log(θ) + lgamma(m+s+α) - sum(lfactorial.(y)) - lgamma(α+m) - (s+α+m) * log(θ + n*λ)
@@ -27,12 +27,12 @@ function logμπh_inside(m, θ, α, y)
     return map(mm -> logμπh(mm::Integer, θ, α, y), m)
 end
 
-function logμπh(m::Array{U, 1}, θ, α, y)  where U<:Integer
+function logμπh(m::AbstractArray{U, 1}, θ, α, y)  where U<:Integer
     return logμπh_inside(m, θ, α, y)
 end
-function logμπh(m::UnitRange{Int64}, θ, α, y)
-    return logμπh_inside(m, θ, α, y)
-end
+# function logμπh(m::UnitRange{Int64}, θ, α, y)
+#     return logμπh_inside(m, θ, α, y)
+# end
 
 μπh(m, θ, α, y) = exp.(logμπh(m, θ, α, y))
 
