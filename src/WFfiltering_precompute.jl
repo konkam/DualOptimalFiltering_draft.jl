@@ -40,12 +40,16 @@ function precompute_log_binomial_coefficients(data::Dict{Float64,Array{Int64,2}}
     return log_binomial_coeff_dict
 end
 
-function precompute_terms(data::Dict{Float64,Array{Int64,2}}, sα::Number; digits_after_comma_for_time_precision = 4, override = false)
-
+function test_equal_spacing_of_observations(data, override)
     if !override&&(data |> keys |> collect |> sort |> diff |> x -> truncate_float.(x,digits_after_comma_for_time_precision) |> unique |> length > 1)
         println(data |> keys |> collect |> sort |> diff |> x -> truncate_float.(x,digits_after_comma_for_time_precision) |> unique)
         error("Think twice about precomputing all terms, as the time intervals are not equal. You can go ahead using the option 'override = true.'")
     end
+end
+
+function precompute_terms(data::Dict{Float64,Array{Int64,2}}, sα::Number; digits_after_comma_for_time_precision = 4, override = false)
+
+    test_equal_spacing_of_observations(data, override)
 
     println("Precomputing 3 times")
     @printf "%e" values(data) |> sum |> sum |> n -> n*(n-1)/2 |> BigFloat
