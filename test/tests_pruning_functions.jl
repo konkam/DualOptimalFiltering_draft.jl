@@ -3,9 +3,9 @@
     α = ones(4)
     wfchain = rand(Dirichlet(4,0.3)) |> z-> DualOptimalFiltering.wright_fisher_PD1(z, 1.5, 50, 3)[:,2:end]*10 |> x -> round.(x) |> x -> Int64.(x)
     data = Dict(zip(range(0, stop = 5, length = size(wfchain,2)), [collect(wfchain[:,t:t]') for t in 1:size(wfchain,2)]))
-    log_ν_dict_arb, log_Cmmi_dict_arb, precomputed_log_binomial_coefficients_arb = DualOptimalFiltering.precompute_log_terms_arb(data, sum(α); digits_after_comma_for_time_precision = 4)
+    log_ν_dict_arb, log_Cmmi_dict_arb, log_binomial_coeff_dict_arb = DualOptimalFiltering.precompute_log_terms_arb(data, sum(α); digits_after_comma_for_time_precision = 4)
 
-    Λ_of_t, wms_of_t = DualOptimalFiltering.filter_WF_precomputed_keep_fixed_number(α, data, log_ν_dict_arb, log_Cmmi_dict_arb, precomputed_log_binomial_coefficients_arb, 30)
+    Λ_of_t, wms_of_t = DualOptimalFiltering.filter_WF_precomputed_keep_fixed_number(α, data, log_ν_dict_arb, log_Cmmi_dict_arb, log_binomial_coeff_dict_arb, 30)
     times = Λ_of_t |> keys |> collect |> sort
     Λ_of_t_kept, wms_of_t_kept = DualOptimalFiltering.keep_above_threshold(Λ_of_t[times[end]], wms_of_t[times[end]], 0.001)
     @test minimum(wms_of_t_kept) >= 0.001
