@@ -52,8 +52,8 @@ end;
     @test DualOptimalFiltering.log_int_prod_2_Dir([1,1,1], [1,1,1]) ≈ 0.6931471805599453
 
     @test_nowarn DualOptimalFiltering.log_L2_dist_Dirichlet_mixtures(log.([0.2,0.3,0.5]), [[1,2,3],[1,2,4],[5,3,2]], log.([0.6,0.4]), [[1,2,1],[4,2,3]])
-    @test !isfinite(DualOptimalFiltering.log_L2_dist_Dirichlet_mixtures(log.([0.2,0.3,0.5]), [[1,2,3],[1,2,4],[5,3,2]], log.([0.2,0.3,0.5]), [[1,2,3],[1,2,4],[5,3,2]])
-)
+    @test_nowarn DualOptimalFiltering.log_L2_dist_Dirichlet_mixtures(log.([0.2,0.3,0.5]), [[1,2,3],[1,2,4],[5,3,2]], log.([0.2,0.3,0.5]), [[1,2,3],[1,2,4],[5,3,2]])
+
     Random.seed!(0);
     α_vec = [1.2, 1.4, 1.3]
     # α = α_vec
@@ -65,14 +65,14 @@ end;
     wfobs_WF3 = [rand(Multinomial(Pop_size_WF3, wfchain[:,k])) for k in 1:size(wfchain,2)] |> l -> hcat(l...)
     data_WF3 = Dict(zip(time_grid_WF3 , [wfobs_WF3[:,t]' |> collect for t in 1:size(wfobs_WF3,2)]))
 
-    log_ν_dict_arb, log_Cmmi_dict_arb, precomputed_log_binomial_coefficients_arb = DualOptimalFiltering.precompute_log_terms_arb(data_WF3, sum(α_vec); digits_after_comma_for_time_precision = 4)
+    log_ν_dict_arb, log_Cmmi_dict_arb, log_binomial_coeff_dict_arb = DualOptimalFiltering.precompute_log_terms_arb(data_WF3, sum(α_vec); digits_after_comma_for_time_precision = 4)
 
 
-    Λ_of_t_arb, wms_of_t_arb = DualOptimalFiltering.filter_WF_precomputed(α_vec, data_WF3, log_ν_dict_arb, log_Cmmi_dict_arb, precomputed_log_binomial_coefficients_arb)
+    Λ_of_t_arb, wms_of_t_arb = DualOptimalFiltering.filter_WF_precomputed(α_vec, data_WF3, log_ν_dict_arb, log_Cmmi_dict_arb, log_binomial_coeff_dict_arb)
 
     times = keys(Λ_of_t_arb) |> collect |> sort
 
-    Λ_of_t, wms_of_t = DualOptimalFiltering.filter_WF_precomputed_keep_fixed_number(α_vec, data_WF3, log_ν_dict_arb, log_Cmmi_dict_arb, precomputed_log_binomial_coefficients_arb, 30)
+    Λ_of_t, wms_of_t = DualOptimalFiltering.filter_WF_precomputed_keep_fixed_number(α_vec, data_WF3, log_ν_dict_arb, log_Cmmi_dict_arb, log_binomial_coeff_dict_arb, 30)
 
     res = DualOptimalFiltering.compute_L2_distance_between_two_Dirichlet_mixtures(α_vec, Λ_of_t_arb[times[5]], wms_of_t_arb[times[5]], Λ_of_t[times[5]], wms_of_t[times[5]])
     @test exp(DualOptimalFiltering.log_L2_dist_Dirichlet_mixtures(log.(wms_of_t_arb[times[5]]), DualOptimalFiltering.create_dirichlet_mixture(α_vec, Λ_of_t_arb[times[5]]), log.(wms_of_t[times[5]]),  DualOptimalFiltering.create_dirichlet_mixture(α_vec, Λ_of_t[times[5]]))) ≈ res[1] atol=res[2]
