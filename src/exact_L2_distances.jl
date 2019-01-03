@@ -97,7 +97,8 @@ function lmvbeta(α::AbstractArray{T,1}) where T <: Real
 end
 
 
-function log_L2_dist_Dirichlet_mixtures(logw1::RealVector, αlist_1::Array{RealVector, 1}, logw2::RealVector, αlist_2::Array{RealVector, 1})
+# function log_L2_dist_Dirichlet_mixtures(logw1::RealVector, αlist_1::Array{RealVector, 1}, logw2::RealVector, αlist_2::Array{RealVector, 1})
+function log_L2_dist_Dirichlet_mixtures(logw1::RealVector, αlist_1::Array{T, 1}, logw2::RealVector, αlist_2::Array{T, 1}) where T <: RealVector
     I = length(logw1)
     J = length(logw2)
     first_logterm = logsumexp(logw1[i] + logw1[j] + log_int_prod_2_Dir(αlist_1[i], αlist_1[j]) for (i,j) in Base.Iterators.product(1:I, 1:I))
