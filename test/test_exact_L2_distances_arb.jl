@@ -68,14 +68,14 @@ using ExactWrightFisher
 
     Λ_of_t, wms_of_t = DualOptimalFiltering.filter_WF_precomputed_keep_fixed_number(α_vec, data__WF3, log_ν_dict_arb, log_Cmmi_dict_arb, log_binomial_coeff_dict_arb, 30)
 
-    res = DualOptimalFiltering.compute_L2_distance_between_two_Dirichlet_mixtures(α_vec, Λ_of_t_arb[times[5]], wms_of_t_arb[times[5]], Λ_of_t[times[5]], wms_of_t[times[5]])
+    # res = DualOptimalFiltering.compute_L2_distance_between_two_Dirichlet_mixtures(α_vec, Λ_of_t_arb[times[4]], wms_of_t_arb[times[4]], Λ_of_t[times[4]], wms_of_t[times[4]])
+    #
+    # @test Float64(DualOptimalFiltering.L2_dist_Dirichlet_mixtures_arb(wms_of_t_arb[times[4]], DualOptimalFiltering.create_dirichlet_mixture(α_vec, Λ_of_t_arb[times[4]]), wms_of_t[times[4]],  DualOptimalFiltering.create_dirichlet_mixture(α_vec, Λ_of_t[times[4]]))) ≈ res[1] atol=res[2]
 
-    @test Float64(DualOptimalFiltering.L2_dist_Dirichlet_mixtures_arb(wms_of_t_arb[times[5]], DualOptimalFiltering.create_dirichlet_mixture(α_vec, Λ_of_t_arb[times[5]]), wms_of_t[times[5]],  DualOptimalFiltering.create_dirichlet_mixture(α_vec, Λ_of_t[times[5]]))) ≈ res[1] atol=res[2]
+    res = DualOptimalFiltering.compute_L2_distance_between_two_Dirichlet_mixtures(α_vec, Λ_of_t_arb[times[3]][1:50], wms_of_t_arb[times[3]][1:50], Λ_of_t[times[3]][1:50], wms_of_t[times[3]][1:50])
 
-    res = DualOptimalFiltering.compute_L2_distance_between_two_Dirichlet_mixtures(α_vec, Λ_of_t_arb[times[3]], wms_of_t_arb[times[3]], Λ_of_t[times[3]], wms_of_t[times[3]])
+    @test exp(DualOptimalFiltering.log_L2_dist_Dirichlet_mixtures(log.(wms_of_t_arb[times[3]][1:50]), DualOptimalFiltering.create_dirichlet_mixture(α_vec, Λ_of_t_arb[times[3]][1:50]), log.(wms_of_t[times[3]][1:50]),  DualOptimalFiltering.create_dirichlet_mixture(α_vec, Λ_of_t[times[3]][1:50]))) ≈ res[1] atol=res[2]
 
-    @test exp(DualOptimalFiltering.log_L2_dist_Dirichlet_mixtures(log.(wms_of_t_arb[times[3]]), DualOptimalFiltering.create_dirichlet_mixture(α_vec, Λ_of_t_arb[times[3]]), log.(wms_of_t[times[3]]),  DualOptimalFiltering.create_dirichlet_mixture(α_vec, Λ_of_t[times[3]]))) ≈ res[1] atol=res[2]
-
-    @test Float64(DualOptimalFiltering.L2_dist_Dirichlet_mixtures_arb(wms_of_t_arb[times[3]], DualOptimalFiltering.create_dirichlet_mixture(α_vec, Λ_of_t_arb[times[3]]), wms_of_t[times[3]],  DualOptimalFiltering.create_dirichlet_mixture(α_vec, Λ_of_t[times[3]]))) ≈ res[1] atol=res[2]
+    @test Float64(DualOptimalFiltering.L2_dist_Dirichlet_mixtures_arb(wms_of_t_arb[times[3]][1:50], DualOptimalFiltering.create_dirichlet_mixture(α_vec, Λ_of_t_arb[times[3]][1:50]), wms_of_t[times[3]][1:50],  DualOptimalFiltering.create_dirichlet_mixture(α_vec, Λ_of_t[times[3]][1:50]))) ≈ res[1] atol=res[2]
 
 end;
