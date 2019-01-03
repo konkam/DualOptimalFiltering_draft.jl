@@ -107,7 +107,7 @@ function log_denominator_Cmmi_nosign(si::Int64, k::Int64, sm::Int64, sα::Number
 end
 
 function sign_denominator_Cmmi(k::Int64)
-    if(iseven(k))
+    if iseven(k)
         return 1
     else
         return -1
