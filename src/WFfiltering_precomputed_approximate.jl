@@ -1,4 +1,4 @@
-function filter_WF_precomputed_keep_fixed_number(α, data, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, precomputed_log_binomial_coefficients::Dict{Tuple{Int64, Int64}, Float64}, fixed_number::Int64; silence = false)
+function filter_WF_precomputed_keep_fixed_number(α, data, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64}, fixed_number::Int64; silence = false)
     # println("filter_WF_mem2")
 
     function prune_keeping_fixed_number(Λ_of_t, wms_of_t)
@@ -6,11 +6,11 @@ function filter_WF_precomputed_keep_fixed_number(α, data, log_ν_dict::Dict{Tup
         return Λ_of_t_kept, normalise(wms_of_t_kept)
     end
 
-    filter_WF_precomputed_pruning(α, data, log_ν_dict, log_Cmmi_dict, precomputed_log_binomial_coefficients, prune_keeping_fixed_number; silence = silence)
+    filter_WF_precomputed_pruning(α, data, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict, prune_keeping_fixed_number; silence = silence)
 
 end
 
-function filter_WF_precomputed_keep_above_threshold(α, data, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, precomputed_log_binomial_coefficients::Dict{Tuple{Int64, Int64}, Float64}, ε::Float64; silence = false)
+function filter_WF_precomputed_keep_above_threshold(α, data, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64}, ε::Float64; silence = false)
     # println("filter_WF_mem2")
 
     function prune_keeping_above_threshold(Λ_of_t, wms_of_t)
@@ -18,11 +18,11 @@ function filter_WF_precomputed_keep_above_threshold(α, data, log_ν_dict::Dict{
         return Λ_of_t_kept, normalise(wms_of_t_kept)
     end
 
-    filter_WF_precomputed_pruning(α, data, log_ν_dict, log_Cmmi_dict, precomputed_log_binomial_coefficients, prune_keeping_above_threshold; silence = silence)
+    filter_WF_precomputed_pruning(α, data, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict, prune_keeping_above_threshold; silence = silence)
 
 end
 
-function filter_WF_precomputed_keep_fixed_fraction(α, data, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, precomputed_log_binomial_coefficients::Dict{Tuple{Int64, Int64}, Float64}, fraction::Float64; silence = false)
+function filter_WF_precomputed_keep_fixed_fraction(α, data, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64}, fraction::Float64; silence = false)
     # println("filter_WF_mem2")
 
     function prune_keeping_fixed_fraction(Λ_of_t, wms_of_t)
@@ -30,12 +30,12 @@ function filter_WF_precomputed_keep_fixed_fraction(α, data, log_ν_dict::Dict{T
         return Λ_of_t_kept, normalise(wms_of_t_kept)
     end
 
-    filter_WF_precomputed_pruning(α, data, log_ν_dict, log_Cmmi_dict, precomputed_log_binomial_coefficients, prune_keeping_fixed_fraction; silence = silence)
+    filter_WF_precomputed_pruning(α, data, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict, prune_keeping_fixed_fraction; silence = silence)
 
 end
 
 
-function filter_WF_precomputed_pruning(α, data, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, precomputed_log_binomial_coefficients::Dict{Tuple{Int64, Int64}, Float64}, do_the_pruning::Function; silence = false)
+function filter_WF_precomputed_pruning(α, data, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64}, do_the_pruning::Function; silence = false)
     # println("filter_WF_mem2")
 
     @assert length(α) == length(data[collect(keys(data))[1]])
@@ -56,7 +56,7 @@ function filter_WF_precomputed_pruning(α, data, log_ν_dict::Dict{Tuple{Int64, 
             println("Step index: $k")
             println("Number of components: $(length(filtered_Λ))")
         end
-        filtered_Λ, filtered_wms = get_next_filtering_distribution_precomputed(Λ_pruned, wms_pruned, times[k], times[k+1], α, sα, data[times[k+1]], log_ν_dict, log_Cmmi_dict, precomputed_log_binomial_coefficients)
+        filtered_Λ, filtered_wms = get_next_filtering_distribution_precomputed(Λ_pruned, wms_pruned, times[k], times[k+1], α, sα, data[times[k+1]], log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict)
         Λ_pruned, wms_pruned = do_the_pruning(filtered_Λ, filtered_wms)
         Λ_of_t[times[k+1]] = filtered_Λ
         wms_of_t[times[k+1]] = filtered_wms
