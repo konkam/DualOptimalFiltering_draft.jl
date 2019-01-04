@@ -1,8 +1,8 @@
 [[AbstractAlgebra]]
 deps = ["InteractiveUtils", "LinearAlgebra", "Markdown", "Random", "SparseArrays", "Test"]
-git-tree-sha1 = "ea7b81409537e36c915dd86f580ada1499128908"
+git-tree-sha1 = "fccd53e14c3bab5edc66bd7bc65f961938bc24af"
 uuid = "c3fe647b-3220-5bb0-a1ea-a7954cac585d"
-version = "0.3.1"
+version = "0.3.2"
 
 [[Arpack]]
 deps = ["BinaryProvider", "Libdl", "LinearAlgebra", "Random", "SparseArrays", "Test"]
@@ -137,7 +137,7 @@ version = "0.1.0"
 
 [[FeynmanKacParticleFilters]]
 deps = ["Distributions", "Random", "StatsFuns", "Test"]
-git-tree-sha1 = "c2cb0ae72e53fd3c1169b5ef80ad9b89965fcf7e"
+git-tree-sha1 = "6d9298145bf81cfae1c6f7c141e6c8f0e3b105c0"
 repo-rev = "master"
 repo-url = "/home/guillaume/Seafile/auto_shared/FeynmanKacParticleFilters"
 uuid = "b43f8e06-e683-11e8-294f-8d3ef32cb08c"
@@ -239,9 +239,9 @@ version = "0.3.2"
 
 [[Nemo]]
 deps = ["AbstractAlgebra", "InteractiveUtils", "Libdl", "LinearAlgebra", "Markdown", "Test"]
-git-tree-sha1 = "2403b8b9aec9374aaa29ad035998c01697ffa883"
+git-tree-sha1 = "54069333a8011e9b1f665cd5e11b5529b16f3046"
 uuid = "2edaba10-b0f1-5616-af89-8c11ac63239a"
-version = "0.11.0"
+version = "0.11.1"
 
 [[Optim]]
 deps = ["Calculus", "DiffEqDiffTools", "ForwardDiff", "LineSearches", "LinearAlgebra", "NLSolversBase", "NaNMath", "Parameters", "PositiveFactorizations", "Printf", "Random", "SparseArrays", "StatsBase", "Test"]
