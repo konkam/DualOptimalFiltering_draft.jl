@@ -102,3 +102,10 @@ function create_gamma_mixture_cdf(δ, θ, Λ, wms)
     end
     return gamma_mixture_cdf
 end
+
+function test_equal_spacing_of_observations(data; override = false, digits_after_comma_for_time_precision = 4)
+    if !override&&(data |> keys |> collect |> sort |> diff |> x -> round.(x; digits = digits_after_comma_for_time_precision) |> unique |> length > 1)
+        println(data |> keys |> collect |> sort |> diff |> x -> truncate_float.(x,digits_after_comma_for_time_precision) |> unique)
+        error("Think twice about precomputing all terms, as the time intervals are not equal. You can go ahead using the option 'override = true.'")
+    end
+end
