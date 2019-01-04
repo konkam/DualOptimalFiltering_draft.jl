@@ -97,7 +97,7 @@ function filter_WF_adaptive_precomputation(α, data, do_the_pruning::Function; s
     @assert length(α) == length(data[collect(keys(data))[1]])
     Δts = keys(data) |> collect |> sort |> diff |> unique
     if length(Δts) > 1
-        test_equal_spacing_of_observations(data, false)
+        test_equal_spacing_of_observations(data; override = false)
     end
     Δt = mean(Δts)
 
