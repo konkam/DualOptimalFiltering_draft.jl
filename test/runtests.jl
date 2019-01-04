@@ -33,8 +33,12 @@ println("Testing the plot functions")
 
 println("Testing the exact L2 distances formulas")
 @time include("test_exact_L2_distances.jl")
+
 println("Testing the exact L2 distances formulas")
 @time include("test_exact_L2_distances_arb.jl")
+
+println("Testing the adaptive precomputing filtering functions")
+@time include("test_WFfiltering_adaptive_precomputation.jl")
 #
 println("Testing the kde functions")
 @time include("test_kde_for_pf_samples.jl")

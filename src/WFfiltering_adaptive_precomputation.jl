@@ -1,13 +1,13 @@
 using DualOptimalFiltering, ExactWrightFisher
 using StatsFuns, SpecialFunctions, Base.Iterators
 
-function λm(sm::Int64, sα::Number)
-    return sm * (sm + sα - 1)/2
-end
-
-function logλm(sm::Int64, sα::Number)
-    return log(sm) + log(sm + sα - 1) - log(2)
-end
+# function λm(sm::Int64, sα::Number)
+#     return sm * (sm + sα - 1)/2
+# end
+#
+# function logλm(sm::Int64, sα::Number)
+#     return log(sm) + log(sm + sα - 1) - log(2)
+# end
 
 function logfirst_term_pmmi_no_alloc(si::Int64, sm::Int64, sα::Number)
     ##### Equivalent to
@@ -20,15 +20,15 @@ function logfirst_term_pmmi_no_alloc(si::Int64, sm::Int64, sα::Number)
     return res
 end
 
-function log_denominator_Cmmi_nosign(si::Int64, k::Int64, sm::Int64, sα::Number)
-    if k==0
-        return lfactorial(si) - si*log(2) + DualOptimalFiltering.log_descending_fact_no0(2*sm + sα - 2, si)
-    elseif k==si
-        return lfactorial(si) - si*log(2) + DualOptimalFiltering.log_descending_fact_no0(2*sm + sα - si-1, si)
-    else
-        return -1.0 .* si * log(2) + lfactorial(k) + lfactorial(si-k) + DualOptimalFiltering.log_descending_fact_no0(2*sm + sα - 2*k - 2, si-k) + DualOptimalFiltering.log_descending_fact_no0(2*sm + sα - k - 1, k)
-    end
-end
+# function log_denominator_Cmmi_nosign(si::Int64, k::Int64, sm::Int64, sα::Number)
+#     if k==0
+#         return lfactorial(si) - si*log(2) + log_descending_fact_no0(2*sm + sα - 2, si)
+#     elseif k==si
+#         return lfactorial(si) - si*log(2) + log_descending_fact_no0(2*sm + sα - si-1, si)
+#     else
+#         return -1.0 .* si * log(2) + lfactorial(k) + lfactorial(si-k) + log_descending_fact_no0(2*sm + sα - 2*k - 2, si-k) + log_descending_fact_no0(2*sm + sα - k - 1, k)
+#     end
+# end
 # take(cycle([1,-1]), 11)
 function logCmmi_arb(sm::Int64, si::Int64, t::Number, sα::Number)::Float64
     # tmp = [-λm(sm-k, sα)*t - log_denominator_Cmmi_nosign(si, k, sm, sα) for k in 0:si]
@@ -44,37 +44,40 @@ function logCmmi(sm::Int64, si::Int64, t::Number, sα::Number)
     return ExactWrightFisher.signed_logsumexp(-λm.(sm .- (0:si), sα) .* t - log_denominator_Cmmi_nosign.(si, 0:si, sm, sα) , sign_denominator_Cmmi.(0:si) )
 end
 
-function sign_denominator_Cmmi(k::Int64)
-    if(iseven(k))
-        return 1
-    else
-        return -1
-    end
-end
+# function sign_denominator_Cmmi(k::Int64)
+#     if(iseven(k))
+#         return 1
+#     else
+#         return -1
+#     end
+# end
 
-function log_binomial_safe_but_slow(n::Int64, k::Int64)
-    @assert n >= 0
-    @assert k >= 0
-    @assert k <= n
-    if k == 0 || k == n
-        return 0
-    elseif k == 1 || k == n-1
-        return log(n)
-    else
-        return sum(log(i) for i in (n-k+1):n) - sum(log(i) for i in 2:k)
-    end
-end
+# function log_binomial_safe_but_slow(n::Int64, k::Int64)
+#     @assert n >= 0
+#     @assert k >= 0
+#     @assert k <= n
+#     if k == 0 || k == n
+#         return 0
+#     elseif k == 1 || k == n-1
+#         return log(n)
+#     else
+#         return sum(log(i) for i in (n-k+1):n) - sum(log(i) for i in 2:k)
+#     end
+# end
 
-function loghypergeom_pdf_using_precomputed(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64})
-    return sum(log_binomial_coeff_dict[(m[k],i[k])] for k in 1:length(m)) - log_binomial_coeff_dict[(sm, si)]
-end
+# function loghypergeom_pdf_using_precomputed(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64})
+#     return sum(log_binomial_coeff_dict[(m[k],i[k])] for k in 1:length(m)) - log_binomial_coeff_dict[(sm, si)]
+# end
 
-function loghypergeom_pdf(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64)
-    return sum(log_binomial_safe_but_slow(m[k],i[k]) for k in 1:length(m)) - log_binomial_safe_but_slow(sm, si)
-end
+# function loghypergeom_pdf(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64)
+#     return sum(log_binomial_safe_but_slow(m[k],i[k]) for k in 1:length(m)) - log_binomial_safe_but_slow(sm, si)
+# end
 
 
 function precompute_next_terms!(last_sm_max, new_sm_max, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict, sα, Δt)
+    if last_sm_max == 0
+        log_binomial_coeff_dict[(0,0)] = 0
+    end
     for sm in (last_sm_max+1):new_sm_max
         for si in 1:sm
             log_ν_dict[(sm, si)] = logfirst_term_pmmi_no_alloc(si, sm, sα)
@@ -142,11 +145,11 @@ end
 
 
 
-using BenchmarkTools
-@btime logλm(10, 3.2)
-@btime logfirst_term_pmmi_no_alloc(10, 12, 3.2) # 0 allocation
-@btime log_denominator_Cmmi_nosign(10, 3, 12, 3.2) # 0 allocation
-@btime logCmmi_arb(10, 3, 12, 3.2) # 46 allocations
-@btime logCmmi(10, 3, 12, 3.2)
-@btime log_binomial_safe_but_slow(20, 6)
-@btime loghypergeom_pdf([2, 2, 2, 0], [10, 5, 3, 2], 6, 20)
+# using BenchmarkTools
+# @btime logλm(10, 3.2)
+# @btime logfirst_term_pmmi_no_alloc(10, 12, 3.2) # 0 allocation
+# @btime log_denominator_Cmmi_nosign(10, 3, 12, 3.2) # 0 allocation
+# @btime logCmmi_arb(10, 3, 12, 3.2) # 46 allocations
+# @btime logCmmi(10, 3, 12, 3.2)
+# @btime log_binomial_safe_but_slow(20, 6)
+# @btime loghypergeom_pdf([2, 2, 2, 0], [10, 5, 3, 2], 6, 20)
