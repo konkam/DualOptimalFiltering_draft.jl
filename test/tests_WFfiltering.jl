@@ -1,8 +1,8 @@
 using Nemo
 
 @testset "Compute maximum number of components" begin
-    data = Dict(0.1 = [3,4,5])
-    @ŧest maximum_number_of_components_WF(data) == 4*5*6
+    data = Dict(0.1 => [3,4,5])
+    @test DualOptimalFiltering.maximum_number_of_components_WF(data) == 4*5*6
 end;
 
 @testset "update WF Tests" begin
