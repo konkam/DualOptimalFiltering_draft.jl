@@ -1,5 +1,10 @@
 using Nemo
 
+@testset "Compute maximum number of components" begin
+    data = Dict(0.1 = [3,4,5])
+    @ŧest maximum_number_of_components_WF(data) == 4*5*6
+end;
+
 @testset "update WF Tests" begin
     Random.seed!(2)
     p = rand(Dirichlet(ones(5)*1 ./ 5))

@@ -208,3 +208,8 @@ function filter_WF_mem2(α, data)
 end
 
 filter_WF(α, data) = filter_WF_mem2(α, data)
+
+
+function maximum_number_of_components_WF(data)
+    return data |> values |> sum |> x -> prod(x .+ 1)
+end
