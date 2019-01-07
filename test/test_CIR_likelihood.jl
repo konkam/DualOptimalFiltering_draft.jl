@@ -69,7 +69,7 @@ end;
     for t in 1:5
         @test tmp[t] ≈ [0.104581, 0.487464, 0.199507, 0.101034, 0.107413][t] atol = 5*10.0^(-5)
     end
-    tmp = DualOptimalFiltering.next_log_wms_prime_from_log_wms(log.([0.5,0.25,0.25]), [1,4,2], 0.2, 1.3, 1.1, 0.6)
+    tmp = DualOptimalFiltering.next_log_wms_prime_from_log_wms1D(log.([0.5,0.25,0.25]), [1,4,2], 0.2, 1.3, 1.1, 0.6)
     for t in 1:5
         @test tmp[t] ≈ [-2.25779, -0.718539, -1.6119, -2.2923, -2.23107][t] atol = 5*10.0^(-5)
     end

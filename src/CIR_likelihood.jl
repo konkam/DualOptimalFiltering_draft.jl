@@ -108,8 +108,8 @@ function next_wms_prime_from_wms(wms, Λ, Δt, θ, γ, σ)
     return wms_prime
 end
 
-# function next_log_wms_prime_from_log_wms4(log_wms, Λ, Δt, θ, γ, σ)
-function next_log_wms_prime_from_log_wms(log_wms, Λ, Δt, θ, γ, σ)
+# function next_log_wms_prime_from_log_wms1D4(log_wms, Λ, Δt, θ, γ, σ)
+function next_log_wms_prime_from_log_wms1D(log_wms, Λ, Δt, θ, γ, σ)
     #The speed gain seems like a modest 20%, but much less allocations though.
     nΛ = length(Λ)
     maxΛ = maximum(Λ)
@@ -160,7 +160,7 @@ function log_likelihood(δ, γ, σ, λ, data)
 
     #1st prediction
     Λ_prime = Λ_prime_1D(Λ)
-    log_wms_prime = next_log_wms_prime_from_log_wms(log_wms, Λ, times[2]-times[1], θ, γ, σ)
+    log_wms_prime = next_log_wms_prime_from_log_wms1D(log_wms, Λ, times[2]-times[1], θ, γ, σ)
     θ_prime = θ_prime_from_θ_CIR(θ, times[2]-times[1], γ, σ)
 
     res[times[2]] = res[times[1]] + logμν_i_minus_1(Λ_prime, log_wms_prime, θ_prime, data[times[2]], δ)
@@ -178,7 +178,7 @@ function log_likelihood(δ, γ, σ, λ, data)
          #Prediction
         Λ_prime = Λ_prime_1D(Λ)
         θ_prime = θ_prime_from_θ_CIR(θ, Δt, γ, σ)
-        log_wms_prime = next_log_wms_prime_from_log_wms(log_wms, Λ, Δt, θ, γ, σ)
+        log_wms_prime = next_log_wms_prime_from_log_wms1D(log_wms, Λ, Δt, θ, γ, σ)
 
         res[next_t] = res[t] + logμν_i_minus_1(Λ_prime, log_wms_prime, θ_prime, data[next_t], δ)
 
@@ -245,7 +245,7 @@ function log_likelihood_pruning(δ, γ, σ, λ, data, do_the_pruning_log_wms::Fu
 
     #1st prediction
     Λ_prime = Λ_prime_1D(pruned_Λ)
-    log_wms_prime = next_log_wms_prime_from_log_wms(pruned_log_wms, pruned_Λ, times[2]-times[1], θ, γ, σ)
+    log_wms_prime = next_log_wms_prime_from_log_wms1D(pruned_log_wms, pruned_Λ, times[2]-times[1], θ, γ, σ)
     θ_prime = θ_prime_from_θ_CIR(θ, times[2]-times[1], γ, σ)
 
     res[times[2]] = res[times[1]] + logμν_i_minus_1(Λ_prime, log_wms_prime, θ_prime, data[times[2]], δ)
@@ -267,7 +267,7 @@ function log_likelihood_pruning(δ, γ, σ, λ, data, do_the_pruning_log_wms::Fu
          #Prediction
         Λ_prime = Λ_prime_1D(pruned_Λ)
         θ_prime = θ_prime_from_θ_CIR(θ, Δt, γ, σ)
-        log_wms_prime = next_log_wms_prime_from_log_wms(pruned_log_wms, pruned_Λ, Δt, θ, γ, σ)
+        log_wms_prime = next_log_wms_prime_from_log_wms1D(pruned_log_wms, pruned_Λ, Δt, θ, γ, σ)
 
         res[next_t] = res[t] + logμν_i_minus_1(Λ_prime, log_wms_prime, θ_prime, data[next_t], δ)
 

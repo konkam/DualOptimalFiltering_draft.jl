@@ -115,7 +115,7 @@ end
 
 function predict_CIR_params_logweights(logweights::Array{Ty,1}, δ::Ty, θ::Ty, γ::Ty, σ::Ty, Λ, Δt::Ty; debug = false) where Ty<:Number
 
-    return θ_prime_from_θ_CIR(θ, Δt, γ, σ), Λ_prime_1D(Λ), next_log_wms_prime_from_log_wms(logweights, Λ, Δt, θ, γ, σ)
+    return θ_prime_from_θ_CIR(θ, Δt, γ, σ), Λ_prime_1D(Λ), next_log_wms_prime_from_log_wms1D(logweights, Λ, Δt, θ, γ, σ)
 
 end
 
