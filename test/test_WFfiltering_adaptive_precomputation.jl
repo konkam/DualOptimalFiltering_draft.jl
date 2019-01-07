@@ -15,6 +15,7 @@
     log_binomial_coeff_dict = Dict{Tuple{Int64,Int64},Float64}()
     @test_nowarn DualOptimalFiltering.precompute_next_terms!(0, 12, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict, 3.1, 0.2)
     @test_nowarn DualOptimalFiltering.logpmn_precomputed([2, 4, 3], [0, 1, 0], 9, 1, 0.2, 1.2, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict)
+    @test DualOptimalFiltering.logpmn_precomputed([2, 4, 3], [0, 1, 0], 9, 1, 0.2, 1.2, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict) == DualOptimalFiltering.logpmmi_precomputed([2,3,3], [2, 4, 3], 9, 8, 0.2, 1.2, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict)
 end;
 
 @testset "test adaptive precomputation filtering" begin
