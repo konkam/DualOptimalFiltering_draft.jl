@@ -74,7 +74,7 @@ end
 # end
 
 
-function precompute_next_terms!(last_sm_max, new_sm_max, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict, sα, Δt)
+function precompute_next_terms!(last_sm_max, new_sm_max, log_ν_dict::Dict{Tuple{Int64,Int64},Float64}, log_Cmmi_dict::Dict{Tuple{Int64,Int64},Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64,Int64},Float64}, sα, Δt)
     if last_sm_max == 0
         log_binomial_coeff_dict[(0,0)] = 0
     end
@@ -89,7 +89,6 @@ function precompute_next_terms!(last_sm_max, new_sm_max, log_ν_dict, log_Cmmi_d
         end
     end
 end
-
 
 function filter_WF_adaptive_precomputation(α, data, do_the_pruning::Function; silence = false)
     # println("filter_WF_mem2")
