@@ -1,8 +1,9 @@
 using Nemo
 
-@testset "Compute maximum number of components" begin
+@testset "tests some general purpose functions" begin
     data = Dict(0.1 => [3,4,5])
     @test DualOptimalFiltering.maximum_number_of_components_WF(data) == 4*5*6
+    @test DualOptimalFiltering.indices_of_tree_below([2,3,1]) == Base.Iterators.ProductIterator{Tuple{UnitRange{Int64},UnitRange{Int64},UnitRange{Int64}}}((0:2, 0:3, 0:1))
 end;
 
 @testset "update WF Tests" begin
