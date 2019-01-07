@@ -5,10 +5,16 @@
     @test_nowarn DualOptimalFiltering.logCmmi_arb(10, 8, 0.4, 2.1)
     @test_nowarn DualOptimalFiltering.logCmmi(10, 8, 0.4, 2.1)
     @test Float64(DualOptimalFiltering.logCmmi_arb(10, 8, 0.4, 2.1)) ≈ DualOptimalFiltering.logCmmi(10, 8, 0.4, 2.1)[2]
-    log_ν_dict = Dict()
-    log_Cmmi_dict = Dict()
-    log_binomial_coeff_dict = Dict()
+    log_ν_dict = Dict{Tuple{Int64,Int64},Float64}()
+    log_Cmmi_dict = Dict{Tuple{Int64,Int64},Float64}()
+    log_binomial_coeff_dict = Dict{Tuple{Int64,Int64},Float64}()
     @test_nowarn DualOptimalFiltering.precompute_next_terms!(10, 12, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict, 3.1, 0.2)
+
+    log_ν_dict = Dict{Tuple{Int64,Int64},Float64}()
+    log_Cmmi_dict = Dict{Tuple{Int64,Int64},Float64}()
+    log_binomial_coeff_dict = Dict{Tuple{Int64,Int64},Float64}()
+    @test_nowarn DualOptimalFiltering.precompute_next_terms!(0, 12, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict, 3.1, 0.2)
+    @test_nowarn DualOptimalFiltering.logpmn_precomputed([2, 4, 3], [0, 1, 0], 9, 1, 0.2, 1.2, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict)
 end;
 
 @testset "test adaptive precomputation filtering" begin
