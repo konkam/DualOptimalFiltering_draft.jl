@@ -87,7 +87,7 @@ function next_wms_from_wms_prime(wms_prime, Λ_prime, y, θ_prime, α)#update
     return unnormalised_wms |> DualOptimalFiltering.normalise
 end
 
-function next_log_wms_from_log_wms_prime(log_wms_prime, Λ_prime, y, θ_prime, α)#update
+function next_logwms_from_log_wms_prime1D(log_wms_prime, Λ_prime, y, θ_prime, α)#update
     #Make sure we deal correctly with weights equal to 0
     #Probably harmonise what can be improved in the filtering algorithm
     unnormalised_log_wms = log_wms_prime .+ logμπh(Λ_prime, θ_prime, α, y)
@@ -173,7 +173,7 @@ function log_likelihood(δ, γ, σ, λ, data)
         #Update
         Λ = next_Λ_from_Λ_prime(Λ_prime, data[t], t_CIR)
         θ = θ_from_θ_prime(data[t], θ_prime, T_CIR)
-        log_wms = next_log_wms_from_log_wms_prime(log_wms_prime, Λ_prime, data[t], θ_prime, α)
+        log_wms = next_logwms_from_log_wms_prime1D(log_wms_prime, Λ_prime, data[t], θ_prime, α)
 
          #Prediction
         Λ_prime = Λ_prime_1D(Λ)
@@ -258,7 +258,7 @@ function log_likelihood_pruning(δ, γ, σ, λ, data, do_the_pruning_log_wms::Fu
         #Update
         Λ = next_Λ_from_Λ_prime(Λ_prime, data[t], t_CIR)
         θ = θ_from_θ_prime(data[t], θ_prime, T_CIR)
-        log_wms = next_log_wms_from_log_wms_prime(log_wms_prime, Λ_prime, data[t], θ_prime, α)
+        log_wms = next_logwms_from_log_wms_prime1D(log_wms_prime, Λ_prime, data[t], θ_prime, α)
 
         #Pruning
         pruned_Λ, pruned_log_wms = do_the_pruning_log_wms(Λ, log_wms)

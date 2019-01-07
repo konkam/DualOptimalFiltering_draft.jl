@@ -69,7 +69,7 @@ end
 function update_CIR_params_logweights(logweights::Array{Ty,1}, δ::Ty, θ::Ty, λ::Ty, Λ, y::Array{Tz,1}) where {Ty<:Number,Tz<:Integer}
     α = δ/2#Alternative parametrisation
 
-    return T_CIR(y, θ), t_CIR(y, Λ), next_log_wms_from_log_wms_prime(logweights, Λ, y, θ, α)
+    return T_CIR(y, θ), t_CIR(y, Λ), next_logwms_from_log_wms_prime1D(logweights, Λ, y, θ, α)
 end
 
 function update_CIR_params_debug(wms::Array{Ty,1}, δ::Ty, θ::Ty, λ::Ty, Λ, y::Array{Tz,1}; debug = false) where {Ty<:Number,Tz<:Integer}

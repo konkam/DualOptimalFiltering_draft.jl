@@ -48,20 +48,20 @@ end;
     @test DualOptimalFiltering.θ_from_θ_prime([5], 0.3, DualOptimalFiltering.T_CIR)  == 1.3
     @test DualOptimalFiltering.θ_from_θ_prime([5,6], 0.3, DualOptimalFiltering.T_CIR)  == 2.3
 
-    tmp = DualOptimalFiltering.next_log_wms_from_log_wms_prime(log.([0.5,0.25,0.25]), [1,4,2], 6, 1.3, 0.7)
+    tmp = DualOptimalFiltering.next_logwms_from_log_wms_prime1D(log.([0.5,0.25,0.25]), [1,4,2], 6, 1.3, 0.7)
     for t in 1:3
         @test tmp[t] ≈ [-1.74651, -0.506833, -1.49961][t] atol = 5*10.0^(-5)
     end
-    tmp = DualOptimalFiltering.next_log_wms_from_log_wms_prime(log.([0.5,0.25,0.25]), [1,4,2], [6], 1.3, 0.7)
+    tmp = DualOptimalFiltering.next_logwms_from_log_wms_prime1D(log.([0.5,0.25,0.25]), [1,4,2], [6], 1.3, 0.7)
     for t in 1:3
         @test tmp[t] ≈ [-1.74651, -0.506833, -1.49961][t] atol = 5*10.0^(-5)
     end
-    tmp = DualOptimalFiltering.next_log_wms_from_log_wms_prime(log.([0.5,0.25,0.25]), [1,4,2], [5,6], 1.3, 0.7)
+    tmp = DualOptimalFiltering.next_logwms_from_log_wms_prime1D(log.([0.5,0.25,0.25]), [1,4,2], [5,6], 1.3, 0.7)
     ref = [-1.956560511980828, -0.42974982819492613, -1.5702921541433446]
     for t in 1:3
         @test tmp[t] ≈ ref[t] atol = 5*10.0^(-5)
     end
-    tmp = DualOptimalFiltering.next_log_wms_from_log_wms_prime(log.([0.5,0.25,0.25]), [1,4,2], [6,5], 1.3, 0.7)
+    tmp = DualOptimalFiltering.next_logwms_from_log_wms_prime1D(log.([0.5,0.25,0.25]), [1,4,2], [6,5], 1.3, 0.7)
     for t in 1:3
         @test tmp[t] ≈ ref[t] atol = 5*10.0^(-5)
     end
