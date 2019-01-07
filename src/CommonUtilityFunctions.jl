@@ -109,3 +109,7 @@ function test_equal_spacing_of_observations(data; override = false, digits_after
         error("Think twice about precomputing all terms, as the time intervals are not equal. You can go ahead using the option 'override = true.'")
     end
 end
+
+function log_pochammer(x::Real, n::Integer)
+    return sum(log(x + i) for i in 0:(n-1))
+end

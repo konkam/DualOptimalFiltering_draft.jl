@@ -35,4 +35,6 @@
     @test DualOptimalFiltering.test_equal_spacing_of_observations(data; override = false, digits_after_comma_for_time_precision = 4) == nothing
     data[6.0] = zeros(2,2)
     @test_throws ErrorException DualOptimalFiltering.test_equal_spacing_of_observations(data; override = false, digits_after_comma_for_time_precision = 4)
+
+    @test_nowarn DualOptimalFiltering.log_pochammer(0.5, 5)
 end;
