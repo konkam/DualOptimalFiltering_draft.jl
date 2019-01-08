@@ -1,7 +1,7 @@
 @testset "test the wf likelihood functions" begin
 
-    @test_nowarn DualOptimalFiltering.logμπh_another_param(ones(3), [0,0,0], [2,3,1])
-    @test_nowarn DualOptimalFiltering.logμπh_another_param(ones(3), [1,5,2], [2,3,1])
+    @test_nowarn DualOptimalFiltering.logμπh_WF(ones(3), [0,0,0], [2,3,1])
+    @test_nowarn DualOptimalFiltering.logμπh_WF(ones(3), [1,5,2], [2,3,1])
 
     @test DualOptimalFiltering.compute_next_Λ_max([2,1,3], [1,1,1]) == [3,2,4]
     # @test DualOptimalFiltering.compute_next_Λ_max([2,1,3], Int64.(zeros(2,3))) == [2,1,3]
@@ -23,10 +23,17 @@
     data, wfchain_WF3, α = simulate_WF3_data()
 
     current_logw = -0.5*ones(5,5,5)
-    current_logw_hat = -0.5*ones(5,5,5)
+    current_logw_prime = -0.5*ones(5,5,5)
     current_Λ_max = [2,1,3]
     y = [2,3,1]
 
-    @test_nowarn DualOptimalFiltering.next_logwms_hat_from_log_wms!(α, current_logw, current_logw_hat, current_Λ_max, y)
+    @test_nowarn DualOptimalFiltering.next_logwms_from_log_wms_prime!(α, current_logw, current_logw_prime, current_Λ_max, y)
+
+    log_ν_dict = Dict{Tuple{Int64,Int64},Float64}()
+    log_Cmmi_dict = Dict{Tuple{Int64,Int64},Float64}()
+    log_binomial_coeff_dict = Dict{Tuple{Int64,Int64},Float64}()
+    @test_nowarn DualOptimalFiltering.precompute_next_terms!(0, 12, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict, 3.1, 0.2)
+
+    @test_nowarn DualOptimalFiltering.next_log_wms_prime_from_log_wms!(1.2, current_logw, current_logw_prime, DualOptimalFiltering.Λ_from_Λ_max(current_Λ_max), current_Λ_max, y, 0.4, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict)
 
 end;
