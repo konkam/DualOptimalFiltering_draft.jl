@@ -22,6 +22,9 @@
     end
     data, wfchain_WF3, α = simulate_WF3_data()
 
+    @test DualOptimalFiltering.t_WF(data[times[1]] |> vec, [0,0,0]) == [3, 9, 3]
+    @test collect(DualOptimalFiltering.t_WF(data[times[1]] |> vec, [[0,0,0]])) == Array{Int64,1}[[3, 9, 3]]
+
     current_logw = -0.5*ones(5,5,5)
     current_logw_prime = -0.5*ones(5,5,5)
     current_Λ_max = [2,1,3]

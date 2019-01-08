@@ -22,6 +22,10 @@ function t_WF(y::Array{T, 1}, m::Union{AbstractArray{U, 1}, Tuple}) where {T <: 
     return m .+ y
 end
 
+function t_WF(y::Array{T, 1}, Λ)  where {T <: Real, U <: Integer}
+    return (t_WF(y, m) for m in Λ)
+end
+
 function next_logwms_from_log_wms_prime!(α::Array{T, 1}, current_logwms, current_logwms_prime, current_Λ_prime_max, y::Array{U, 1}) where {T <: Real, U <: Integer}
     Λ = Λ_from_Λ_max(current_Λ_prime_max)
     for m in Λ
