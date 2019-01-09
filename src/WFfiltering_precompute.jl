@@ -55,15 +55,15 @@ function precompute_terms(data::Dict{Float64,Array{Int64,2}}, sα::Number; digit
     return log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict
 end
 
-function loghypergeom_pdf_using_precomputed(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64})
+function loghypergeom_pdf_using_precomputed(i::Union{Tuple, Array{T,1}}, m::Union{Tuple, Array{T,1}}, si::Integer, sm::Integer, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64})  where T <: Integer
     return sum(log_binomial_coeff_dict[(m[k],i[k])] for k in 1:length(m)) - log_binomial_coeff_dict[(sm, si)]
 end
 
-function logpmmi_raw_precomputed(i::Array{Int64,1}, m::Array{Int64,1}, sm::Int64, si::Int64, t::Number, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64})
+function logpmmi_raw_precomputed(i::Union{Tuple, Array{T,1}}, m::Union{Tuple, Array{T,1}}, sm::Integer, si::Integer, t::Number, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64}) where T <: Integer
     return log_ν_dict[(sm, si)] + log_Cmmi_dict[(sm, si)]  + loghypergeom_pdf_using_precomputed(i, m, si, sm, log_binomial_coeff_dict)
 end
 
-function logpmmi_precomputed(i::Array{Int64,1}, m::Array{Int64,1}, sm::Int64, si::Int64, t::Number, sα::Number, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64})
+function logpmmi_precomputed(i::Union{Tuple, Array{T,1}}, m::Union{Tuple, Array{T,1}}, sm::Integer, si::Integer, t::Number, sα::Number, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64}) where T <: Integer
     if si==0
         return -λm(sm, sα)*t
     else
@@ -71,7 +71,7 @@ function logpmmi_precomputed(i::Array{Int64,1}, m::Array{Int64,1}, sm::Int64, si
     end
 end
 
-logpmn_precomputed(m::Array{T,1},  n::Union{Tuple, Array{T,1}}, sm::Int64, sn::Int64, t::Number, sα::Number, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64}) where T <: Integer = logpmmi_precomputed(m.-n, m, sm, sm-sn, t, sα, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict)
+logpmn_precomputed(m::Union{Tuple, Array{T,1}},  n::Union{Tuple, Array{T,1}}, sm::Int64, sn::Int64, t::Number, sα::Number, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64}) where T <: Integer = logpmmi_precomputed(m.-n, m, sm, sm-sn, t, sα, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict)
 
 function WF_prediction_for_one_m_precomputed(m::Array{Int64,1}, sα::Ty, t::Ty, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64}; wm = 1) where {Ty<:Number}
     # gm = map(x -> 0:x, m) |> vec |> x -> Iterators.product(x...)
