@@ -111,5 +111,11 @@ function test_equal_spacing_of_observations(data; override = false, digits_after
 end
 
 function log_pochammer(x::Real, n::Integer)
-    return sum(log(x + i) for i in 0:(n-1))
+    if n==0
+        return 0
+    elseif n==1
+        return log(x)
+    else
+        return sum(log(x + i) for i in 0:(n-1))
+    end
 end

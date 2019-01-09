@@ -37,4 +37,6 @@
     @test_throws ErrorException DualOptimalFiltering.test_equal_spacing_of_observations(data; override = false, digits_after_comma_for_time_precision = 4)
 
     @test_nowarn DualOptimalFiltering.log_pochammer(0.5, 5)
+    @test DualOptimalFiltering.log_pochammer(0.5, 0) == 0
+    @test DualOptimalFiltering.log_pochammer(0.5, 1) == log(0.5)
 end;
