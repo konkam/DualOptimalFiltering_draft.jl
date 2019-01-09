@@ -11,7 +11,7 @@
         α = ones(K)
         sα = sum(α)
         Pop_size_WF3 = 15
-        Ntimes_WF3 = 10
+        Ntimes_WF3 = 3
         time_step_WF3 = 0.1
         Random.seed!(4)
         wfchain_WF3 = rand(Dirichlet(K,0.3)) |> z-> DualOptimalFiltering.wright_fisher_PD1(z, 1.5, 50, Ntimes_WF3)[:,2:end]
@@ -24,13 +24,14 @@
 
     @test DualOptimalFiltering.t_WF(data[times[1]] |> vec, [0,0,0]) == [3, 9, 3]
     @test collect(DualOptimalFiltering.t_WF(data[times[1]] |> vec, [[0,0,0]])) == Array{Int64,1}[[3, 9, 3]]
+    @test_nowarn DualOptimalFiltering.t_WF(data[times[1]] |> vec, [[0,0,0], [1,2,1]])
 
     current_logw = -0.5*ones(5,5,5)
     current_logw_prime = -0.5*ones(5,5,5)
     current_Λ_max = [2,1,3]
     y = [2,3,1]
 
-    @test_nowarn DualOptimalFiltering.next_logwms_from_log_wms_prime!(α, current_logw, current_logw_prime, current_Λ_max, y)
+    @test_nowarn DualOptimalFiltering.update_logwms_to_i_from_log_wms_prime_im1!(α, current_logw, current_logw_prime, current_Λ_max, y)
 
     log_ν_dict = Dict{Tuple{Int64,Int64},Float64}()
     log_Cmmi_dict = Dict{Tuple{Int64,Int64},Float64}()
@@ -38,5 +39,7 @@
     @test_nowarn DualOptimalFiltering.precompute_next_terms!(0, 12, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict, 3.1, 0.2)
 
     @test_nowarn DualOptimalFiltering.next_log_wms_prime_from_log_wms!(1.2, current_logw, current_logw_prime, DualOptimalFiltering.Λ_from_Λ_max(current_Λ_max), current_Λ_max, y, 0.4, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict)
+
+    @test_nowarn DualOptimalFiltering.WF_loglikelihood_adaptive_precomputation(α, data; silence = false)
 
 end;
