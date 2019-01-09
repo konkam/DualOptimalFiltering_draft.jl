@@ -146,7 +146,6 @@ end
 
 indices_of_tree_below(m::Union{AbstractArray{U, 1}, Tuple}) where U <: Integer =  Λ_from_Λ_max(m)
 
-
 function WF_prediction_for_one_m_debug_mem2(m::Array{Int64,1}, sα::Ty, t::Ty; wm = 1, debug = true) where {Ty<:Number}
     # gm = map(x -> 0:x, m) |> vec |> x -> Iterators.product(x...)
     gm = indices_of_tree_below(m)
