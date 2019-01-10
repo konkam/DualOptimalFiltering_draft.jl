@@ -18,8 +18,8 @@ function Λprime_i_from_Λimax(Λi_max::Union{AbstractArray{U, 1}, Tuple}) where
     return indices_of_tree_below(Λi_max)
 end
 
-function Λi_from_Λprime_im1_max(yi::Union{AbstractArray{U, 1}, Tuple}, Λprime_im1_max::Union{AbstractArray{U, 1}, Tuple}) where U <: Integer
-    return indices_of_tree_below(t_WF(yi, Λprime_im1_max))
+function Λi_from_Λprime_im1(yi::Union{AbstractArray{U, 1}, Tuple}, Λprime_im1) where U <: Integer
+    return t_WF(yi, Λprime_im1)
 end
 
 function t_WF(y::Array{T, 1}, m::Union{AbstractArray{U, 1}, Tuple}) where {T <: Real, U <: Integer}
@@ -32,9 +32,9 @@ end
 
 function update_logwms_to_i_from_log_wms_prime_im1!(α::Array{T, 1}, logwms, logwms_prime_im1, Λ_prime_im1_max::Array{U, 1}, yi::Array{U, 1}) where {T <: Real, U <: Integer}
     Λ_prime_im1 = Λ_from_Λ_max(Λ_prime_im1_max)
-    Λ_i = Λ_from_Λ_max(t_WF(yi, Λ_prime_im1_max))
-    for n in Λ_prime_im1
+    Λ_i = t_WF(yi, Λ_prime_im1)
 
+    for n in Λ_prime_im1
         shifted_idn = n .+ 1
         m = t_WF(yi,n)
         shifted_idm = m .+ 1
@@ -112,20 +112,25 @@ function WF_loglikelihood_adaptive_precomputation(α, data_; silence = false)
         #Log likelihood
         # println("Log likelihood")
 
-        println(Λprime_im1)
+        println("Λprime_im1_max = $Λprime_im1_max")
+        println("Λprime_im1 = $(collect(Λprime_im1))")
 
         μν_prime_im1[i] = logsumexp(logw_prime[(m .+ 1)...] + logμπh_WF(α, m, yi) for m in Λprime_im1)
 
         #Hidden state updating
         # println("Hidden state updating")
         Λi_max = t_WF(yi, Λprime_im1_max)
-        Λi = Λi_from_Λprime_im1_max(yi, Λprime_im1_max)
+        Λi = Λi_from_Λprime_im1(yi, Λprime_im1)
         Λprime_i_max = Λi_max
         Λprime_i = Λprime_i_from_Λimax(Λi_max)
 
+        println("Λi = $(collect(Λi))")
+
+
         #Update
-        # println("Weights updating")
+        println("Weights updating")
         update_logwms_to_i_from_log_wms_prime_im1!(α, logw, logw_prime, Λprime_im1_max, yi)
+        println("logw = $(collect(logw[(m .+ 1)...] for m in Λi) |> vec)")
 
         #Prediction
         # println("Precomputation for prediction")
