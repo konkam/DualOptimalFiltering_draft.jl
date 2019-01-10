@@ -97,7 +97,7 @@ function WF_loglikelihood_adaptive_precomputation(α, data_; silence = false)
     #Prior
     Λprime_im1_max = zeros(Int64, length(α))
     Λprime_im1 = [Λprime_im1_max]
-    logw_prime[(Λprime_im1_max .+ 1)...] = 1.
+    logw_prime[(Λprime_im1_max .+ 1)...] = 0.
 
     for i in 1:(length(times)-1)
         if (!silence)
@@ -111,6 +111,8 @@ function WF_loglikelihood_adaptive_precomputation(α, data_; silence = false)
 
         #Log likelihood
         # println("Log likelihood")
+
+        println(Λprime_im1)
 
         μν_prime_im1[i] = logsumexp(logw_prime[(m .+ 1)...] + logμπh_WF(α, m, yi) for m in Λprime_im1)
 
