@@ -191,35 +191,27 @@ end
 function log_likelihood_CIR_keep_fixed_number(δ, γ, σ, λ, data, fixed_number::Int64; silence = false)
     # println("filter_WF_mem2")
 
-    function prune_keeping_fixed_number_log_wms(Λ_of_t, log_wms_of_t)
-        Λ_of_t_kept, log_wms_of_t_kept = keep_fixed_number_of_weights(Λ_of_t, log_wms_of_t, fixed_number)
-        return Λ_of_t_kept, log_wms_of_t_kept .- logsumexp(log_wms_of_t_kept)
-    end
+    prune_keeping_fixed_number_log_wms_(Λ_of_t, log_wms_of_t) =
+        prune_keeping_fixed_number_log_wms(Λ_of_t, log_wms_of_t, fixed_number)
 
-    log_likelihood_pruning(δ, γ, σ, λ, data, prune_keeping_fixed_number_log_wms; silence = silence)
+    log_likelihood_pruning(δ, γ, σ, λ, data, prune_keeping_fixed_number_log_wms_; silence = silence)
 
 end
 
 function log_likelihood_CIR_keep_above_threshold(δ, γ, σ, λ, data, ε::Float64; silence = false)
     # println("filter_WF_mem2")
 
-    function prune_keeping_above_threshold_log_wms(Λ_of_t, log_wms_of_t)
-        Λ_of_t_kept, log_wms_of_t_kept = keep_above_threshold(Λ_of_t, log_wms_of_t, log(ε))
-        return Λ_of_t_kept, log_wms_of_t_kept .- logsumexp(log_wms_of_t_kept)
-    end
+    prune_keeping_above_threshold_log_wms_(Λ_of_t, log_wms_of_t) = prune_keeping_above_threshold_log_wms(Λ_of_t, log_wms_of_t, ε)
 
-    log_likelihood_pruning(δ, γ, σ, λ, data, prune_keeping_above_threshold_log_wms; silence = silence)
+    log_likelihood_pruning(δ, γ, σ, λ, data, prune_keeping_above_threshold_log_wms_; silence = silence)
 
 end
 
 function log_likelihood_CIR_fixed_fraction(δ, γ, σ, λ, data, fraction::Float64; silence = false)
     # println("filter_WF_mem2")
-    function prune_keeping_fixed_fraction_log_wms(Λ_of_t, log_wms_of_t)
-        Λ_of_t_kept, wms_of_t_kept = keep_fixed_fraction(Λ_of_t, exp.(log_wms_of_t), fraction)
-        return Λ_of_t_kept, log.(normalise(wms_of_t_kept))
-    end
+    prune_keeping_fixed_fraction_log_wms_(Λ_of_t, log_wms_of_t) = prune_keeping_fixed_fraction_log_wms(Λ_of_t, log_wms_of_t, fraction)
 
-    log_likelihood_pruning(δ, γ, σ, λ, data, prune_keeping_fixed_fraction_log_wms; silence = silence)
+    log_likelihood_pruning(δ, γ, σ, λ, data, prune_keeping_fixed_fraction_log_wms_; silence = silence)
 
 end
 
