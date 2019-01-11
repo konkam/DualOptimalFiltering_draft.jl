@@ -91,7 +91,7 @@ function kmax(x::AbstractArray{T, 1}, k::Integer) where T <: Number
     end
 end
 
-function kmax_rec(x::AbstractArray{T, 1}, k::Integer, smallest::Tuple{T,T}, res::AbstractArray{T, 1}) where T <: Number
+function kmax_rec(x::AbstractArray{T, 1}, k::Integer, smallest::Tuple{T,U}, res::AbstractArray{T, 1}) where {T <: Number, U <: Integer}
     # println("x = $x")
     # println("smallest = $smallest")
     # println("res = $res")
