@@ -5,8 +5,12 @@ function keep_above_threshold(Λ_of_t, wms_of_t, ε)
 end
 
 function keep_fixed_number_of_weights(Λ_of_t, wms_of_t, k)
-    last_w = wms_of_t |> sort |> x -> keep_last_k(x, k) |> x -> x[1] #smallest weight kept
-    keep_above_threshold(Λ_of_t, wms_of_t, last_w)
+    if length(wms_of_t) <= k
+        return Λ_of_t, wms_of_t
+    else
+        last_w = kmax(wms_of_t, k) |> minimum #smallest weight kept
+        return keep_above_threshold(Λ_of_t, wms_of_t, last_w)
+    end
 end
 
 function prune_keeping_fixed_number_log_wms(Λ_of_t, log_wms_of_t, fixed_number::Integer)
