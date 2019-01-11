@@ -91,6 +91,16 @@ function kmax(x::AbstractArray{T, 1}, k::Integer) where T <: Number
     end
 end
 
+import Base.length
+
+function length(x::Base.Generator{IterTools.Distinct{Base.Iterators.Flatten{Base.Generator{Base.Generator{Array{Array{Int64,1},1},getfield(DualOptimalFiltering, Symbol("##110#111")){Array{Int64,1}}},typeof(DualOptimalFiltering.indices_of_tree_below)}},Any},getfield(DualOptimalFiltering, Symbol("##110#111")){Array{Int64,1}}})
+    l = 0
+    for k in x
+        l +=1
+    end
+    return l
+end
+
 function kmax_rec(x::AbstractArray{T, 1}, k::Integer, smallest::Tuple{T,U}, res::AbstractArray{T, 1}) where {T <: Number, U <: Integer}
     # println("x = $x")
     # println("smallest = $smallest")
