@@ -1,6 +1,10 @@
 function keep_above_threshold(Λ_of_t, wms_of_t, ε)
-    Λ_of_t_kept = [Λ_of_t[i] for i in 1:length(Λ_of_t) if wms_of_t[i] >= ε]
-    wms_of_t_kept = [wms_of_t[i] for i in 1:length(Λ_of_t) if wms_of_t[i] >= ε]
+    # Might be a good idea to write a specialised function for generators
+    # Anyway this has two passes on the weight vector, could be done in one pass
+    wms_of_t_c = collect(wms_of_t)
+    Λ_of_t_c = collect(Λ_of_t)
+    Λ_of_t_kept = [Λ_of_t_c[i] for i in 1:length(Λ_of_t_c) if wms_of_t_c[i] >= ε]
+    wms_of_t_kept = [wms_of_t_c[i] for i in 1:length(Λ_of_t_c) if wms_of_t_c[i] >= ε]
     return Λ_of_t_kept, wms_of_t_kept
 end
 
