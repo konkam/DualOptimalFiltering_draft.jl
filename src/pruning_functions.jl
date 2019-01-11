@@ -8,8 +8,11 @@ function keep_fixed_number_of_weights(Λ_of_t, wms_of_t, k)
     if length(wms_of_t) <= k
         return Λ_of_t, wms_of_t
     else
-        last_w = kmax(wms_of_t, k) |> minimum #smallest weight kept
-        return keep_above_threshold(Λ_of_t, wms_of_t, last_w)
+        #This is intended to work also with iterators
+        #Some more work might be needed, but it will only be implemented if this part of the code is critical for performance.
+        wms_of_t_c = collect(wms_of_t)
+        last_w = kmax(wms_of_t_c, k) |> minimum #smallest weight kept
+        return keep_above_threshold(collect(Λ_of_t), wms_of_t_c, last_w)
     end
 end
 
