@@ -39,4 +39,19 @@
     @test_nowarn DualOptimalFiltering.log_pochammer(0.5, 5)
     @test DualOptimalFiltering.log_pochammer(0.5, 0) == 0
     @test DualOptimalFiltering.log_pochammer(0.5, 1) == log(0.5)
+
+    for k in 1:10
+        Random.seed!(k)
+        x = sample(1:1000, 20)
+        n = sample(1:10)
+        @test sort(DualOptimalFiltering.kmax(x, k)) == DualOptimalFiltering.kmax_safe_but_slow(x, k)
+    end
+
+    @test DualOptimalFiltering.kmax_safe_but_slow(1:3, 3) == 1:3
+    @test DualOptimalFiltering.kmax(1:3, 3) == 1:3
+    @test_throws ErrorException DualOptimalFiltering.kmax_safe_but_slow(1:2, 3)
+    @test_throws ErrorException DualOptimalFiltering.kmax(1:2, 3)
+
+
+
 end;

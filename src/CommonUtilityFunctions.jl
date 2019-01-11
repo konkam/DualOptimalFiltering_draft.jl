@@ -82,6 +82,51 @@ function keep_last_k(x, k)
     end
 end
 
+function kmax(x::AbstractArray{T, 1}, k::Integer) where T <: Number
+    if length(x) < k
+        error("length(x) < $k, cannot take the $k largest elements of a vector of size $(length(x))")
+    else
+        res = x[(end-k+1):end]
+        return kmax_rec(x, k, findmin(res), res)
+    end
+end
+
+function kmax_rec(x::AbstractArray{T, 1}, k::Integer, smallest::Tuple{T,T}, res::AbstractArray{T, 1}) where T <: Number
+    # println("x = $x")
+    # println("smallest = $smallest")
+    # println("res = $res")
+    if length(x) == k
+        return res
+    else
+        if x[1] > smallest[1]
+            res[smallest[2]] = x[1]
+        end
+        return kmax_rec(x[2:end], k, findmin(res), res)
+    end
+end
+
+
+function kmax_safe_but_slow(x::AbstractArray{T, 1}, k::Integer) where T <: Number
+    if length(x) < k
+        error("length(x) < $k, cannot take the $k largest elements of a vector of size $(length(x))")
+    elseif length(x) == k
+        return sort(x)
+    else
+        res = Array{T}(undef, k)
+        xtmp = x
+        for i in 1:k
+            max_found = findmax(xtmp)
+            res[k-i+1] = max_found[1]
+            xtmp = vcat(xtmp[1:(max_found[2]-1)], xtmp[(max_found[2]+1):end])
+        end
+        return res
+    end
+end
+
+
+
+
+
 function flat2(arr::Array{Array{T,1},1}) where T<:Number
     rst = T[]
     grep(v) = for x in v
