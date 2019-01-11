@@ -21,7 +21,7 @@ function Λprime_i_from_Λimax(Λi_max::Union{AbstractArray{U, 1}, Tuple}) where
 end
 
 function Λprime_i_from_Λ(Λ)
-    return IterTools.distinct(indices_of_tree_below(m) for m in Λ)
+    return IterTools.distinct(Iterators.flatten(indices_of_tree_below(m) for m in Λ))
 end
 
 
@@ -37,13 +37,13 @@ function t_WF(y::Array{T, 1}, Λ)  where {T <: Real, U <: Integer}
     return (t_WF(y, m) for m in Λ)
 end
 
-function update_logwms_to_i_from_log_wms_prime_im1!(α::Array{T, 1}, logwms, logwms_prime_im1, Λ_prime_im1::Array{U, 1}, yi::Array{U, 1}) where {T <: Real, U <: Integer}
+function update_logwms_to_i_from_log_wms_prime_im1!(α::Array{T, 1}, logwms, logwms_prime_im1, Λ_prime_im1, yi::Array{U, 1}) where {T <: Real, U <: Integer}
     # Λ_prime_im1 = Λ_from_Λ_max(Λ_prime_im1_max)
     Λ_i = t_WF(yi, Λ_prime_im1)
 
     for n in Λ_prime_im1
         shifted_idn = n .+ 1
-        m = t_WF(yi,n)
+        m = t_WF(yi, n)
         shifted_idm = m .+ 1
 
         logwms[shifted_idm...] = logμπh_WF(α, n, yi) + logwms_prime_im1[shifted_idn...]
@@ -88,7 +88,7 @@ function update_logwms_prime_to_i_from_logwms_i2!(sα::Real, logwms_i, logwms_pr
             sn = sum(n)
 
             shifted_id_m = m .+ 1
-            logwms_prime[shifted_id_m...] = logaddexp(logwms_prime[shifted_id_m...], logwms_i[shifted_id_n...] + logpmmi_precomputed(i, m, sm, si, Δt_ip1, sα, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict))
+            logwms_prime[shifted_id_m...] = logaddexp(logwms_prime[shifted_id_m...], logwms_i[shifted_id_n...] + logpmmi_precomputed(i, n, sn, si, Δt_ip1, sα, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict))
         end
     end
     return
@@ -116,8 +116,8 @@ function WF_loglikelihood_adaptive_precomputation(α, data_; silence = false)
     log_Cmmi_dict = Dict{Tuple{Int64, Int64}, Float64}()
     log_binomial_coeff_dict = Dict{Tuple{Int64, Int64}, Float64}()
 
-    logw = zeros(nmax...)
-    logw_prime = zeros(nmax...)
+    logw = fill(-Inf,nmax...)
+    logw_prime = fill(-Inf,nmax...)
 
     μν_prime_im1 = Array{Float64,1}(undef, length(times))
 
@@ -220,13 +220,13 @@ function sum_Λ_max_from_Λ(Λ)::Int64
     #     n .= max.(n, Λ[k])
     # end
     # return n
-    return maximum(sum(k) for k in Λ_test)
+    return maximum(sum(k) for k in Λ)
 end
 
 function Λ_max_from_Λ(Λ)
-    n = zeros(Int64, length(Λ[1]))
-    for k in 1:length(Λ)
-        n .= max.(n, Λ[k])
+    n = zeros(Int64, length(collect(take(Λ, 1))[1]))
+    for m in Λ
+        n .= max.(n, m)
     end
     return n
 end
@@ -260,8 +260,8 @@ function WF_loglikelihood_adaptive_precomputation_pruning(α, data_, do_the_prun
 
     #Prior
     # Λprime_im1_max = zeros(Int64, length(α))
-    Λprime_im1 = [Λprime_im1_max]
-    logw_prime[(Λprime_im1_max .+ 1)...] = 0.
+    Λprime_im1 = [zeros(Int64, length(α))]
+    logw_prime[(zeros(Int64, length(α)) .+ 1)...] = 0.
     sum_Λ_max_last = 0
 
     for i in 1:(length(times)-1)
