@@ -141,7 +141,7 @@ function logpmmi_mem2(i::Array{Int64,1}, m::Array{Int64,1}, sm::Int64, si::Int64
 end
 
 function Λ_from_Λ_max(Λ_max::Union{AbstractArray{U, 1}, Tuple}) where U <: Integer
-    return Base.Iterators.product((0:Λi_max for Λi_max in Λ_max)...)
+    return Base.Iterators.product(0:Λi_max for Λi_max in Λ_max)
 end
 
 indices_of_tree_below(m::Union{AbstractArray{U, 1}, Tuple}) where U <: Integer =  Λ_from_Λ_max(m)
