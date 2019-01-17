@@ -60,7 +60,7 @@ end
 function update_logwms_prime_to_i_from_logwms_i!(sα::Real, logwms_i, logwms_prime, Λi, Λ_prime_i_max::Array{U, 1}, Δt_ip1::Real, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64}) where U <: Integer
     Λ_prime_i = Λ_from_Λ_max(Λ_prime_i_max)
 
-    #This is taking each collecting the weight received by each new components.
+    #This is collecting the weight received by each new components.
 
     for m in Λ_prime_i
         shifted_id_m = m .+ 1
