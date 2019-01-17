@@ -55,25 +55,25 @@ function precompute_terms(data::Dict{Float64,Array{Int64,2}}, sα::Number; digit
     return log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict
 end
 
-function loghypergeom_pdf_using_precomputed(i::Union{Tuple, Array{T,1}}, m::Union{Tuple, Array{T,1}}, si::Integer, sm::Integer, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64})  where T <: Integer
+function loghypergeom_pdf_using_precomputed(i, m, si::Integer, sm::Integer, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64})  where T <: Integer
     return sum(log_binomial_coeff_dict[(m[k],i[k])] for k in 1:length(m)) - log_binomial_coeff_dict[(sm, si)]
 end
 
-function logpmmi_raw_precomputed(i::Union{Tuple, Array{T,1}}, m::Union{Tuple, Array{T,1}}, sm::Integer, si::Integer, t::Number, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64}) where T <: Integer
+function logpmmi_raw_precomputed(i, m, sm::Integer, si::Integer, t::Number, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64}) where T <: Integer
     return log_ν_dict[(sm, si)] + log_Cmmi_dict[(sm, si)]  + loghypergeom_pdf_using_precomputed(i, m, si, sm, log_binomial_coeff_dict)
 end
 
-function logpmmi_precomputed(i::Union{Tuple, Array{T,1}}, m::Union{Tuple, Array{T,1}}, sm::Integer, si::Integer, t::Number, sα::Number, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64}) where T <: Integer
+function logpmmi_precomputed(i, m, sm::Integer, si::Integer, t::Number, sα::Number, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff) where T <: Integer
     if si==0
         return -λm(sm, sα)*t
     else
-        return logpmmi_raw_precomputed(i, m, sm, si, t, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict)
+        return logpmmi_raw_precomputed(i, m, sm, si, t, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff)
     end
 end
 
-logpmn_precomputed(m::Union{Tuple, Array{T,1}},  n::Union{Tuple, Array{T,1}}, sm::Int64, sn::Int64, t::Number, sα::Number, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64}) where T <: Integer = logpmmi_precomputed(m.-n, m, sm, sm-sn, t, sα, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict)
+logpmn_precomputed(m::Union{Tuple, Array{T,1}},  n::Union{Tuple, Array{T,1}}, sm::Int64, sn::Int64, t::Number, sα::Number, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff) where T <: Integer = logpmmi_precomputed(m.-n, m, sm, sm-sn, t, sα, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff)
 
-function WF_prediction_for_one_m_precomputed(m::Array{Int64,1}, sα::Ty, t::Ty, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64}; wm = 1) where {Ty<:Number}
+function WF_prediction_for_one_m_precomputed(m::Array{Int64,1}, sα::Ty, t::Ty, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff; wm = 1) where {Ty<:Number}
     # gm = map(x -> 0:x, m) |> vec |> x -> Iterators.product(x...)
     gm = indices_of_tree_below(m)
 
@@ -82,19 +82,19 @@ function WF_prediction_for_one_m_precomputed(m::Array{Int64,1}, sα::Ty, t::Ty, 
         # println(i)
         si = sum(i)
         sm = sum(m)
-        return wm*(logpmmi_precomputed(i, m, sm, si, t, sα, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict) |> exp)
+        return wm*(logpmmi_precomputed(i, m, sm, si, t, sα, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff) |> exp)
     end
 
     Dict( collect(n) => fun_n(n) for n in gm ) |> Accumulator
 
 end
 
-function predict_WF_params_precomputed(wms::Array{Ty,1}, sα::Ty, Λ::Array{Array{Int64,1},1}, t::Ty, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64}; wm = 1) where {Ty<:Number}
+function predict_WF_params_precomputed(wms::Array{Ty,1}, sα::Ty, Λ::Array{Array{Int64,1},1}, t::Ty, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff; wm = 1) where {Ty<:Number}
 
     res = Accumulator{Array{Int64,1}, Float64}()
 
     for k in 1:length(Λ)
-        res = merge(res, WF_prediction_for_one_m_precomputed(Λ[k], sα, t, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict; wm = wms[k]))
+        res = merge(res, WF_prediction_for_one_m_precomputed(Λ[k], sα, t, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff; wm = wms[k]))
     end
 
     ks = keys(res) |> collect
@@ -103,14 +103,14 @@ function predict_WF_params_precomputed(wms::Array{Ty,1}, sα::Ty, Λ::Array{Arra
 
 end
 
-function get_next_filtering_distribution_precomputed(current_Λ, current_wms, current_time, next_time, α, sα, next_y, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64})
-    predicted_Λ, predicted_wms = predict_WF_params_precomputed(current_wms, sα, current_Λ, next_time-current_time, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict)
+function get_next_filtering_distribution_precomputed(current_Λ, current_wms, current_time, next_time, α, sα, next_y, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff)
+    predicted_Λ, predicted_wms = predict_WF_params_precomputed(current_wms, sα, current_Λ, next_time-current_time, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff)
     filtered_Λ, filtered_wms = update_WF_params(predicted_wms, α, predicted_Λ, next_y)
 
     return filtered_Λ, filtered_wms
 end
 
-function filter_WF_precomputed(α, data, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64}; silence = false)
+function filter_WF_precomputed(α, data, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff; silence = false)
     # println("filter_WF_mem2")
 
     @assert length(α) == length(data[collect(keys(data))[1]])
@@ -131,7 +131,7 @@ function filter_WF_precomputed(α, data, log_ν_dict::Dict{Tuple{Int64, Int64}, 
             println("Step index: $k")
             println("Number of components: $(length(filtered_Λ))")
         end
-        filtered_Λ, filtered_wms = get_next_filtering_distribution_precomputed(filtered_Λ, filtered_wms, times[k], times[k+1], α, sα, data[times[k+1]], log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict)
+        filtered_Λ, filtered_wms = get_next_filtering_distribution_precomputed(filtered_Λ, filtered_wms, times[k], times[k+1], α, sα, data[times[k+1]], precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff)
         mask = filtered_wms .!= 0.
         filtered_Λ = filtered_Λ[mask]
         filtered_wms = filtered_wms[mask]
@@ -158,10 +158,10 @@ function precompute_log_terms_arb(data::Dict{Float64,Array{Int64,2}}, sα::Numbe
     return get_log_dict(ν_dict), get_log_dict(Cmmi_dict), get_log_dict(precomputed_binomial_coefficients)
 end
 
-function get_predictive_mixture_at_time(t, Λ_of_t, wms_of_t, sα, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64})
+function get_predictive_mixture_at_time(t, Λ_of_t, wms_of_t, sα, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff)
     observation_times = Λ_of_t |> keys |> collect |> sort
     closest_observation_time = maximum(observation_times[observation_times.<t])
-    return predict_WF_params_precomputed(wms_of_t[closest_observation_time], sα, Λ_of_t[closest_observation_time], t-closest_observation_time, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict)
+    return predict_WF_params_precomputed(wms_of_t[closest_observation_time], sα, Λ_of_t[closest_observation_time], t-closest_observation_time, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff)
 end
 
 
