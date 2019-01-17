@@ -93,7 +93,7 @@ end
 
 import Base.length
 
-function length(x::Union{Base.Generator{IterTools.Distinct{Base.Iterators.Flatten{Base.Generator{Base.Generator{Array{Array{Int64,1},1},getfield(DualOptimalFiltering, Symbol("##110#111")){Array{Int64,1}}},typeof(DualOptimalFiltering.indices_of_tree_below)}},Any},getfield(DualOptimalFiltering, Symbol("##110#111")){Array{Int64,1}}}, IterTools.Distinct{Base.Iterators.Flatten{Base.Generator{Array{Array{Int64,1},1},typeof(DualOptimalFiltering.indices_of_tree_below)}},Any}})
+function length(x::Union{IterTools.Distinct{Base.Iterators.Flatten{Base.Generator{Base.Generator{Array{Array{Int64,1},1},getfield(DualOptimalFiltering, Symbol("##115#116")){Array{Int64,1}}},typeof(DualOptimalFiltering.indices_of_tree_below)}},Any}, IterTools.Distinct{Base.Iterators.Flatten{Base.Generator{Base.Generator{Array{Array{Int64,1},1},getfield(DualOptimalFiltering, Symbol("##118#119")){Array{Int64,1}}},typeof(DualOptimalFiltering.indices_of_tree_below)}},Any}, IterTools.Distinct{Base.Iterators.Flatten{Base.Generator{Array{Array{Int64,1},1},typeof(DualOptimalFiltering.indices_of_tree_below)}},Any}})
     l = 0
     for k in x
         l +=1
@@ -132,7 +132,6 @@ function kmax_safe_but_slow(x::AbstractArray{T, 1}, k::Integer) where T <: Numbe
         return res
     end
 end
-
 
 
 
