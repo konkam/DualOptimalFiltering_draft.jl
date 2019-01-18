@@ -93,7 +93,7 @@ end
 
 import Base.length
 
-function length(x::Union{IterTools.Distinct{Base.Iterators.Flatten{Base.Generator{Base.Generator{Array{Array{Int64,1},1},getfield(DualOptimalFiltering, Symbol("##115#116")){Array{Int64,1}}},typeof(DualOptimalFiltering.indices_of_tree_below)}},Any}, IterTools.Distinct{Base.Iterators.Flatten{Base.Generator{Base.Generator{Array{Array{Int64,1},1},getfield(DualOptimalFiltering, Symbol("##118#119")){Array{Int64,1}}},typeof(DualOptimalFiltering.indices_of_tree_below)}},Any}, IterTools.Distinct{Base.Iterators.Flatten{Base.Generator{Array{Array{Int64,1},1},typeof(DualOptimalFiltering.indices_of_tree_below)}},Any}})
+function length(x::Union{IterTools.Distinct{Base.Iterators.Flatten{Base.Generator{Base.Generator{Array{Array{Int64,1},1},getfield(DualOptimalFiltering, Symbol("##115#116")){Array{Int64,1}}},typeof(DualOptimalFiltering.indices_of_tree_below)}},Any}, IterTools.Distinct{Base.Iterators.Flatten{Base.Generator{Base.Generator{Array{Array{Int64,1},1},getfield(DualOptimalFiltering, Symbol("##119#120")){Array{Int64,1}}},typeof(DualOptimalFiltering.indices_of_tree_below)}},Any},  IterTools.Distinct{Base.Iterators.Flatten{Base.Generator{Array{Array{Int64,1},1},typeof(DualOptimalFiltering.indices_of_tree_below)}},Any}})
     l = 0
     for k in x
         l +=1
