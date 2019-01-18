@@ -20,7 +20,7 @@ function precompute_log_Cmmi_ar(data::Dict{Float64,Array{Int64,2}}, sα::Number;
     log_Cmmi_mem_ar = Array{Float64}(undef, smmax, smmax)
     for sm in 1:smmax
         for si in 1:sm
-            log_Cmmi_mem_ar[sm, si] = logCmmi_overflow_safe(sm, si, 𝛿ts[1], sα)
+            log_Cmmi_mem_ar[sm, si] = logCmmi(sm, si, 𝛿ts[1], sα)[2]
         end
     end
     return log_Cmmi_mem_ar

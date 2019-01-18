@@ -23,7 +23,7 @@ function precompute_log_Cmmi(data::Dict{Float64,Array{Int64,2}}, sα::Number; di
     log_Cmmi_mem_dict = Dict{Tuple{Int64,Int64}, Float64}()
     for sm in 1:smmax
         for si in 1:sm
-            log_Cmmi_mem_dict[(sm, si)] = logCmmi_overflow_safe(sm, si, 𝛿ts[1], sα)
+            log_Cmmi_mem_dict[(sm, si)] = logCmmi(sm, si, 𝛿ts[1], sα)[2]
         end
     end
     return log_Cmmi_mem_dict
