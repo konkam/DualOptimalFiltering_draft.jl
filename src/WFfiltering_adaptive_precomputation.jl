@@ -44,36 +44,6 @@ function logCmmi(sm::Int64, si::Int64, t::Number, sα::Number)
     return ExactWrightFisher.signed_logsumexp(-λm.(sm .- (0:si), sα) .* t - log_denominator_Cmmi_nosign.(si, 0:si, sm, sα) , sign_denominator_Cmmi.(0:si) )
 end
 
-# function sign_denominator_Cmmi(k::Int64)
-#     if(iseven(k))
-#         return 1
-#     else
-#         return -1
-#     end
-# end
-
-# function log_binomial_safe_but_slow(n::Int64, k::Int64)
-#     @assert n >= 0
-#     @assert k >= 0
-#     @assert k <= n
-#     if k == 0 || k == n
-#         return 0
-#     elseif k == 1 || k == n-1
-#         return log(n)
-#     else
-#         return sum(log(i) for i in (n-k+1):n) - sum(log(i) for i in 2:k)
-#     end
-# end
-
-# function loghypergeom_pdf_using_precomputed(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64})
-#     return sum(log_binomial_coeff_dict[(m[k],i[k])] for k in 1:length(m)) - log_binomial_coeff_dict[(sm, si)]
-# end
-
-# function loghypergeom_pdf(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64)
-#     return sum(log_binomial_safe_but_slow(m[k],i[k]) for k in 1:length(m)) - log_binomial_safe_but_slow(sm, si)
-# end
-
-
 function precompute_next_terms!(last_sm_max::Integer, new_sm_max::Integer, log_ν_dict::Dict{Tuple{Int64,Int64},Float64}, log_Cmmi_dict::Dict{Tuple{Int64,Int64},Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64,Int64},Float64}, sα, Δt)
     if last_sm_max == 0
         log_binomial_coeff_dict[(0,0)] = 0
@@ -89,6 +59,23 @@ function precompute_next_terms!(last_sm_max::Integer, new_sm_max::Integer, log_�
         end
     end
 end
+
+function precompute_next_terms_ar!(last_sm_max::Integer, new_sm_max::Integer, log_ν_ar::Array{Float64,2}, log_Cmmi_ar::Array{Float64,2}, log_binomial_coeff_ar_offset::Array{Float64,2}, sα, Δt)
+    if last_sm_max == 0
+        log_binomial_coeff_ar_offset[1,1] = 0
+    end
+    for sm in (last_sm_max+1):new_sm_max
+        for si in 1:sm
+            log_ν_ar[sm, si] = logfirst_term_pmmi_no_alloc(si, sm, sα)
+            log_Cmmi_ar[sm, si] = logCmmi_arb(sm, si, Δt, sα)
+            log_binomial_coeff_ar_offset[sm+1,si+1] = log_binomial_safe_but_slow(sm, si)
+        end
+        for si in 0:sm
+            log_binomial_coeff_ar_offset[sm+1,si+1] = log_binomial_safe_but_slow(sm, si)
+        end
+    end
+end
+
 
 function filter_WF_adaptive_precomputation(α, data, do_the_pruning::Function; silence = false)
     # println("filter_WF_mem2")
@@ -142,7 +129,57 @@ function filter_WF_adaptive_precomputation(α, data, do_the_pruning::Function; s
 
 end
 
+function filter_WF_adaptive_precomputation_ar(α, data, do_the_pruning::Function; silence = false)
+    # println("filter_WF_mem2")
 
+    @assert length(α) == length(data[collect(keys(data))[1]])
+    Δts = keys(data) |> collect |> sort |> diff |> unique
+    if length(Δts) > 1
+        test_equal_spacing_of_observations(data; override = false)
+    end
+    Δt = mean(Δts)
+
+    smmax = values(data) |> sum |> sum
+    log_ν_ar = Array{Float64}(undef, smmax, smmax)
+    log_Cmmi_ar = Array{Float64}(undef, smmax, smmax)
+    log_binomial_coeff_ar_offset = Array{Float64}(undef,    smmax+1, smmax+1)
+
+    sα = sum(α)
+    times = keys(data) |> collect |> sort
+    Λ_of_t = Dict()
+    wms_of_t = Dict()
+
+    filtered_Λ, filtered_wms = update_WF_params([1.], α, [repeat([0], inner = length(α))], data[times[1]])
+    Λ_pruned, wms_pruned = do_the_pruning(filtered_Λ, filtered_wms)
+
+    Λ_of_t[times[1]] = filtered_Λ
+    wms_of_t[times[1]] = filtered_wms
+    new_sm_max = maximum(sum.(Λ_pruned))
+    precompute_next_terms_ar!(0, new_sm_max, log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset, sα, Δt)
+    sm_max_so_far = new_sm_max
+
+    for k in 1:(length(times)-1)
+        if (!silence)
+            println("Step index: $k")
+            println("Number of components: $(length(filtered_Λ))")
+        end
+        last_sm_max = maximum(sum.(Λ_pruned))
+        new_sm_max = last_sm_max + sum(data[times[k+1]])
+
+        if sm_max_so_far < new_sm_max
+            precompute_next_terms_ar!(sm_max_so_far, new_sm_max, log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset, sα, Δt)
+            sm_max_so_far = max(sm_max_so_far,new_sm_max)
+        end
+
+        filtered_Λ, filtered_wms = get_next_filtering_distribution_precomputed(Λ_pruned, wms_pruned, times[k], times[k+1], α, sα, data[times[k+1]], log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset)
+        Λ_pruned, wms_pruned = do_the_pruning(filtered_Λ, filtered_wms)
+        Λ_of_t[times[k+1]] = filtered_Λ
+        wms_of_t[times[k+1]] = filtered_wms
+    end
+
+    return Λ_of_t, wms_of_t
+
+end
 
 # using BenchmarkTools
 # @btime logλm(10, 3.2)
