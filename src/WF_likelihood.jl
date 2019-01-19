@@ -57,25 +57,28 @@ function update_logwms_to_i_from_log_wms_prime_im1!(α::Array{T, 1}, logwms, log
     end
 end
 
-function update_logwms_prime_to_i_from_logwms_i!(sα::Real, logwms_i, logwms_prime, Λi, Λ_prime_i_max::Array{U, 1}, Δt_ip1::Real, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64}) where U <: Integer
+function update_logwms_prime_to_i_from_logwms_i!(sα::Real, logwms_i, logwms_prime, Λi, Λ_prime_i_max::Array{U, 1}, Δt_ip1::Real, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff) where U <: Integer
     Λ_prime_i = Λ_from_Λ_max(Λ_prime_i_max)
 
     #This is collecting the weight received by each new components.
 
     for m in Λ_prime_i
         shifted_id_m = m .+ 1
-        logwms_prime[shifted_id_m...] = logsumexp(logpmn_precomputed(n, m, sum(n), sum(m), Δt_ip1, sα, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict) + logwms_i[(n .+ 1)...] for n in Λi if all(n .>= m))
+        logwms_prime[shifted_id_m...] = logsumexp(logpmn_precomputed(n, m, sum(n), sum(m), Δt_ip1, sα, precomputed_log_ν, precomputed_log_Cmmi,  precomputed_log_binomial_coeff) + logwms_i[(n .+ 1)...] for n in Λi if all(n .>= m))
     end
     return
 end
 
-function update_logwms_prime_to_i_from_logwms_i2!(sα::Real, logwms_i, logwms_prime, Λi, Δt_ip1::Real, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64}) where U <: Integer
+
+function update_logwms_prime_to_i_from_logwms_i2!(sα::Real, logwms_i, logwms_prime, Λi, Δt_ip1::Real, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff)
     # Λprime_i_max = Λ_max_from_Λ(pruned_Λ)
     # Λprime_i_sup = Λ_from_Λ_max(Λprime_i_max)
     # for m in Λprime_i
     #     shifted_id_m = m .+ 1
     #     logwms_prime[shifted_id_m...] = 0.
     # end
+
+    # Could probably go more sparingly here.
     fill!(logwms_prime, -Inf)
 
 #This is taking each component and propagating it downwards in the tree.
@@ -88,7 +91,7 @@ function update_logwms_prime_to_i_from_logwms_i2!(sα::Real, logwms_i, logwms_pr
             sn = sum(n)
 
             shifted_id_m = m .+ 1
-            logwms_prime[shifted_id_m...] = logaddexp(logwms_prime[shifted_id_m...], logwms_i[shifted_id_n...] + logpmmi_precomputed(i, n, sn, si, Δt_ip1, sα, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict))
+            logwms_prime[shifted_id_m...] = logaddexp(logwms_prime[shifted_id_m...], logwms_i[shifted_id_n...] + logpmmi_precomputed(i, n, sn, si, Δt_ip1, sα, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff))
         end
     end
     return
@@ -173,6 +176,80 @@ function WF_loglikelihood_adaptive_precomputation(α, data_; silence = false)
         #     precompute_next_terms!(sm_max_so_far, new_sm_max, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict, sα, Δt)
         #     sm_max_so_far = max(sm_max_so_far,new_sm_max)
         # end
+
+        # For next iteration
+        Λprime_im1_max = Λprime_i_max
+        Λprime_im1 = Λ_from_Λ_max(Λprime_im1_max)
+    end
+
+    last_yi = data_one_obs[times[end]]
+    μν_prime_im1[end] = logsumexp(logw_prime[(m .+ 1)...] + logμπh_WF(α, m, last_yi) for m in Λprime_im1)
+    log_lik_terms = Dict(zip(times, cumsum(μν_prime_im1)))
+
+    return log_lik_terms
+
+end
+
+
+function WF_loglikelihood_adaptive_precomputation_ar(α, data_; silence = false)
+
+    @assert length(α) == length(data_[collect(keys(data_))[1]])
+    Δts = keys(data_) |> collect |> sort |> diff |> unique
+    if length(Δts) > 1
+        test_equal_spacing_of_observations(data_; override = false)
+    end
+    Δt = mean(Δts)
+
+    sα = sum(α)
+    times = keys(data_) |> collect |> sort
+    data_one_obs = Dict(t => vec(data_[t]) for t in times)
+    nmax = sum(data_one_obs |> values)
+
+    smmax = values(data_) |> sum |> sum
+    log_ν_ar = Array{Float64}(undef, smmax, smmax)
+    log_Cmmi_ar = Array{Float64}(undef, smmax, smmax)
+    log_binomial_coeff_ar_offset = Array{Float64}(undef, smmax+1, smmax+1)
+
+    logw = fill(-Inf,nmax...)
+    logw_prime = fill(-Inf,nmax...)
+
+    μν_prime_im1 = Array{Float64,1}(undef, length(times))
+
+    #Prior
+    Λprime_im1_max = zeros(Int64, length(α))
+    Λprime_im1 = [Λprime_im1_max]
+    logw_prime[(Λprime_im1_max .+ 1)...] = 0.
+
+    for i in 1:(length(times)-1)
+        if (!silence)
+            println("Step index: $i")
+        end
+
+        ti = times[i]
+        yi = data_one_obs[times[i]]
+        t_ip1 = times[i+1]
+        Δt_ip1 = t_ip1 - ti
+
+        #Log likelihood
+
+        μν_prime_im1[i] = logsumexp(logw_prime[(m .+ 1)...] + logμπh_WF(α, m, yi) for m in Λprime_im1)
+
+        #Hidden state updating
+        Λi_max = t_WF(yi, Λprime_im1_max)
+        Λi = Λi_from_Λprime_im1(yi, Λprime_im1)
+        Λprime_i_max = Λi_max
+        Λprime_i = Λprime_i_from_Λimax(Λi_max)
+
+        #Update
+        # println("Weights updating")
+        update_logwms_to_i_from_log_wms_prime_im1!(α, logw, logw_prime, Λprime_im1, yi)
+
+        #Prediction
+        # println("Precomputation for prediction")
+        precompute_next_terms_ar!(sum(Λprime_im1_max), sum(Λi_max), log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset, sα, Δt)
+
+        # println("Prediction")
+        update_logwms_prime_to_i_from_logwms_i!(sα, logw, logw_prime, Λi, Λprime_i_max, Δt_ip1, log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset)
 
         # For next iteration
         Λprime_im1_max = Λprime_i_max
@@ -319,6 +396,93 @@ function WF_loglikelihood_adaptive_precomputation_pruning(α, data_, do_the_prun
 
         # For next iteration
         # Λprime_im1_max = Λ_max_from_Λ(pruned_Λ)
+        Λprime_im1 = Λprime_i_from_Λ(pruned_Λ)
+        #This Λprime_im1 contains components with 0 weight.
+    end
+
+    last_yi = data_one_obs[times[end]]
+    μν_prime_im1[end] = logsumexp(logw_prime[(m .+ 1)...] + logμπh_WF(α, m, last_yi) for m in Λprime_im1)
+    log_lik_terms = Dict(zip(times, cumsum(μν_prime_im1)))
+
+    return log_lik_terms
+
+end
+
+function WF_loglikelihood_adaptive_precomputation_pruning_ar(α, data_, do_the_pruning_log_wms::Function; silence = false)
+    # println("filter_WF_mem2")
+
+    ##From the pruned set of indices, there is no obvious cheap way to compute the set after propagation. Each component propagates downwards on the tree, but the number of active components. At the moment we make an set iterator, using the function IterTools.distinct
+
+    @assert length(α) == length(data_[collect(keys(data_))[1]])
+    Δts = keys(data_) |> collect |> sort |> diff |> unique
+    if length(Δts) > 1
+        test_equal_spacing_of_observations(data_; override = false)
+    end
+    Δt = mean(Δts)
+
+    sα = sum(α)
+    times = keys(data_) |> collect |> sort
+    data_one_obs = Dict(t => vec(data_[t]) for t in times)
+    # nmax = maximum_number_of_components_WF(data_)
+    nmax = sum(data_one_obs |> values)
+
+    smmax = values(data_) |> sum |> sum
+    log_ν_ar = Array{Float64}(undef, smmax, smmax)
+    log_Cmmi_ar = Array{Float64}(undef, smmax, smmax)
+    log_binomial_coeff_ar_offset = Array{Float64}(undef, smmax+1, smmax+1)
+
+    logw = zeros(nmax...)
+    logw_prime = zeros(nmax...)
+
+    μν_prime_im1 = Array{Float64,1}(undef, length(times))
+
+    #Prior
+    # Λprime_im1_max = zeros(Int64, length(α))
+    Λprime_im1 = [zeros(Int64, length(α))]
+    logw_prime[(zeros(Int64, length(α)) .+ 1)...] = 0.
+    sum_Λ_max_last = 0
+
+    for i in 1:(length(times)-1)
+        if (!silence)
+            println("Step index: $i")
+        end
+
+        ti = times[i]
+        yi = data_one_obs[times[i]]
+        t_ip1 = times[i+1]
+        Δt_ip1 = t_ip1 - ti
+
+        #Log likelihood
+        # println("Log likelihood")
+
+        # println("Λprime_im1_max = $Λprime_im1_max")
+        # println("Λprime_im1 = $(collect(Λprime_im1))")
+
+        μν_prime_im1[i] = logsumexp(logw_prime[(m .+ 1)...] + logμπh_WF(α, m, yi) for m in Λprime_im1)
+
+        #Hidden state updating
+        # println("Hidden state updating")
+        Λi = Λi_from_Λprime_im1(yi, Λprime_im1)
+
+        #Update
+        # println("Weights updating")
+        update_logwms_to_i_from_log_wms_prime_im1!(α, logw, logw_prime, Λprime_im1, yi)
+
+        #Pruning
+        pruned_Λ, pruned_log_wms = do_the_pruning_log_wms(Λi, logw[(m .+ 1)...] for m in Λi)
+        sum_Λ_max = sum_Λ_max_from_Λ(pruned_Λ)
+
+        if sum_Λ_max > sum_Λ_max_last
+            # println("Precomputation for prediction")
+            precompute_next_terms_ar!(sum_Λ_max_last, sum_Λ_max, log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset, sα, Δt)
+            sum_Λ_max_last = sum_Λ_max
+        end
+
+        #Prediction
+        # println("Prediction")
+        update_logwms_prime_to_i_from_logwms_i2!(sα, logw, logw_prime, pruned_Λ, Δt_ip1, log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset)
+
+        # For next iteration
         Λprime_im1 = Λprime_i_from_Λ(pruned_Λ)
         #This Λprime_im1 contains components with 0 weight.
     end
