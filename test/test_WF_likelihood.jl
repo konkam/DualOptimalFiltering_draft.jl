@@ -47,7 +47,7 @@
 
     current_logw_prime_tmp = deepcopy(current_logw_prime)
 
-    @test_nowarn DualOptimalFiltering.update_logwms_prime_to_i_from_logwms_i!(1.2, current_logw, current_logw_prime, DualOptimalFiltering.Λ_from_Λ_max(current_Λ_max), current_Λ_max, 0.4, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict)
+    @test_nowarn DualOptimalFiltering.predict_logwms_prime_to_i_from_logwms_i!(1.2, current_logw, current_logw_prime, DualOptimalFiltering.Λ_from_Λ_max(current_Λ_max), current_Λ_max, 0.4, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict)
 
     @test_nowarn DualOptimalFiltering.update_logwms_prime_to_i_from_logwms_i2!(1.2, current_logw, current_logw_prime_tmp, DualOptimalFiltering.Λ_from_Λ_max(current_Λ_max), 0.4, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict)
 
@@ -130,9 +130,9 @@ end;
 
     current_logw_prime_tmp = deepcopy(current_logw_prime)
 
-    @test_nowarn DualOptimalFiltering.update_logwms_prime_to_i_from_logwms_i!(1.2, current_logw, current_logw_prime, DualOptimalFiltering.Λ_from_Λ_max(current_Λ_max), current_Λ_max, 0.4, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict)
+    @test_nowarn DualOptimalFiltering.predict_logwms_prime_to_i_from_logwms_i!(1.2, current_logw, current_logw_prime, DualOptimalFiltering.Λ_from_Λ_max(current_Λ_max), current_Λ_max, 0.4, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict)
 
-    @test_nowarn DualOptimalFiltering.update_logwms_prime_to_i_from_logwms_i!(1.2, current_logw, current_logw_prime_tmp, DualOptimalFiltering.Λ_from_Λ_max(current_Λ_max), current_Λ_max, 0.4, log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset)
+    @test_nowarn DualOptimalFiltering.predict_logwms_prime_to_i_from_logwms_i!(1.2, current_logw, current_logw_prime_tmp, DualOptimalFiltering.Λ_from_Λ_max(current_Λ_max), current_Λ_max, 0.4, log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset)
 
     for m in DualOptimalFiltering.Λ_from_Λ_max(current_Λ_max)
         @test current_logw_prime_tmp[(m .+ 1)...] == current_logw_prime_tmp[(m .+ 1)...]
@@ -156,6 +156,12 @@ end;
 
     for t in times
         @test res[t] ≈ ref[t]
+    end
+
+    res2 = DualOptimalFiltering.WF_loglikelihood_from_adaptive_filtering(α, data, (x, y)-> (x, y); silence = false)
+
+    for t in times
+        @test res2[t] ≈ ref[t]
     end
 
     # @test [res[t] for t in times] == [ref[t] for t in times]
