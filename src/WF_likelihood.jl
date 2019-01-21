@@ -505,6 +505,16 @@ function get_next_WF_filtering_distribution_and_loglikelihood_precomputed(curren
     return filtered_Λ, filtered_wms, μν_prime_im1
 end
 
+
+function prepare_WF_dat_1D_2D(data::Dict{Float64,Array{Int64,2}})
+    times = data |> keys |> collect |> sort
+    return Dict(zip(times, [vec(data[t]) for t in times])), data
+end
+function prepare_WF_dat_1D_2D(data::Dict{Float64,Array{Int64,1}})
+    times = data |> keys |> collect |> sort
+    return data, zip(times, [collect(data[t]') for t in times]) |> Dict
+end
+
 function WF_loglikelihood_from_adaptive_filtering(α, data, do_the_pruning::Function; silence = false)
 
     @assert length(α) == length(data[collect(keys(data))[1]])
@@ -517,7 +527,7 @@ function WF_loglikelihood_from_adaptive_filtering(α, data, do_the_pruning::Func
 
     sα = sum(α)
     times = keys(data) |> collect |> sort
-    data_2D_array = zip(times, [collect(data[t]') for t in times]) |> Dict
+    data, data_2D_array =  prepare_WF_dat_1D_2D(data)
 
     smmax = values(data) |> sum |> sum
     log_ν_ar = Array{Float64}(undef, smmax, smmax)
