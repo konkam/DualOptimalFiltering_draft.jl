@@ -70,12 +70,12 @@ function predict_logwms_prime_to_i_from_logwms_i!(sα::Real, logwms_i, logwms_pr
 end
 
 
-function update_logwms_prime_to_i_from_logwms_i2!(sα::Real, logwms_i, logwms_prime, Λi, Δt_ip1::Real, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff)
+function predict_logwms_prime_to_i_from_logwms_i2!(sα::Real, logwms_i, logwms_prime, Λi, Δt_ip1::Real, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff)
     # Λprime_i_max = Λ_max_from_Λ(pruned_Λ)
     # Λprime_i_sup = Λ_from_Λ_max(Λprime_i_max)
     # for m in Λprime_i
     #     shifted_id_m = m .+ 1
-    #     logwms_prime[shifted_id_m...] = 0.
+    #     logwms_prime[shifted_id_m...] = -Inf.
     # end
 
     # Could probably go more sparingly here.
@@ -85,11 +85,10 @@ function update_logwms_prime_to_i_from_logwms_i2!(sα::Real, logwms_i, logwms_pr
 
     for n in Λi
         shifted_id_n = n .+ 1
+        sn = sum(n)
         for m in indices_of_tree_below(n)
             i = n .- m
             si = sum(i)
-            sn = sum(n)
-
             shifted_id_m = m .+ 1
             logwms_prime[shifted_id_m...] = logaddexp(logwms_prime[shifted_id_m...], logwms_i[shifted_id_n...] + logpmmi_precomputed(i, n, sn, si, Δt_ip1, sα, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff))
         end
@@ -97,7 +96,33 @@ function update_logwms_prime_to_i_from_logwms_i2!(sα::Real, logwms_i, logwms_pr
     return
 end
 
+function update_logwms_prime_to_i_from_logwms_i3!(sα::Real, logwms_i, logwms_prime, Λi, Δt_ip1::Real, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff, K::Integer) where U <: Integer
+    # Λprime_i_max = Λ_max_from_Λ(pruned_Λ)
+    # Λprime_i_sup = Λ_from_Λ_max(Λprime_i_max)
+    # for m in Λprime_i
+    #     shifted_id_m = m .+ 1
+    #     logwms_prime[shifted_id_m...] = 0.
+    # end
+    fill!(logwms_prime, -Inf)
 
+#This is taking each component and propagating it downwards in the tree.
+
+    for n in Λi
+      shifted_id_n = n .+ 1
+      sn = sum(n)
+        for m in indices_of_tree_below(n)
+            i = n .- m
+            si = sum(i)
+
+#             shifted_id_m::NTuple{length(K), Int64} = m .+ 1
+            shifted_id_m = m .+ 1
+#             @views logwms_prime[shifted_id_m...] = logaddexp(logwms_prime[shifted_id_m...], logwms_i[shifted_id_n...] + DualOptimalFiltering.logpmmi_precomputed(i, n, sn, si, Δt_ip1, sα, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict))
+            logwms_prime[shifted_id_m...] = logaddexp(logwms_prime[shifted_id_m...], logwms_i[shifted_id_n...] + logpmmi_precomputed(i, n, sn, si, Δt_ip1, sα, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff))
+#             logwms_prime[shifted_id_m...] = logaddexp(logwms_prime[shifted_id_m...], logwms_i[shifted_id_n...]+1)
+        end
+    end
+    return
+end
 
 function WF_loglikelihood_adaptive_precomputation(α, data_; silence = false)
     # println("filter_WF_mem2")
@@ -384,7 +409,7 @@ function WF_loglikelihood_adaptive_precomputation_pruning(α, data_, do_the_prun
 
         #Prediction
         # println("Prediction")
-        update_logwms_prime_to_i_from_logwms_i2!(sα, logw, logw_prime, pruned_Λ, Δt_ip1, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict)
+        predict_logwms_prime_to_i_from_logwms_i2!(sα, logw, logw_prime, pruned_Λ, Δt_ip1, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict)
 
         # last_sm_max = maximum(sum.(Λ_pruned))
         # new_sm_max = last_sm_max + sum(data_one_obs[times[k+1]])
@@ -480,7 +505,7 @@ function WF_loglikelihood_adaptive_precomputation_pruning_ar(α, data_, do_the_p
 
         #Prediction
         # println("Prediction")
-        update_logwms_prime_to_i_from_logwms_i2!(sα, logw, logw_prime, pruned_Λ, Δt_ip1, log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset)
+        predict_logwms_prime_to_i_from_logwms_i2!(sα, logw, logw_prime, pruned_Λ, Δt_ip1, log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset)
 
         # For next iteration
         Λprime_im1 = Λprime_i_from_Λ(pruned_Λ)
