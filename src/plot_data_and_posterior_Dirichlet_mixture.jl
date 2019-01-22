@@ -1,4 +1,4 @@
-using Roots, IterTools, DataFrames, DataFramesMeta, RCall
+using Roots, DataFrames, DataFramesMeta, RCall
 R"library(tidyverse)"
 
 function compute_quantile_beta_mixture(α, Λ, wms, margin, q::Float64)
