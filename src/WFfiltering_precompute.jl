@@ -1,5 +1,5 @@
 using IterTools, DataStructures
-using Memoize
+# using Memoize
 
 function precompute_log_first_term(data::Dict{Float64,Array{Int64,2}}, sα::Number)
     smmax = values(data) |> sum |> sum

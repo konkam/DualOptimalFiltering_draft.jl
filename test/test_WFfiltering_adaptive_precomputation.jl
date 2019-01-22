@@ -23,14 +23,21 @@ end;
     Random.seed!(4)
     wfchain = rand(Dirichlet(4,0.3)) |> z-> DualOptimalFiltering.wright_fisher_PD1(z, 1.5, 50, 3)[:,2:end]*10 |> x -> round.(x) |> x -> Int64.(x)
     data = Dict(zip(range(0, stop = 5, length = size(wfchain,2)), [collect(collect(wfchain[:,t:t]')) for t in 1:size(wfchain,2)]))
-    Λ_of_t, wms_of_t = DualOptimalFiltering.filter_WF_mem2(ones(4), data)
-    Λ_of_t_adaptive, wms_of_t_adaptive = DualOptimalFiltering.filter_WF_adaptive_precomputation(ones(4), data, (x,y) -> (x,y))
+    # Λ_of_t, wms_of_t = DualOptimalFiltering.filter_WF_mem2(ones(4), data)
+    α = ones(4)
+
+    ν_dict, Cmmi_dict, precomputed_binomial_coefficients = DualOptimalFiltering.precompute_terms(data, sum(α); digits_after_comma_for_time_precision = 4)
+    Λ_of_t, wms_of_t = DualOptimalFiltering.filter_WF_precomputed(α, data, ν_dict, Cmmi_dict, precomputed_binomial_coefficients)
+
+    Λ_of_t_adaptive, wms_of_t_adaptive = DualOptimalFiltering.filter_WF_adaptive_precomputation(α, data, (x,y) -> (x,y))
     @test length(keys(Λ_of_t)) == 3
     @test length(keys(wms_of_t)) == 3
-    @test_throws AssertionError filter_WF(ones(2), data)
+    # @test_throws AssertionError filter_WF(α, data)
     times = keys(Λ_of_t) |> collect |> sort
     for i in 1:length(keys(Λ_of_t))
         @test Λ_of_t[times[i]] == Λ_of_t_adaptive[times[i]]
-        @test wms_of_t[times[i]] == wms_of_t_adaptive[times[i]]
+        for j in 1:length( wms_of_t[times[i]])
+            @test wms_of_t[times[i]][j] ≈ wms_of_t_adaptive[times[i]][j]
+        end
     end
 end;

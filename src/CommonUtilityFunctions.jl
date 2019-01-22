@@ -27,9 +27,9 @@ function log_binomial_safe_but_slow(n::Int64, k::Int64)
     end
 end
 
-@memoize function log_binomial_safe_but_slow_mem(n::Int64, k::Int64)
-    log_binomial_safe_but_slow(n::Int64, k::Int64)
-end
+# @memoize function log_binomial_safe_but_slow_mem(n::Int64, k::Int64)
+#     log_binomial_safe_but_slow(n::Int64, k::Int64)
+# end
 
 # function loghypergeom_pdf(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64)
 #     return sum(log_binomial_safe_but_slow.(m,i)) - log_binomial_safe_but_slow(sm, si)
@@ -38,13 +38,13 @@ function loghypergeom_pdf(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::I
     return sum(log_binomial_safe_but_slow(m[k],i[k]) for k in 1:length(m)) - log_binomial_safe_but_slow(sm, si)
 end
 
-function loghypergeom_pdf_inner_mem(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64)
-    return sum(log_binomial_safe_but_slow_mem.(m,i)) - log_binomial_safe_but_slow_mem(sm, si)
-end
-
-function loghypergeom_pdf_mem(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64)
-    return loghypergeom_pdf_inner_mem(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64)
-end
+# function loghypergeom_pdf_inner_mem(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64)
+#     return sum(log_binomial_safe_but_slow_mem.(m,i)) - log_binomial_safe_but_slow_mem(sm, si)
+# end
+#
+# function loghypergeom_pdf_mem(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64)
+#     return loghypergeom_pdf_inner_mem(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64)
+# end
 
 function descending_fact_no0(x::Real, n::Int64)
     return prod(x-i for i in 0:(n-1))
@@ -93,7 +93,7 @@ end
 
 import Base.length
 
-function length(x::Union{IterTools.Distinct{Base.Iterators.Flatten{Base.Generator{Base.Generator{Array{Array{Int64,1},1},getfield(DualOptimalFiltering, Symbol("##115#116")){Array{Int64,1}}},typeof(DualOptimalFiltering.indices_of_tree_below)}},Any}, IterTools.Distinct{Base.Iterators.Flatten{Base.Generator{Base.Generator{Array{Array{Int64,1},1},getfield(DualOptimalFiltering, Symbol("##119#120")){Array{Int64,1}}},typeof(DualOptimalFiltering.indices_of_tree_below)}},Any},  IterTools.Distinct{Base.Iterators.Flatten{Base.Generator{Array{Array{Int64,1},1},typeof(DualOptimalFiltering.indices_of_tree_below)}},Any}})
+function length(x::Union{IterTools.Distinct{Base.Iterators.Flatten{Base.Generator{Array{Array{Int64,1},1},typeof(DualOptimalFiltering.indices_of_tree_below)}},Any}, IterTools.Distinct{Base.Iterators.Flatten{Base.Generator{Base.Generator{Array{Array{Int64,1},1},getfield(DualOptimalFiltering, Symbol("##110#111")){Array{Int64,1}}},typeof(DualOptimalFiltering.indices_of_tree_below)}},Any}})
     l = 0
     for k in x
         l +=1
