@@ -1,4 +1,4 @@
-using DataFrames
+using DataFrames, IterTools
 
 function bind_rows(dflist)
     vcat(dflist...)
@@ -93,7 +93,7 @@ end
 
 import Base.length
 
-function length(x::Union{IterTools.Distinct{Base.Iterators.Flatten{Base.Generator{Array{Array{Int64,1},1},typeof(DualOptimalFiltering.indices_of_tree_below)}},Any}, IterTools.Distinct{Base.Iterators.Flatten{Base.Generator{Base.Generator{Array{Array{Int64,1},1},getfield(DualOptimalFiltering, Symbol("##110#111")){Array{Int64,1}}},typeof(DualOptimalFiltering.indices_of_tree_below)}},Any}})
+function length(x::Union{IterTools.Distinct})
     l = 0
     for k in x
         l +=1
