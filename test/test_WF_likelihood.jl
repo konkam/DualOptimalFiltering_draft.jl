@@ -168,8 +168,34 @@ end;
 
     @test_nowarn DualOptimalFiltering.log_likelihood_WF_keep_fixed_number(α, data, 3; silence = false)
 
-    @test_nowarn DualOptimalFiltering.log_likelihood_WF_fixed_fraction(α, data, 0.9; silence = false)
+    @test_nowarn DualOptimalFiltering.log_likelihood_WF_fixed_fraction(α, data, 0.99; silence = false)
 
     @test_nowarn DualOptimalFiltering.log_likelihood_WF_keep_above_threshold(α, data, 0.001; silence = false)
+
+
+
+    ref = DualOptimalFiltering.log_likelihood_WF_keep_fixed_number(α, data, 3; silence = false)
+
+    res = DualOptimalFiltering.WF_loglikelihood_from_adaptive_filtering_keep_fixed_number(α, data, 3; silence = false)
+
+    for t in times
+        @test res[t] ≈ ref[t]
+    end
+
+    res = DualOptimalFiltering.WF_loglikelihood_from_adaptive_filtering_keep_fixed_fraction(α, data, 0.99;  silence = false)
+
+    ref =   DualOptimalFiltering.log_likelihood_WF_fixed_fraction(α, data, 0.99; silence = false)
+
+    for t in times
+        @test res[t] ≈ ref[t]
+    end
+
+    ref =   DualOptimalFiltering.log_likelihood_WF_keep_above_threshold(α, data, 0.001; silence = false)
+
+    res = DualOptimalFiltering.WF_loglikelihood_from_adaptive_filtering_keep_above_threshold(α, data, 0.001; silence = false)
+
+    for t in times
+        @test res[t] ≈ ref[t]
+    end
 
 end;
