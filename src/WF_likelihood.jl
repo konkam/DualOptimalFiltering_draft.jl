@@ -401,6 +401,12 @@ function WF_loglikelihood_adaptive_precomputation_pruning(α, data_, do_the_prun
         pruned_Λ, pruned_log_wms = do_the_pruning_log_wms(Λi, logw[(m .+ 1)...] for m in Λi)
         sum_Λ_max = sum_Λ_max_from_Λ(pruned_Λ)
 
+        for it in zip(pruned_Λ, pruned_log_wms)
+            m = it[1]
+            logweight = it[2]
+            logw[(m .+ 1)...] = logweight
+        end
+
         if sum_Λ_max > sum_Λ_max_last
             # println("Precomputation for prediction")
             precompute_next_terms!(sum_Λ_max_last, sum_Λ_max, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict, sα, Δt)
@@ -596,5 +602,40 @@ function WF_loglikelihood_from_adaptive_filtering(α, data, do_the_pruning::Func
     # return Λ_of_t, wms_of_t
     log_lik_terms = Dict(zip(times, cumsum(μν_prime_im1)))
     return log_lik_terms
+
+end
+
+function WF_loglikelihood_from_adaptive_filtering_keep_fixed_number(α, data, fixed_number::Int64; silence = false)
+    # println("filter_WF_mem2")
+
+    function prune_keeping_fixed_number(Λ_of_t, wms_of_t)
+        Λ_of_t_kept, wms_of_t_kept = keep_fixed_number_of_weights(Λ_of_t, wms_of_t, fixed_number)
+        return Λ_of_t_kept, normalise(wms_of_t_kept)
+    end
+
+    WF_loglikelihood_from_adaptive_filtering(α, data, prune_keeping_fixed_number; silence = silence)
+
+end
+
+function WF_loglikelihood_from_adaptive_filtering_keep_fixed_fraction(α, data, fraction::Float64; silence = false)
+    # println("filter_WF_mem2")
+    function prune_keeping_fixed_fraction(Λ_of_t, wms_of_t)
+        Λ_of_t_kept, wms_of_t_kept = keep_fixed_fraction(Λ_of_t, wms_of_t, fraction)
+        return Λ_of_t_kept, normalise(wms_of_t_kept)
+    end
+
+    WF_loglikelihood_from_adaptive_filtering(α, data, prune_keeping_fixed_fraction; silence = silence)
+
+end
+
+function WF_loglikelihood_from_adaptive_filtering_keep_above_threshold(α, data, ε::Float64; silence = false)
+    # println("filter_WF_mem2")
+
+    function prune_keeping_above_threshold(Λ_of_t, wms_of_t)
+        Λ_of_t_kept, wms_of_t_kept = keep_above_threshold(Λ_of_t, wms_of_t, ε)
+        return Λ_of_t_kept, normalise(wms_of_t_kept)
+    end
+
+    WF_loglikelihood_from_adaptive_filtering(α, data, prune_keeping_above_threshold; silence = silence)
 
 end
