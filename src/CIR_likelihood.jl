@@ -23,21 +23,21 @@ end
 
 # logμπh = logμπh_another_param
 
-function logμπh_inside(m, θ, α, y)
-    return map(mm -> logμπh(mm::Integer, θ, α, y), m)
+function logμπh_inside(m, θ, α, y; λ = 1)
+    return map(mm -> logμπh(mm::Integer, θ, α, y; λ = λ), m)
 end
 
-function logμπh(m::AbstractArray{U, 1}, θ, α, y)  where U<:Integer
-    return logμπh_inside(m, θ, α, y)
+function logμπh(m::AbstractArray{U, 1}, θ, α, y; λ = 1)  where U<:Integer
+    return logμπh_inside(m, θ, α, y; λ = λ)
 end
 # function logμπh(m::UnitRange{Int64}, θ, α, y)
 #     return logμπh_inside(m, θ, α, y)
 # end
 
-μπh(m, θ, α, y) = exp.(logμπh(m, θ, α, y))
+μπh(m, θ, α, y; λ = 1) = exp.(logμπh(m, θ, α, y; λ = λ))
 
-logμπh_param_δγ(m, θ, δ, y) = logμπh(m, θ, δ/2, y)
-logμmθ_param_δγ(m, θ, δ, y) = logμπh(m, θ, δ/2, y)
+logμπh_param_δγ(m, θ, δ, y; λ = 1) = logμπh(m, θ, δ/2, y; λ = λ)
+logμmθ_param_δγ(m, θ, δ, y; λ = 1) = logμπh(m, θ, δ/2, y; λ = λ)
 
 function logpmmi(m::Integer, i::Integer, t, γ, σ, θ)
     return logpdf(Binomial(m, γ/σ^2*1/(θ*exp(2*γ*t)+γ/σ^2-θ)), m-i)
@@ -78,7 +78,7 @@ function θ_from_θ_prime(y, θ_prime, T)
     return T(y, θ_prime)
 end
 
-T_CIR(y, θ) = θ + length(y)
+T_CIR(y, θ; λ = 1) = θ + λ*length(y)
 
 function next_wms_from_wms_prime(wms_prime, Λ_prime, y, θ_prime, α)#update
     #Make sure we deal correctly with weights equal to 0
