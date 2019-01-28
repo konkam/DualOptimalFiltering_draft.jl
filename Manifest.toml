@@ -1,3 +1,5 @@
+# This file is machine-generated - editing it directly is not advised
+
 [[AbstractAlgebra]]
 deps = ["InteractiveUtils", "LinearAlgebra", "Markdown", "Random", "SparseArrays", "Test"]
 git-tree-sha1 = "112294bd02a8c3d20ff9cac655732d3f52cdc4e9"
@@ -118,7 +120,7 @@ uuid = "b552c78f-8df3-52c6-915a-8e097449b14b"
 version = "0.0.7"
 
 [[Distributed]]
-deps = ["LinearAlgebra", "Random", "Serialization", "Sockets"]
+deps = ["Random", "Serialization", "Sockets"]
 uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[Distributions]]
@@ -155,12 +157,12 @@ uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
 
 [[HCubature]]
 deps = ["Combinatorics", "DataStructures", "LinearAlgebra", "QuadGK", "StaticArrays", "Test"]
-git-tree-sha1 = "ae1a1e53a885db8db302466a26b77452abbeba13"
+git-tree-sha1 = "e8d0dc961d6b5365856c69a1573433359ba3f39b"
 uuid = "19dc6840-f33b-545b-b366-655c7e3ffd49"
-version = "1.2.0"
+version = "1.3.0"
 
 [[InteractiveUtils]]
-deps = ["LinearAlgebra", "Markdown"]
+deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 
 [[IterTools]]
@@ -421,7 +423,7 @@ uuid = "30578b45-9adc-5946-b283-645ec420af67"
 version = "0.4.0"
 
 [[UUIDs]]
-deps = ["Random"]
+deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [[Unicode]]
