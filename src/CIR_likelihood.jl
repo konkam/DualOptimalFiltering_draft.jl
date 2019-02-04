@@ -140,7 +140,7 @@ function logμν_i_minus_1(Λ_prime_i_minus_1, log_wms_prime_i_minus_1, θ_prime
     StatsFuns.logsumexp(log_wms_prime_i_minus_1 .+ logμπh_param_δγ(Λ_prime_i_minus_1, θ_prime_i_minus_1, δ, yi))
 end
 
-function log_likelihood(δ, γ, σ, λ, data)
+function log_likelihood_CIR(δ, γ, σ, λ, data)
     times = data |> keys |> collect |> sort
 
     α = δ/2#Alternative parametrisation

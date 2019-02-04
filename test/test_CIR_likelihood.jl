@@ -117,7 +117,7 @@ end;
     Y = map(λ -> rand(Poisson(λ), Nobs), X);
     data = zip(time_grid, Y) |> Dict;
 
-    tmp = DualOptimalFiltering.log_likelihood(δ, γ, σ, λ, data)
+    tmp = DualOptimalFiltering.log_likelihood_CIR(δ, γ, σ, λ, data)
 
     for t in 1:length(time_grid)
         @test tmp[time_grid[t]] ≈ [-9.316739337010942, -15.159852198559214, -20.35995442574231, -25.857131056368978, -30.968165950652903, -37.72357636605707, -43.89643355575996, -53.41447961431761, -60.84516445861371, -67.55501659305918][t]  atol = 5*10.0^(-5)
