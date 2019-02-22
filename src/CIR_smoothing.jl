@@ -89,37 +89,60 @@ function compute_all_cost_to_go_functions_CIR(δ, γ, σ, λ, data)
     return Λ_tilde_prime_of_t, wms_tilde_of_t, θ_tilde_prime_of_t
 end
 
-function d_CIR(m, n)
+function d_CIR(m::Integer, n::Integer)
     return m .+ n
 end
 function e_CIR(θ1::Real, θ2::Real, β::Real)
     return θ1 + θ2 - β
 end
 
-# function CIR_smoothing(δ, γ, σ, λ, data; silence = false)
-#     if !silence
-#         println("Filtering")
-#     end
-#     Λ_of_t, wms_of_t, θ_of_t = filter_CIR_logweights(δ, γ, σ, λ, data; silence = silence)
-#     if !silence
-#         println("Cost to go")
-#     end
-#     Λ_tilde_prime_of_t, wms_tilde_of_t, θ_tilde_prime_of_t = compute_all_cost_to_go_functions_CIR(δ, γ, σ, λ, data)
-#
-#     times = Λ_of_t |> keys |> collect |> sort
-#
-#     Λ_of_t_smooth = Dict()
-#     wms_of_t_smooth = Dict()
-#     θ_of_t_smooth = Dict()
-#
-#     Λ_weights = Array(undef, 2*sum(values(data)))
-#
-#     for k in eachindex(times)
-#         Λ_weights = Dict()
-#         for
-#
-#         Λk = Λ_of_t[times[k]]
-#         Λ_tilde_prime_kp1 = Λ_tilde_prime_of_t[times[k+1]]
-#
+function CIR_smoothing(δ, γ, σ, λ, data; silence = false)
+    β = γ/σ^2
 
-# end
+
+    if !silence
+        println("Filtering")
+    end
+    Λ_of_t, wms_of_t, θ_of_t = filter_CIR_logweights(δ, γ, σ, λ, data; silence = silence)
+    if !silence
+        println("Cost to go")
+    end
+    Λ_tilde_prime_of_t, wms_tilde_of_t, θ_tilde_prime_of_t = compute_all_cost_to_go_functions_CIR(δ, γ, σ, λ, data)
+
+    times = Λ_of_t |> keys |> collect |> sort
+
+    Λ_of_t_smooth = Dict()
+    wms_of_t_smooth = Dict()
+    θ_of_t_smooth = Dict()
+
+    Λ_weights = Array{Float64,1}(undef, 2*sum(sum(values(data))))
+
+    for k in 1:(length(times)-1)
+        fill!(Λ_weights, 0.)
+
+        Λk = Λ_of_t[times[k]]
+        wk = wms_of_t[times[k]]
+        Λ_tilde_prime_kp1 = Λ_tilde_prime_of_t[times[k+1]]
+        w_tilde_kp1 = wms_tilde_of_t[times[k+1]]
+        for i in eachindex(Λk)
+            n = Λk[i]
+            for j in eachindex(Λ_tilde_prime_kp1)
+                m = Λ_tilde_prime_kp1[j]
+                Λ_weights[d_CIR(m, n)] += w_tilde_kp1[j]*wk[i]
+            end
+        end
+        Λ_weights = normalise(Λ_weights)
+
+        Λ_of_t_smooth[times[k]] = [n for n in eachindex(Λ_weights) if Λ_weights[n] > 0.]
+        wms_of_t_smooth[times[k]] = Λ_weights[Λ_weights .> 0.]
+        θ_of_t_smooth[times[k]] = e_CIR(θ_tilde_prime_of_t[times[k+1]], θ_of_t[times[k]], β)
+    end
+
+        #The last smoothing distribution is a filtering distribution
+        Λ_of_t_smooth[times[end]] = Λ_of_t[times[end]]
+        wms_of_t_smooth[times[end]] = wms_of_t[times[end]]
+        θ_of_t_smooth[times[end]] = θ_of_t[times[end]]
+
+    return Λ_of_t_smooth, wms_of_t_smooth, θ_of_t_smooth
+
+end
