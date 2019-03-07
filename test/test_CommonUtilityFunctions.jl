@@ -1,3 +1,5 @@
+using DataStructures
+
 @testset "Test common utility functions" begin
     @test DualOptimalFiltering.normalise(1:4) == (1:4)/10
     tmp = DualOptimalFiltering.get_quantiles_from_mass(0.95)
@@ -54,7 +56,7 @@
     @test_throws ErrorException DualOptimalFiltering.kmax_safe_but_slow(1:2, 3)
     @test_throws ErrorException DualOptimalFiltering.kmax(1:2, 3)
 
-    aa = Accumulator(Dict(zip("a", "b", "c"), [0.3,0.8,0.9]))
+    aa = aa = Accumulator(Dict(zip(["a", "b", "c"], [0.3,0.8,0.9])))
 
     @test DualOptimalFiltering.normalise(aa) |> values |> sum == 1
 
