@@ -32,6 +32,8 @@
     end
     data, wfchain_WF3, α = simulate_WF3_data()
 
+    @test DualOptimalFiltering.assert_constant_time_step_and_compute_it(data) ≈ 0.1
+
     @test DualOptimalFiltering.test_equal_spacing_of_observations(data; override = false, digits_after_comma_for_time_precision = 4) == nothing
     data[6.0] = zeros(2,2)
     @test_throws ErrorException DualOptimalFiltering.test_equal_spacing_of_observations(data; override = false, digits_after_comma_for_time_precision = 4)
@@ -52,6 +54,8 @@
     @test_throws ErrorException DualOptimalFiltering.kmax_safe_but_slow(1:2, 3)
     @test_throws ErrorException DualOptimalFiltering.kmax(1:2, 3)
 
+    aa = Accumulator(Dict(zip("a", "b", "c"), [0.3,0.8,0.9]))
 
+    @test DualOptimalFiltering.normalise(aa) |> values |> sum == 1
 
 end;
