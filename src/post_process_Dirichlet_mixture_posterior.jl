@@ -38,7 +38,7 @@ dfs -> map((dfi, ti) -> @transform(dfi, time = ti, variable = "x$margin"), dfs, 
 end
 
 function marginal_densities(α, Λ_of_t, wms_of_t)
-    K = Λ_of_t[0]... |> length
+    K = α |> length
     map(margin -> for_one_marginal(α, margin, Λ_of_t, wms_of_t), 1:K) |>
     dfs -> vcat(dfs...)
 end
