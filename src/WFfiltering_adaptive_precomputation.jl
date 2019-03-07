@@ -81,11 +81,7 @@ function filter_WF_adaptive_precomputation(α, data, do_the_pruning::Function; s
     # println("filter_WF_mem2")
 
     @assert length(α) == length(data[collect(keys(data))[1]])
-    Δts = keys(data) |> collect |> sort |> diff |> unique
-    if length(Δts) > 1
-        test_equal_spacing_of_observations(data; override = false)
-    end
-    Δt = mean(Δts)
+    Δt = assert_constant_time_step_and_compute_it(data)
 
 
     log_ν_dict = Dict{Tuple{Int64, Int64}, Float64}()
@@ -129,15 +125,11 @@ function filter_WF_adaptive_precomputation(α, data, do_the_pruning::Function; s
 
 end
 
-function filter_WF_adaptive_precomputation_ar(α, data, do_the_pruning::Function; silence = false)
+function filter_WF_adaptive_precomputation_ar(α, data, do_the_pruning::Function; silence = false, return_precomputed_terms = false)
     # println("filter_WF_mem2")
 
     @assert length(α) == length(data[collect(keys(data))[1]])
-    Δts = keys(data) |> collect |> sort |> diff |> unique
-    if length(Δts) > 1
-        test_equal_spacing_of_observations(data; override = false)
-    end
-    Δt = mean(Δts)
+    Δt = assert_constant_time_step_and_compute_it(data)
 
     smmax = values(data) |> sum |> sum
     log_ν_ar = Array{Float64}(undef, smmax, smmax)
@@ -177,7 +169,11 @@ function filter_WF_adaptive_precomputation_ar(α, data, do_the_pruning::Function
         wms_of_t[times[k+1]] = filtered_wms
     end
 
-    return Λ_of_t, wms_of_t
+    if return_precomputed_terms
+        return Λ_of_t, wms_of_t, log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset, sm_max_so_far
+    else
+        return Λ_of_t, wms_of_t
+    end
 
 end
 
