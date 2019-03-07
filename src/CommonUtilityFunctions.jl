@@ -1,12 +1,21 @@
-using DataFrames, IterTools
+using DataFrames, IterTools, DataStructures
 
 function bind_rows(dflist)
     vcat(dflist...)
 end
 
 "Normalises a vector"
-function normalise(x)
+function normalise(x::AbstractArray)
     return x/sum(x)
+end
+
+"Normalises an Accumulator"
+function normalise(x::Accumulator)
+    normalisation_constant = sum(values(x))
+    for k in keys(x)
+        x[k] = x[k]/normalisation_constant
+    end
+    return x
 end
 
 function get_quantiles_from_mass(mass)
@@ -172,4 +181,13 @@ function log_pochammer(x::Real, n::Integer)
     else
         return sum(log(x + i) for i in 0:(n-1))
     end
+end
+
+function assert_constant_time_step_and_compute_it(data)
+    Δts = keys(data) |> collect |> sort |> diff |> unique
+    if length(Δts) > 1
+        test_equal_spacing_of_observations(data; override = false)
+    end
+    Δt = mean(Δts)
+    return Δt
 end
