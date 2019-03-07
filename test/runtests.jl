@@ -9,6 +9,9 @@ println("Testing common utility functions")
 println("Testing CIR filtering")
 @time include("test_CIRfiltering.jl")
 
+println("Testing CIR smoothing")
+@time include("test_CIR_smoothing.jl")
+
 println("Testing WF filtering")
 @time include("test_WFfiltering.jl")
 
@@ -17,6 +20,9 @@ println("Testing WF filtering precomputed with array storage")
 
 println("Testing pruning functions")
 @time include("test_pruning_functions.jl")
+
+println("Testing WF smoothing")
+@time include("test_WF_smoothing.jl")
 
 # println("Testing statistical distances on the simplex")
 # @time include("test_statistical_distances_on_the_simplex.jl")
