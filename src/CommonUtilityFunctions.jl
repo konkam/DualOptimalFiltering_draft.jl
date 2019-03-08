@@ -6,6 +6,9 @@ end
 
 "Normalises a vector"
 function normalise(x::AbstractArray)
+    if length(x) == 0
+        error("cannot normalise a vector of length 0")
+    end
     return x/sum(x)
 end
 
