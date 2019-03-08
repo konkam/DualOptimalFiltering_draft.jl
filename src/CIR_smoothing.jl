@@ -52,9 +52,9 @@ function compute_all_cost_to_go_functions_CIR(δ, γ, σ, λ, data)
 
     yT = data[times[end]]
 
-    Λ_tilde_kp1 = t_CIR(yT, 0)
+    Λ_tilde_kp1 = Int64[t_CIR(yT, 0)]
     θ_tilde_prime_kp2 = θ0_CIR
-    wms_tilde_kp2 = 1.
+    wms_tilde_kp2 = [1.]
 
     for k in 2:length(reversed_times)
         println("(Cost to go) Step index: $k")
@@ -69,6 +69,56 @@ function compute_all_cost_to_go_functions_CIR(δ, γ, σ, λ, data)
         θ_tilde_kp1 = θ_tilde_k_from_θ_tilde_prime_kp1(ykp1, θ_tilde_prime_kp2)
 
         wms_tilde_kp1 = wms_tilde_kp1_from_wms_tilde_kp2(wms_tilde_kp2, Λ_tilde_kp1, θ_tilde_kp1, θ_tilde_prime_kp2, ykp1, Δk, α, γ, σ, λ)
+
+        #Storage of the results
+        θ_tilde_prime_kp1 = θ_tilde_prime_k_from_θ_tilde_k_CIR(θ_tilde_kp1, Δk, γ, σ)
+        Λ_tilde_prime_kp1 = Λ_tilde_prime_k_from_Λ_tilde_k_CIR(Λ_tilde_kp1)
+
+        yk = data[t]
+        Λ_tilde_kp = Λ_tilde_k_from_Λ_tilde_prime_kp1_CIR(yk, Λ_tilde_prime_kp1) #Not stored, but better for consistency of notations.
+
+        θ_tilde_prime_of_t[prev_t] = θ_tilde_prime_kp1
+        Λ_tilde_prime_of_t[prev_t] = Λ_tilde_prime_kp1
+        wms_tilde_of_t[prev_t] = wms_tilde_kp1
+
+        #Preparation of next iteration
+        θ_tilde_prime_kp2 = θ_tilde_prime_kp1
+        wms_tilde_kp2 = wms_tilde_kp1
+        Λ_tilde_kp1 = Λ_tilde_kp
+    end
+
+    return Λ_tilde_prime_of_t, wms_tilde_of_t, θ_tilde_prime_of_t
+end
+
+function compute_all_cost_to_go_functions_CIR_pruning(δ, γ, σ, λ, data, pruning_function::Function)
+    times = data |> keys |> collect |> sort
+    reversed_times = reverse(times)
+    α = δ/2#Alternative parametrisation
+    θ0_CIR = γ/σ^2
+    Λ_tilde_prime_of_t = Dict()
+    wms_tilde_of_t = Dict()
+    θ_tilde_prime_of_t = Dict()
+
+    yT = data[times[end]]
+
+    Λ_tilde_kp1 = Int64[t_CIR(yT, 0)]
+    θ_tilde_prime_kp2 = θ0_CIR
+    wms_tilde_kp2 = [1.]
+
+    for k in 2:length(reversed_times)
+        println("(Cost to go) Step index: $k")
+        println("Number of components: $(length(Λ_tilde_kp1))")
+        # Change of notation for clarity
+        prev_t = reversed_times[k-1]
+        t = reversed_times[k]
+        Δk = prev_t - t
+        ykp1 = data[prev_t]
+
+        # New weight computation
+        θ_tilde_kp1 = θ_tilde_k_from_θ_tilde_prime_kp1(ykp1, θ_tilde_prime_kp2)
+
+        pruned_Λ_tilde_kp1, pruned_wms_tilde_kp2 = pruning_function(Λ_tilde_kp1, wms_tilde_kp2)
+        wms_tilde_kp1 = wms_tilde_kp1_from_wms_tilde_kp2(pruned_wms_tilde_kp2, pruned_Λ_tilde_kp1, θ_tilde_kp1, θ_tilde_prime_kp2, ykp1, Δk, α, γ, σ, λ)
 
         #Storage of the results
         θ_tilde_prime_kp1 = θ_tilde_prime_k_from_θ_tilde_k_CIR(θ_tilde_kp1, Δk, γ, σ)

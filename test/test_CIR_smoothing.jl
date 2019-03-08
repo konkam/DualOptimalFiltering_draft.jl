@@ -50,6 +50,16 @@ end;
 
     @test_nowarn DualOptimalFiltering.compute_all_cost_to_go_functions_CIR(1.2, 0.3, 0.6, 1., data)
 
+    ref =  DualOptimalFiltering.compute_all_cost_to_go_functions_CIR(1.2, 0.3, 0.6, 1., data)
+    res = DualOptimalFiltering.compute_all_cost_to_go_functions_CIR_pruning(1.2, 0.3, 0.6, 1., data, (x, y) -> (x,y))
+
+    for k in keys(ref[2])
+        for l in length(ref[2][k])
+            @test ref[2][k][l] .≈ res[2][k][l]
+            @test ref[1][k][l] .≈ res[1][k][l]
+        end
+    end
+
     ref = CIR_smoothing(δ, γ, σ, λ, data; silence = false)
     res = DualOptimalFiltering.CIR_smoothing_logscale_internals(δ, γ, σ, λ, data; silence = false)
 
