@@ -41,7 +41,7 @@ function wms_tilde_kp1_from_wms_tilde_kp2_WF(wms_tilde_kp2::Array{Ty,1}, α, sα
 end
 
 
-function compute_all_cost_to_go_functions_WF(α, data, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff)
+function compute_all_cost_to_go_functions_WF(α, data, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff; silence = false)
     times = data |> keys |> collect |> sort
     reversed_times = reverse(times)
 
@@ -55,16 +55,18 @@ function compute_all_cost_to_go_functions_WF(α, data, precomputed_log_ν, preco
     wms_tilde_kp2 = [1.]
 
     for k in 2:length(reversed_times)
-        println("(Cost to go) Step index: $k")
-        println("Number of components: $(length(Λ_tilde_kp1))")
+        if !silence
+            println("(Cost to go) Step index: $k")
+            println("Number of components: $(length(Λ_tilde_kp1))")
+        end
         # Change of notation for clarity
         prev_t = reversed_times[k-1]
         t = reversed_times[k]
         Δk = prev_t - t
         ykp1 = data[prev_t]
 
-        @show k
-        @show wms_tilde_kp2
+        # @show k
+        # @show wms_tilde_kp2
         # New weight computation
 
         Λ_tilde_prime_kp1, wms_tilde_kp1 = wms_tilde_kp1_from_wms_tilde_kp2_WF(wms_tilde_kp2, α, sα, collect(Λ_tilde_kp1), Δk, ykp1, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff)
@@ -88,7 +90,7 @@ function compute_all_cost_to_go_functions_WF(α, data, precomputed_log_ν, preco
 end
 
 
-function compute_all_cost_to_go_functions_WF_adaptive_precomputation_ar(α, data, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff, sm_max_so_far)
+function compute_all_cost_to_go_functions_WF_adaptive_precomputation_ar(α, data, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff, sm_max_so_far; silence = false)
     times = data |> keys |> collect |> sort
     reversed_times = reverse(times)
 
@@ -110,7 +112,10 @@ function compute_all_cost_to_go_functions_WF_adaptive_precomputation_ar(α, data
     sm_max_so_far = max(sm_max_so_far,new_sm_max)
 
     for k in 2:length(reversed_times)
-        # println(k)
+        if !silence
+            println("(Cost to go) Step index: $k")
+            println("Number of components: $(length(Λ_tilde_kp1))")
+        end
         # Change of notation for clarity
         prev_t = reversed_times[k-1]
         t = reversed_times[k]
@@ -168,7 +173,7 @@ function WF_smoothing(α, data; silence = false)
     data_1D = DualOptimalFiltering.prepare_WF_dat_1D_2D(data)[1]
 
 
-    Λ_tilde_prime_of_t, wms_tilde_of_t = compute_all_cost_to_go_functions_WF_adaptive_precomputation_ar(α, data_1D, log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset, sm_max_so_far)
+    Λ_tilde_prime_of_t, wms_tilde_of_t = compute_all_cost_to_go_functions_WF_adaptive_precomputation_ar(α, data_1D, log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset, sm_max_so_far; silence = silence)
 
     times = Λ_of_t |> keys |> collect |> sort
 
