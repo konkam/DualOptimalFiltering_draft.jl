@@ -55,7 +55,8 @@ function compute_all_cost_to_go_functions_WF(α, data, precomputed_log_ν, preco
     wms_tilde_kp2 = [1.]
 
     for k in 2:length(reversed_times)
-        # println(k)
+        println("(Cost to go) Step index: $k")
+        println("Number of components: $(length(Λ_tilde_kp1))")
         # Change of notation for clarity
         prev_t = reversed_times[k-1]
         t = reversed_times[k]

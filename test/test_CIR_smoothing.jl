@@ -11,7 +11,7 @@
     @test_nowarn DualOptimalFiltering.wms_tilde_kp1_from_wms_tilde_kp2([0.2,0.3,0.4,0.1], [3,2,4,7], 1.3, 1.1, [6], 0.4, 1.1, 1.3, 1.2, 1.)
 end;
 
-@testset "predict CIR Tests" begin
+@testset "CIR smoothing tests" begin
 
     Random.seed!(1)
 
@@ -48,5 +48,14 @@ end;
     Y = map(λ -> rand(Poisson(λ), Nobs), X);
     data = zip(time_grid, Y) |> Dict;
 
-    DualOptimalFiltering.compute_all_cost_to_go_functions_CIR(1.2, 0.3, 0.6, 1., data)
+    @test_nowarn DualOptimalFiltering.compute_all_cost_to_go_functions_CIR(1.2, 0.3, 0.6, 1., data)
+
+    ref = CIR_smoothing(δ, γ, σ, λ, data; silence = false)
+    res = DualOptimalFiltering.CIR_smoothing_logscale_internals(δ, γ, σ, λ, data; silence = false)
+
+    for k in time_grid
+        for l in length(ref[2][k])
+            @test ref[2][k][l] .≈ res[2][k][l]
+        end
+    end
 end;
