@@ -3,7 +3,7 @@ module DualOptimalFiltering
 # package code goes here
 using Printf
 
-export generate_CIR_trajectory, filter_CIR, filter_WF, bind_rows, Hellinger_dist_1D, dirichletkernel
+export generate_CIR_trajectory, filter_CIR, filter_WF, bind_rows, Hellinger_dist_1D, dirichletkernel, CIR_smoothing,WF_smoothing
 
 include("CommonUtilityFunctions.jl")
 include("CIRfiltering.jl")
