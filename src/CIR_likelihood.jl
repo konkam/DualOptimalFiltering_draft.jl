@@ -39,9 +39,9 @@ end
 logμπh_param_δγ(m, θ, δ, y; λ = 1) = logμπh(m, θ, δ/2, y; λ = λ)
 logμmθ_param_δγ(m, θ, δ, y; λ = 1) = logμπh(m, θ, δ/2, y; λ = λ)
 
-function logpmmi(m::Integer, i::Integer, t, γ, σ, θ)
-    return logpdf(Binomial(m, γ/σ^2*1/(θ*exp(2*γ*t)+γ/σ^2-θ)), m-i)
-end
+# function logpmmi(m::Integer, i::Integer, t, γ, σ, θ)
+#     return logpdf(Binomial(m, γ/σ^2*1/(θ*exp(2*γ*t)+γ/σ^2-θ)), m-i)
+# end
 
 function t_CIR(y::Number, m::Integer)
     return m + y
