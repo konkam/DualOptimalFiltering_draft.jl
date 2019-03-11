@@ -6,7 +6,6 @@
     tmp = DualOptimalFiltering.logμπh([2, 3], 1.2, 3.1, [4, 6])
     @test tmp[1] ≈ -4.261806748257223 atol = 10.0^(-7)
     @test tmp[2] ≈ -4.15718179717835 atol = 10.0^(-7)
-    @test DualOptimalFiltering.logpmmi(8,2, .4, 1.2, 1.5, 1.4) ≈ -7.019424887074462 atol = 10.0^(-7)
 
     @test DualOptimalFiltering.t_CIR(5, 3) == 8
     @test DualOptimalFiltering.t_CIR([5], 3) == 8
