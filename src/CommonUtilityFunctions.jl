@@ -21,6 +21,17 @@ function normalise(x::Accumulator)
     return x
 end
 
+
+
+"Normalises an Accumulator with logweights"
+function normalise_logAccumulator(x::Accumulator)
+    log_normalisation_constant = logsumexp(values(x))
+    for k in keys(x)
+        x[k] = x[k] - log_normalisation_constant
+    end
+    return x
+end
+
 function get_quantiles_from_mass(mass)
     qinf = 0.5*(1-mass)
     return (qinf, 1-qinf)
