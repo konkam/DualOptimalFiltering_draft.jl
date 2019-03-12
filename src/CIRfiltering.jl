@@ -200,13 +200,13 @@ function filter_CIR_logweights(δ, γ, σ, λ, data; silence = false)
 
     times = keys(data) |> collect |> sort
     Λ_of_t = Dict()
-    wms_of_t = Dict()
+    logwms_of_t = Dict()
     θ_of_t = Dict()
 
     filtered_θ, filtered_Λ, filtered_logweights = update_CIR_params_logweights([0.], δ, γ/σ^2, λ, [0], data[0])
 
     Λ_of_t[0] = filtered_Λ
-    wms_of_t[0] = exp.(filtered_logweights) # = 1.
+    logwms_of_t[0] = filtered_logweights 
     θ_of_t[0] = filtered_θ
 
     for k in 1:(length(times)-1)
@@ -216,9 +216,19 @@ function filter_CIR_logweights(δ, γ, σ, λ, data; silence = false)
         end
         filtered_θ, filtered_Λ, filtered_logweights = get_next_filtering_distribution_logweights(filtered_Λ, filtered_logweights, filtered_θ, times[k], times[k+1], δ, γ, σ, λ, data[times[k+1]])
         Λ_of_t[times[k+1]] = filtered_Λ
-        wms_of_t[times[k+1]] = exp.(filtered_logweights)
+        logwms_of_t[times[k+1]] = filtered_logweights
         θ_of_t[times[k+1]] = filtered_θ
     end
+
+    return Λ_of_t, logwms_of_t, θ_of_t
+
+end
+
+function filter_CIR_logscale_internals(δ, γ, σ, λ, data; silence = false)
+
+    Λ_of_t, logwms_of_t, θ_of_t = filter_CIR_logweights(δ, γ, σ, λ, data; silence = false)
+
+    wms_of_t = Dict([k => exp.(logwms_of_t[k]) for k in keys(logwms_of_t)])
 
     return Λ_of_t, wms_of_t, θ_of_t
 

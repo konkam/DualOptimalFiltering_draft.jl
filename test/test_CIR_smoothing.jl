@@ -9,6 +9,12 @@
     @test_nowarn DualOptimalFiltering.pmn_CIR(5, 2, 0.5)
     @test_nowarn DualOptimalFiltering.pmn_CIR(5, 2, 0.2, 1.1, 1.2, 1.3)
     @test_nowarn DualOptimalFiltering.wms_tilde_kp1_from_wms_tilde_kp2([0.2,0.3,0.4,0.1], [3,2,4,7], 1.3, 1.1, [6], 0.4, 1.1, 1.3, 1.2, 1.)
+
+    ref =  DualOptimalFiltering.wms_tilde_kp1_from_wms_tilde_kp2([0.2,0.3,0.4,0.1], [3,2,4,7], 1.3, 1.1, [6], 0.4, 1.1, 1.3, 1.2, 1.)
+    res = DualOptimalFiltering.logwms_tilde_kp1_from_logwms_tilde_kp2(log.([0.2,0.3,0.4,0.1]), [3,2,4,7], 1.3, 1.1, [6], 0.4, 1.1, 1.3, 1.2, 1.)
+    for k in eachindex(ref)
+        @test ref[k] ≈ exp(res[k])
+    end
 end;
 
 @testset "CIR smoothing tests" begin
@@ -54,9 +60,19 @@ end;
     res = DualOptimalFiltering.compute_all_cost_to_go_functions_CIR_pruning(1.2, 0.3, 0.6, 1., data, (x, y) -> (x,y))
 
     for k in keys(ref[2])
-        for l in length(ref[2][k])
+        for l in eachindex(ref[2][k])
             @test ref[2][k][l] .≈ res[2][k][l]
             @test ref[1][k][l] .≈ res[1][k][l]
+        end
+    end
+
+    res2 = DualOptimalFiltering.compute_all_log_cost_to_go_functions_CIR_pruning(1.2, 0.3, 0.6, 1., data, (x, y) -> (x,y))
+
+    for k in keys(ref[2])
+        for l in eachindex(ref[2][k])
+            # @show k, l, ref[2][k][l], exp(res2[2][k][l])
+            @test ref[2][k][l] ≈ exp(res2[2][k][l])
+            @test ref[1][k][l] ≈ res2[1][k][l]
         end
     end
 
@@ -64,8 +80,9 @@ end;
     res = DualOptimalFiltering.CIR_smoothing_logscale_internals(δ, γ, σ, λ, data; silence = false)
 
     for k in time_grid
-        for l in length(ref[2][k])
-            @test ref[2][k][l] .≈ res[2][k][l]
+        for l in eachindex(ref[2][k])
+            # @show k, l, ref[2][k][l], res[2][k][l]
+            @test ref[2][k][l] ≈ res[2][k][l]
         end
     end
 end;

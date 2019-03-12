@@ -42,7 +42,7 @@ end;
     [@test isinteger(sum(k)) for k in Λ_of_t |> values]
     [@test isreal(sum(k)) for k in wms_of_t |> values]
     [@test isreal(k) for k in θ_of_t |> values]
-    Λ_of_t_logweights, logweights_of_t, θ_of_t_logweights = DualOptimalFiltering.filter_CIR_logweights(3., 0.5, 1.,1.,data);
+    Λ_of_t_logweights, logweights_of_t, θ_of_t_logweights = DualOptimalFiltering.filter_CIR_logscale_internals(3., 0.5, 1.,1.,data);
     times = logweights_of_t |> keys |> collect |> sort
     @test maximum([maximum(collect(Λ_of_t[t]) .- collect(Λ_of_t_logweights[t])) for t in times]) == 0
     @test θ_of_t_logweights == θ_of_t
