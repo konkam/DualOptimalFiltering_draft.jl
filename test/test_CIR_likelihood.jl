@@ -7,6 +7,57 @@
     @test tmp[1] ≈ -4.261806748257223 atol = 10.0^(-7)
     @test tmp[2] ≈ -4.15718179717835 atol = 10.0^(-7)
 
+
+    Random.seed!(1)
+
+    δ = 3.
+    γ = 2.5
+    σ = 4.
+    Nobs = 3
+    dt = 0.011
+    Nsteps = 10
+    λ = 1.
+
+    α = δ/2
+    β = γ/σ^2
+
+    function rec_rcCIR(Dts, x, δ, γ, σ)
+        x_new = DualOptimalFiltering.rCIR(1, Dts[1], x[end], δ, γ, σ)
+        if length(Dts) == 1
+            return Float64[x; x_new]
+        else
+            return Float64[x; rec_rcCIR(Dts[2:end], x_new, δ, γ, σ)]
+        end
+    end
+
+    function generate_CIR_trajectory2(times, x0, δ, γ, σ)
+        θ1 = δ*σ^2
+        θ2 = 2*γ
+        θ3 = 2*σ
+        Dts = diff(times)
+        return rec_rcCIR(Dts, [x0], δ, γ, σ)
+    end
+
+    time_grid = [k*dt for k in 0:(Nsteps-1)]
+    X = generate_CIR_trajectory2(time_grid, 3, δ*1.2, γ/1.2, σ*0.7)
+    Y = map(λ -> rand(Poisson(λ), Nobs), X);
+    data = zip(time_grid, Y) |> Dict;
+
+    precomputed_lgamma_α = DualOptimalFiltering.precompute_lgamma_α(α, data)
+    precomputed_lfactorial = DualOptimalFiltering.precompute_lfactorial(data)
+
+
+    for t in time_grid
+        # @show t
+        @test DualOptimalFiltering.logμπh(5, 1.2, α, data[t]; λ = 1) ≈ Float64(DualOptimalFiltering.logμπh_arb(5, 1.2, α, data[t]; λ = 1))
+    end
+
+    for t in time_grid
+        # @show t
+        @test DualOptimalFiltering.logμπh_precomputed(5, 1.2, α, data[t], precomputed_lgamma_α, precomputed_lfactorial; λ = 1) ≈ Float64(DualOptimalFiltering.logμπh_arb(5, 1.2, α, data[t]; λ = 1))
+    end
+
+
     @test DualOptimalFiltering.t_CIR(5, 3) == 8
     @test DualOptimalFiltering.t_CIR([5], 3) == 8
     @test DualOptimalFiltering.t_CIR([5,6], 3) == 14
