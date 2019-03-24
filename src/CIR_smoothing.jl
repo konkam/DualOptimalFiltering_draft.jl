@@ -307,7 +307,7 @@ function compute_all_log_cost_to_go_functions_CIR_pruning_precomputed(δ, γ, σ
 
         pruned_Λ_tilde_prime_kp2, pruned_logwms_tilde_kp2 = pruning_function(Λ_tilde_prime_kp2, logwms_tilde_kp2)
 
-        @show maximum(pruned_Λ_tilde_prime_kp2)
+        #@show maximum(pruned_Λ_tilde_prime_kp2)
         logwms_tilde_kp1 = logwms_tilde_kp1_from_logwms_tilde_kp2_precomputed(pruned_logwms_tilde_kp2, pruned_Λ_tilde_prime_kp2, θ_tilde_kp1, θ_tilde_prime_kp2, ykp1, Δk, α, γ, σ, λ, precomputed_lgamma_α, precomputed_lfactorial)
 
         #Storage of the results

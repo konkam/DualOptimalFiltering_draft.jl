@@ -9,7 +9,7 @@ function logμπh_NegBin(m::Integer, θ, α, y::AbstractArray{T, 1}; λ = 1) whe
     n = length(y)
     p = θ/(θ+n*λ)
     # Be careful that the NegativeBinomial is not parameterised as in Wikipedia, p replaced by 1-p
-    return logpdf.(NegativeBinomial(α + m, p), s) + lfactorial(s)-s*log(n) - sum(lfactorial.(y))
+    return logpdf(NegativeBinomial(α + m, p), s) + lfactorial(s)-s*log(n) - sum(lfactorial.(y))
 end
 
 function logμπh(m::Integer, θ, α, y::Integer; λ = 1)
@@ -19,6 +19,30 @@ function logμπh(m::Integer, θ, α, y::AbstractArray{T, 1}; λ = 1) where T <:
     s = sum(y)
     n = length(y)
     return s*log(λ) + (α+m)*log(θ) + SpecialFunctions.lgamma(m+s+α) - sum(lfactorial.(y)) - SpecialFunctions.lgamma(α+m) - (s+α+m) * log(θ + n*λ)
+end
+
+function logμπh_arb(m::Integer, θ, α, y::AbstractArray{T, 1}; λ = 1) where T <: Integer
+    α_arb = RR(α)
+    θ_arb = RR(θ)
+    s = sum(y)
+    n = length(y)
+    return s*log(λ) + (α_arb+m)*log(θ_arb) + Nemo.lgamma(m+s+α_arb) - sum(Nemo.log.(RR.(Nemo.fac.(y)))) - Nemo.lgamma(α_arb+m) - (s+α_arb+m) * log(θ_arb + n*λ)
+
+end
+
+function logμπh_precomputed(m::Integer, θ, α, y::AbstractArray{T, 1}, precomputed_lgamma_α, precomputed_lfactorial; λ = 1) where T <: Integer
+    s = sum(y)
+    n = length(y)
+    #@show m+s+1
+    return @inbounds s*log(λ) + (α+m)*log(θ) + precomputed_lgamma_α[m+s+1] - precomputed_lgamma_α[m+1] - sum(view(precomputed_lfactorial, y)) - (s+α+m) * log(θ + n*λ)
+end
+
+function precompute_lgamma_α(α, data)
+    return SpecialFunctions.lgamma.(i + α for i in 0:sum(sum.(values(data))))
+end
+
+function precompute_lfactorial(data)
+    return  SpecialFunctions.lfactorial.(1:maximum(maximum.(values(data))))
 end
 
 # logμπh = logμπh_another_param
