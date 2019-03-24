@@ -1,4 +1,4 @@
-using DataFrames, IterTools, DataStructures
+using DataFrames, IterTools, DataStructures, Nemo
 
 function bind_rows(dflist)
     vcat(dflist...)
@@ -81,6 +81,9 @@ function descending_fact0(x::Real, n::Int64)
     end
 end
 
+ascending_fact0(x::Real, n::Int64) = descending_fact0(x + n - 1, n)
+
+
 function log_descending_fact_no0(x::Real, n::Int64)
     return sum(log(x-i) for i in 0:(n-1))
 end
@@ -92,6 +95,8 @@ function log_descending_fact(x::Real, n::Int64)
         return log_descending_fact_no0(x, n)
     end
 end
+
+log_ascending_fact(x::Real, n::Int64) = log_descending_fact(x + n - 1, n)
 
 function truncate_float(x, digits_after_comma)
     floor(x*10^digits_after_comma)/10^digits_after_comma
@@ -204,4 +209,23 @@ function assert_constant_time_step_and_compute_it(data)
     end
     Δt = mean(Δts)
     return Δt
+end
+
+import Base.max
+function max(x::Nemo.arb, y::Nemo.arb)
+    if x == y
+        return x
+    elseif x < y
+        return y
+    else
+        return x
+    end
+end
+import StatsFuns.logaddexp
+function logaddexp(x::Nemo.arb, y::Nemo.arb)
+    # x or y is  NaN  =>  NaN
+    # x or y is +Inf  => +Inf
+    # x or y is -Inf  => other value
+    isfinite(x) && isfinite(y) || return max(x,y)
+    x > y ? x + log1p(exp(y - x)) : y + log1p(exp(x - y))
 end
