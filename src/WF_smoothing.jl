@@ -19,27 +19,28 @@ end
 
 function WF_backpropagation_for_one_m_precomputed_logweights(m::Array{Int64,1}, α, sα::Ty, t::Ty, y_kp1, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff; logwm = 0) where {Ty<:Number}
     # gm = map(x -> 0:x, m) |> vec |> x -> Iterators.product(x...)
-    gm = indices_of_tree_below(m)
     logμm_θ = logμπh_WF(α, m, y_kp1)
+    t_ykp1_m::Array{Int64,1} = t_WF(y_kp1, m)
+    gm = indices_of_tree_below(t_ykp1_m)
+    sm = sum(t_ykp1_m)
 
     function fun_n(n)
-        i = m.-n
+        i = t_ykp1_m.-n
         # println(i)
         si = sum(i)
-        sm = sum(m)
-        return logwm + logμm_θ  + logpmmi_precomputed(i, m, sm, si, t, sα, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff)
+        return logwm + logμm_θ  + logpmmi_precomputed(i, t_ykp1_m, sm, si, t, sα, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff)
     end
 
     Dict( collect(n) => fun_n(n) for n in gm ) |> Accumulator
 
 end
 
-function wms_tilde_kp1_from_wms_tilde_kp2_WF(wms_tilde_kp2::Array{Ty,1}, α, sα::Ty, Λ_tilde_kp1::Array{Array{Int64,1},1}, t::Ty, y_kp1, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff) where {Ty<:Number}
+function wms_tilde_kp1_from_wms_tilde_kp2_WF(wms_tilde_kp2::Array{Ty,1}, α, sα::Ty, Λ_tilde_prime_kp2::Array{Array{Int64,1},1}, t::Ty, y_kp1, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff) where {Ty<:Number}
 
     res = Accumulator{Array{Int64,1}, Float64}()
 
-    for k in 1:length(Λ_tilde_kp1)
-        res = merge(res, WF_backpropagation_for_one_m_precomputed(Λ_tilde_kp1[k], α, sα, t, y_kp1, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff; wm = wms_tilde_kp2[k]))
+    for k in 1:length(Λ_tilde_prime_kp2)
+        res = merge(res, WF_backpropagation_for_one_m_precomputed(Λ_tilde_prime_kp2[k], α, sα, t, y_kp1, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff; wm = wms_tilde_kp2[k]))
     end
 
     ks = keys(res) |> collect
@@ -48,12 +49,12 @@ function wms_tilde_kp1_from_wms_tilde_kp2_WF(wms_tilde_kp2::Array{Ty,1}, α, sα
 
 end
 
-function logwms_tilde_kp1_from_logwms_tilde_kp2_WF(logwms_tilde_kp2::Array{Ty,1}, α, sα::Ty, Λ_tilde_kp1::Array{Array{Int64,1},1}, t::Ty, y_kp1, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff) where {Ty<:Number}
+function logwms_tilde_kp1_from_logwms_tilde_kp2_WF(logwms_tilde_kp2::Array{Ty,1}, α, sα::Ty, Λ_tilde_prime_kp2::Array{Array{Int64,1},1}, t::Ty, y_kp1, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff) where {Ty<:Number}
 
     res = Accumulator{Array{Int64,1}, Float64}()
 
-    for k in 1:length(Λ_tilde_kp1)
-        res = merge(logaddexp, res, WF_backpropagation_for_one_m_precomputed_logweights(Λ_tilde_kp1[k], α, sα, t, y_kp1, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff; logwm = logwms_tilde_kp2[k]))
+    for k in 1:length(Λ_tilde_prime_kp2)
+        res = merge(logaddexp, res, WF_backpropagation_for_one_m_precomputed_logweights(Λ_tilde_prime_kp2[k], α, sα, t, y_kp1, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff; logwm = logwms_tilde_kp2[k]))
     end#Check that we are merging logdicts !!
 
     ks = keys(res) |> collect
@@ -72,13 +73,14 @@ function compute_all_cost_to_go_functions_WF(α, data, precomputed_log_ν, preco
 
     yT = data[times[end]]
 
-    Λ_tilde_kp1 = [t_WF(yT, zeros(Int64, length(α)))]
+    Λ_tilde_prime_kp2 = [zeros(Int64, length(α))]
+    Λ_tilde_kp1 = t_WF(yT, Λ_tilde_prime_kp2)
     wms_tilde_kp2 = [1.]
 
     for k in 2:length(reversed_times)
         if !silence
             println("(Cost to go) Step index: $k")
-            println("Number of components: $(length(Λ_tilde_kp1))")
+            println("Number of components: $(length(Λ_tilde_prime_kp2))")
         end
         # Change of notation for clarity
         prev_t = reversed_times[k-1]
@@ -90,7 +92,7 @@ function compute_all_cost_to_go_functions_WF(α, data, precomputed_log_ν, preco
         # @show wms_tilde_kp2
         # New weight computation
 
-        Λ_tilde_prime_kp1, wms_tilde_kp1 = wms_tilde_kp1_from_wms_tilde_kp2_WF(wms_tilde_kp2, α, sα, collect(Λ_tilde_kp1), Δk, ykp1, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff)
+        Λ_tilde_prime_kp1, wms_tilde_kp1 = wms_tilde_kp1_from_wms_tilde_kp2_WF(wms_tilde_kp2, α, sα, Λ_tilde_prime_kp2, Δk, ykp1, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff)
 
         #Storage of the results
 
@@ -104,6 +106,7 @@ function compute_all_cost_to_go_functions_WF(α, data, precomputed_log_ν, preco
 
         #Preparation of next iteration
         wms_tilde_kp2 = wms_tilde_kp1
+        Λ_tilde_prime_kp2 = Λ_tilde_prime_kp1
         Λ_tilde_kp1 = Λ_tilde_kp
     end
 
@@ -125,7 +128,8 @@ function compute_all_cost_to_go_functions_WF_adaptive_precomputation_ar(α, data
 
     yT = data[times[end]]
 
-    Λ_tilde_kp1 = [t_WF(yT, zeros(Int64, length(α)))]
+    Λ_tilde_prime_kp2 = [zeros(Int64, length(α))]
+    Λ_tilde_kp1 = t_WF(yT, Λ_tilde_prime_kp2)
     wms_tilde_kp2 = [1.]
 
     new_sm_max = maximum(sum.(Λ_tilde_kp1))
@@ -135,7 +139,7 @@ function compute_all_cost_to_go_functions_WF_adaptive_precomputation_ar(α, data
     for k in 2:length(reversed_times)
         if !silence
             println("(Cost to go) Step index: $k")
-            println("Number of components: $(length(Λ_tilde_kp1))")
+            println("Number of components: $(length(Λ_tilde_prime_kp2))")
         end
         # Change of notation for clarity
         prev_t = reversed_times[k-1]
@@ -155,7 +159,7 @@ function compute_all_cost_to_go_functions_WF_adaptive_precomputation_ar(α, data
         # @show wms_tilde_kp2
         # New weight computation
 
-        Λ_tilde_prime_kp1, wms_tilde_kp1 = wms_tilde_kp1_from_wms_tilde_kp2_WF(wms_tilde_kp2, α, sα, collect(Λ_tilde_kp1), Δk, ykp1, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff)
+        Λ_tilde_prime_kp1, wms_tilde_kp1 = wms_tilde_kp1_from_wms_tilde_kp2_WF(wms_tilde_kp2, α, sα, Λ_tilde_prime_kp2, Δk, ykp1, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff)
 
         #Storage of the results
 
@@ -169,6 +173,7 @@ function compute_all_cost_to_go_functions_WF_adaptive_precomputation_ar(α, data
 
         #Preparation of next iteration
         wms_tilde_kp2 = wms_tilde_kp1
+        Λ_tilde_prime_kp2 = Λ_tilde_prime_kp1
         Λ_tilde_kp1 = Λ_tilde_kp
     end
 
@@ -189,7 +194,8 @@ function compute_all_log_cost_to_go_functions_WF_adaptive_precomputation_ar(α, 
 
     yT = data[times[end]]
 
-    Λ_tilde_kp1 = [t_WF(yT, zeros(Int64, length(α)))]
+    Λ_tilde_prime_kp2 = [zeros(Int64, length(α))]
+    Λ_tilde_kp1 = collect(t_WF(yT, Λ_tilde_prime_kp2))
     logwms_tilde_kp2 = [0.]
 
     new_sm_max = maximum(sum.(Λ_tilde_kp1))
@@ -199,7 +205,7 @@ function compute_all_log_cost_to_go_functions_WF_adaptive_precomputation_ar(α, 
     for k in 2:length(reversed_times)
         if !silence
             println("(Cost to go) Step index: $k")
-            println("Number of components: $(length(Λ_tilde_kp1))")
+            println("Number of components: $(length(Λ_tilde_prime_kp2))")
         end
         # Change of notation for clarity
         prev_t = reversed_times[k-1]
@@ -219,7 +225,7 @@ function compute_all_log_cost_to_go_functions_WF_adaptive_precomputation_ar(α, 
         # @show wms_tilde_kp2
         # New weight computation
 
-        Λ_tilde_prime_kp1, logwms_tilde_kp1 = logwms_tilde_kp1_from_logwms_tilde_kp2_WF(logwms_tilde_kp2, α, sα, collect(Λ_tilde_kp1), Δk, ykp1, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff)
+        Λ_tilde_prime_kp1, logwms_tilde_kp1 = logwms_tilde_kp1_from_logwms_tilde_kp2_WF(logwms_tilde_kp2, α, sα, Λ_tilde_prime_kp2, Δk, ykp1, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff)
 
         #Storage of the results
 
@@ -233,6 +239,7 @@ function compute_all_log_cost_to_go_functions_WF_adaptive_precomputation_ar(α, 
 
         #Preparation of next iteration
         logwms_tilde_kp2 = logwms_tilde_kp1
+        Λ_tilde_prime_kp2 = Λ_tilde_prime_kp1
         Λ_tilde_kp1 = Λ_tilde_kp
     end
 

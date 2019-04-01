@@ -25,12 +25,16 @@
 
     @test_nowarn DualOptimalFiltering.wms_tilde_kp1_from_wms_tilde_kp2_WF([0.6, 0.4], 0.2*ones(3), sum(0.2*ones(3)), [[1,2,1],[1,5,3]], 0.5, [2,3,4], log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset)
 
-    ref = DualOptimalFiltering.wms_tilde_kp1_from_wms_tilde_kp2_WF([0.6, 0.4], 0.2*ones(3), sum(0.2*ones(3)), [[1,2,1],[1,5,3]], 0.5, [2,3,4], log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset)
+    ref_tmp = DualOptimalFiltering.wms_tilde_kp1_from_wms_tilde_kp2_WF([0.6, 0.4], 0.2*ones(3), sum(0.2*ones(3)), [[1,2,1],[1,5,3]], 0.5, [2,3,4], log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset)
 
-    res =  DualOptimalFiltering.logwms_tilde_kp1_from_logwms_tilde_kp2_WF(log.([0.6, 0.4]), 0.2*ones(3), sum(0.2*ones(3)), [[1,2,1],[1,5,3]], 0.5, [2,3,4], log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset)
+    ref = Dict(zip(ref_tmp[1], ref_tmp[2]))
 
-    for k in eachindex(ref[2])
-        @test exp(res[2][k]) ≈ ref[2][k]
+    res_tmp =  DualOptimalFiltering.logwms_tilde_kp1_from_logwms_tilde_kp2_WF(log.([0.6, 0.4]), 0.2*ones(3), sum(0.2*ones(3)), [[1,2,1],[1,5,3]], 0.5, [2,3,4], log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset)
+
+    res = Dict(zip(res_tmp[1], res_tmp[2]))
+
+    for k in keys(ref)
+        @test exp(res[k]) ≈ ref[k]
     end
 
     @test_nowarn DualOptimalFiltering.compute_all_cost_to_go_functions_WF(α, data_1D, log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset)
@@ -65,8 +69,10 @@
     res = DualOptimalFiltering.WF_smoothing_log_internals(α, data; silence = false)
 
     for k in keys(ref[2])
-        for l in eachindex(ref[2][k])
-            @test res[2][k][l] ≈ ref[2][k][l] atol=10^(-15)
+        refk = Dict(zip(ref[1][k], ref[2][k]))
+        resk = Dict(zip(res[1][k], res[2][k]))
+        for l in keys(refk)
+            @test resk[l] ≈ refk[l] atol=10^(-14)
         end
     end
 end;
