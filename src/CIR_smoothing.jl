@@ -44,7 +44,7 @@ function wms_tilde_kp1_from_wms_tilde_kp2(wms_tilde_kp2, Λ_tilde_prime_kp2, θ_
         t_ykp1_n = t_CIR(ykp1, n)
 
         wn_mu_n = wms_tilde_kp2[k] * μπh(n, θ_tilde_prime_kp2, α, ykp1)
-        for m in 0:n
+        for m in 0:t_ykp1_n
             idx = m+1
             # Careful, wms_tilde_kp2[k] has index k because we assume that the weights and the indices are in the same order.
             wms_tilde_kp1[idx] += wn_mu_n * pmn_CIR(t_ykp1_n, m, p)
@@ -62,7 +62,7 @@ function logwms_tilde_kp1_from_logwms_tilde_kp2(logwms_tilde_kp2, Λ_tilde_prime
         t_ykp1_n = t_CIR(ykp1, n)
 
         log_wn_mu_n = logwms_tilde_kp2[k]  + logμπh(n, θ_tilde_prime_kp2, α, ykp1; λ = λ )
-        for m in 0:n
+        for m in 0:t_ykp1_n
             idx = m+1
             # Careful, logwms_tilde_kp2[k] has index k because we assume that the weights and the indices are in the same order.
             logwms_tilde_kp1[idx] = logaddexp(logwms_tilde_kp1[idx], log_wn_mu_n + logpmn_CIR(t_ykp1_n, m, p))
@@ -80,7 +80,7 @@ function logwms_tilde_kp1_from_logwms_tilde_kp2_precomputed(logwms_tilde_kp2, Λ
         t_ykp1_n = t_CIR(ykp1, n)
 
         log_wn_mu_n = logwms_tilde_kp2[k] + logμπh_precomputed(n, θ_tilde_prime_kp2, α, ykp1, precomputed_lgamma_α, precomputed_lfactorial; λ = λ )
-        for m in 0:n
+        for m in 0:t_ykp1_n
             idx = m+1
             # Careful, logwms_tilde_kp2[k] has index k because we assume that the weights and the indices are in the same order.
             # @show n, m
@@ -99,7 +99,7 @@ function logwms_tilde_kp1_from_logwms_tilde_kp2_arb(logwms_tilde_kp2, Λ_tilde_p
         t_ykp1_n = t_CIR(ykp1, n)
 
         log_wn_mu_n = logwms_tilde_kp2[k]  + logμπh_arb(n, θ_tilde_prime_kp2, α, ykp1; λ = λ )
-        for m in 0:n
+        for m in 0:t_ykp1_n
             idx = m+1
             # Careful, logwms_tilde_kp2[k] has index k because we assume that the weights and the indices are in the same order.
             logwms_tilde_kp1[idx] = logaddexp(logwms_tilde_kp1[idx], log_wn_mu_n + logpmn_CIR(t_ykp1_n, m, p))
