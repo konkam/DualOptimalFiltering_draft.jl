@@ -5,6 +5,9 @@ using DataStructures
 
     @test_throws ErrorException DualOptimalFiltering.normalise(Float64[])
 
+    @test DualOptimalFiltering.lognormalise(log.(1:4)) |> logsumexp ≈ 0. atol=10^(-15)
+    @test_throws ErrorException DualOptimalFiltering.lognormalise(Float64[])
+
     tmp = DualOptimalFiltering.get_quantiles_from_mass(0.95)
     @test tmp[1] ≈ 0.025 atol=10.0^(-10)
     @test tmp[2] ≈ 0.975 atol=10.0^(-10)

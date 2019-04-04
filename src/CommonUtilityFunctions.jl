@@ -12,6 +12,14 @@ function normalise(x::AbstractArray)
     return x/sum(x)
 end
 
+"Normalises a vector of logweights"
+function lognormalise(logx::AbstractArray)
+    if length(logx) == 0
+        error("cannot lognormalise a vector of length 0")
+    end
+    return logx .- logsumexp(logx)
+end
+
 "Normalises an Accumulator"
 function normalise(x::Accumulator)
     normalisation_constant = sum(values(x))
