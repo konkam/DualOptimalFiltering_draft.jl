@@ -10,6 +10,8 @@
     @test_nowarn DualOptimalFiltering.pmn_CIR(5, 2, 0.2, 1.1, 1.2, 1.3)
     @test_nowarn DualOptimalFiltering.wms_tilde_kp1_from_wms_tilde_kp2([0.2,0.3,0.4,0.1], [3,2,4,7], 1.3, 1.1, [6], 0.4, 1.1, 1.3, 1.2, 1.)
 
+    @test_nowarn DualOptimalFiltering.logCmn_CIR(3, 4, 1.2, 1.6, 0.2, 0.6)
+
     ref =  DualOptimalFiltering.wms_tilde_kp1_from_wms_tilde_kp2([0.2,0.3,0.4,0.1], [3,2,4,7], 1.3, 1.1, [6], 0.4, 1.1, 1.3, 1.2, 1.)
     res = DualOptimalFiltering.logwms_tilde_kp1_from_logwms_tilde_kp2(log.([0.2,0.3,0.4,0.1]), [3,2,4,7], 1.3, 1.1, [6], 0.4, 1.1, 1.3, 1.2, 1.)
     for k in eachindex(ref)
@@ -61,11 +63,29 @@
         @test Float64(ref[k]) ≈ res[k]
     end
 
+
+    # identity(x,y) = (x, y)
+
+    res = DualOptimalFiltering.logwms_tilde_kp1_from_logwms_tilde_kp2_pruning(log.([0.2,0.3,0.4,0.1]), [3,2,4,7], 1.3, 1.1, [6], dt, α, 1.3, 1.2, 1.; pruning_function = (x, y) -> (x, y))
+    for k in eachindex(ref)
+        @test Float64(ref[k]) ≈ res[k]
+    end
+
     res = DualOptimalFiltering.logwms_tilde_kp1_from_logwms_tilde_kp2_precomputed(log.([0.2,0.3,0.4,0.1]), [3,2,4,7], 1.3, 1.1, [6], dt, α, 1.3, 1.2, 1., precomputed_lgamma_α, precomputed_lfactorial)
 
     for k in eachindex(ref)
         @test Float64(ref[k]) ≈ res[k]
     end
+
+    res = DualOptimalFiltering.logwms_tilde_kp1_from_logwms_tilde_kp2_precomputed_pruning(log.([0.2,0.3,0.4,0.1]), [3,2,4,7], 1.3, 1.1, [6], dt, α, 1.3, 1.2, 1., precomputed_lgamma_α, precomputed_lfactorial; pruning_function = (x, y) -> (x, y))
+
+    for k in eachindex(ref)
+        @test Float64(ref[k]) ≈ res[k]
+    end
+
+    res = DualOptimalFiltering.logwms_tilde_kp1_from_logwms_tilde_kp2_precomputed_pruning(log.([0.2,0.3,0.4,0.1]), [3,2,4,7], 1.3, 1.1, [6], dt, α, 1.3, 1.2, 1., precomputed_lgamma_α, precomputed_lfactorial; pruning_function = (x, y) -> (x, y), return_indices = true)
+    @test length(res[1]) == length(res[2])
+
 end;
 
 @testset "CIR smoothing tests" begin

@@ -35,6 +35,11 @@ function logpmn_CIR(m, n, Δt, θ, σ, γ)
 end
 
 
+function logCmn_CIR(m, n, θback_k, θ_k, α, β)
+    return SpecialFunctions.lgamma(α) - SpecialFunctions.lgamma(α+m) - SpecialFunctions.lgamma(α+n) - α*log(β) + (α+m)*log(θback_k) + (α+n)*log(θ_k) + SpecialFunctions.lgamma(α+m+n) - (α+m+n) * log(θback_k + θ_k-β)
+end
+
+
 function wms_tilde_kp1_from_wms_tilde_kp2(wms_tilde_kp2, Λ_tilde_prime_kp2, θ_tilde_kp1, θ_tilde_prime_kp2, ykp1, Δk, α, γ, σ, λ)
     wms_tilde_kp1 = zeros(t_CIR(ykp1, maximum(Λ_tilde_prime_kp2))+1)
     p = γ/σ^2*1/(θ_tilde_kp1*exp(2*γ*Δk) + γ/σ^2 - θ_tilde_kp1)
@@ -71,6 +76,47 @@ function logwms_tilde_kp1_from_logwms_tilde_kp2(logwms_tilde_kp2, Λ_tilde_prime
     return logwms_tilde_kp1
 end
 
+function update_logweights_cost_to_go_CIR(logwms_tilde_kp2, Λ_tilde_prime_kp2, θ_tilde_prime_kp2, α, ykp1, λ)
+    return Float64[logwms_tilde_kp2[k]  + logμπh(Λ_tilde_prime_kp2[k], θ_tilde_prime_kp2, α, ykp1; λ = λ) for k in eachindex(Λ_tilde_prime_kp2)]
+end
+
+function update_logweights_cost_to_go_CIR_precomputed(logwms_tilde_kp2, Λ_tilde_prime_kp2, θ_tilde_prime_kp2, α, ykp1, λ, precomputed_lgamma_α, precomputed_lfactorial)
+    return Float64[logwms_tilde_kp2[k]  + logμπh(Λ_tilde_prime_kp2[k], θ_tilde_prime_kp2, α, ykp1; λ = λ) for k in eachindex(Λ_tilde_prime_kp2)]
+end
+
+function predict_logweights_cost_to_go_CIR(updated_logwms_tilde_kp2, Λ_tilde_prime_kp2, θ_tilde_kp1, θ_tilde_prime_kp2, ykp1, Δk, α, γ, σ, λ)
+    logwms_tilde_kp1 = fill(-Inf, maximum(t_CIR(ykp1, maximum(Λ_tilde_prime_kp2)))+1)
+
+    p = γ/σ^2*1/(θ_tilde_kp1*exp(2*γ*Δk) + γ/σ^2 - θ_tilde_kp1)
+
+    for k in 1:length(Λ_tilde_prime_kp2)
+        n = Λ_tilde_prime_kp2[k]
+        t_ykp1_n = t_CIR(ykp1, n)
+
+        for m in 0:t_ykp1_n
+            idx = m+1
+            # Careful, logwms_tilde_kp2[k] has index k because we assume that the weights and the indices are in the same order.
+            logwms_tilde_kp1[idx] = logaddexp(logwms_tilde_kp1[idx], updated_logwms_tilde_kp2[k] + logpmn_CIR(t_ykp1_n, m, p))
+        end
+    end
+    return logwms_tilde_kp1
+end
+
+function logwms_tilde_kp1_from_logwms_tilde_kp2_pruning(logwms_tilde_kp2, Λ_tilde_prime_kp2, θ_tilde_kp1, θ_tilde_prime_kp2, ykp1, Δk, α, γ, σ, λ; pruning_function::Function, return_indices = false)
+
+    updated_logwms_tilde_kp2 = update_logweights_cost_to_go_CIR(logwms_tilde_kp2, Λ_tilde_prime_kp2, θ_tilde_prime_kp2, α, ykp1, λ)
+
+    Λ_tilde_prime_kp2_pruned, updated_logwms_tilde_kp2_pruned = pruning_function(Λ_tilde_prime_kp2, updated_logwms_tilde_kp2)
+
+    logwms_tilde_kp1 = predict_logweights_cost_to_go_CIR(updated_logwms_tilde_kp2_pruned, Λ_tilde_prime_kp2_pruned, θ_tilde_kp1, θ_tilde_prime_kp2, ykp1, Δk, α, γ, σ, λ)
+
+    if return_indices
+        return logwms_tilde_kp1, 0:maximum(t_CIR(ykp1, maximum(Λ_tilde_prime_kp2_pruned)))
+    else
+        return logwms_tilde_kp1
+    end
+end
+
 function logwms_tilde_kp1_from_logwms_tilde_kp2_precomputed(logwms_tilde_kp2, Λ_tilde_prime_kp2, θ_tilde_kp1, θ_tilde_prime_kp2, ykp1, Δk, α, γ, σ, λ, precomputed_lgamma_α, precomputed_lfactorial)
     logwms_tilde_kp1 = fill(-Inf, maximum(t_CIR(ykp1, maximum(Λ_tilde_prime_kp2)))+1)
     p = γ/σ^2*1/(θ_tilde_kp1*exp(2*γ*Δk) + γ/σ^2 - θ_tilde_kp1)
@@ -89,6 +135,22 @@ function logwms_tilde_kp1_from_logwms_tilde_kp2_precomputed(logwms_tilde_kp2, Λ
     end
     return logwms_tilde_kp1
 end
+
+function logwms_tilde_kp1_from_logwms_tilde_kp2_precomputed_pruning(logwms_tilde_kp2, Λ_tilde_prime_kp2, θ_tilde_kp1, θ_tilde_prime_kp2, ykp1, Δk, α, γ, σ, λ, precomputed_lgamma_α, precomputed_lfactorial; pruning_function::Function, return_indices = false)
+
+        updated_logwms_tilde_kp2 = update_logweights_cost_to_go_CIR_precomputed(logwms_tilde_kp2, Λ_tilde_prime_kp2, θ_tilde_prime_kp2, α, ykp1, λ, precomputed_lgamma_α, precomputed_lfactorial)
+
+        Λ_tilde_prime_kp2_pruned, updated_logwms_tilde_kp2_pruned = pruning_function(Λ_tilde_prime_kp2, updated_logwms_tilde_kp2)
+
+        logwms_tilde_kp1 = predict_logweights_cost_to_go_CIR(updated_logwms_tilde_kp2_pruned, Λ_tilde_prime_kp2_pruned, θ_tilde_kp1, θ_tilde_prime_kp2, ykp1, Δk, α, γ, σ, λ)
+
+        if return_indices
+            return logwms_tilde_kp1, 0:maximum(t_CIR(ykp1, maximum(Λ_tilde_prime_kp2_pruned)))
+        else
+            return logwms_tilde_kp1
+        end
+    end
+
 
 function logwms_tilde_kp1_from_logwms_tilde_kp2_arb(logwms_tilde_kp2, Λ_tilde_prime_kp2, θ_tilde_kp1, θ_tilde_prime_kp2, ykp1, Δk, α, γ, σ, λ)
     logwms_tilde_kp1 = fill(RR(-Inf), maximum(t_CIR(ykp1, maximum(Λ_tilde_prime_kp2)))+1)
@@ -189,12 +251,14 @@ function compute_all_cost_to_go_functions_CIR_pruning(δ, γ, σ, λ, data, prun
         # New weight computation
         θ_tilde_kp1 = θ_tilde_k_from_θ_tilde_prime_kp1(ykp1, θ_tilde_prime_kp2)
 
-        pruned_Λ_tilde_prime_kp2, pruned_wms_tilde_kp2 = pruning_function(Λ_tilde_prime_kp2, wms_tilde_kp2)
-        wms_tilde_kp1 = wms_tilde_kp1_from_wms_tilde_kp2(pruned_wms_tilde_kp2, pruned_Λ_tilde_prime_kp2, θ_tilde_kp1, θ_tilde_prime_kp2, ykp1, Δk, α, γ, σ, λ)
+        # pruned_Λ_tilde_prime_kp2, pruned_wms_tilde_kp2 = pruning_function(Λ_tilde_prime_kp2, wms_tilde_kp2)
+        logwms_tilde_kp1, Λ_tilde_prime_kp1 = logwms_tilde_kp1_from_logwms_tilde_kp2_pruning(log.(wms_tilde_kp2), Λ_tilde_prime_kp2, θ_tilde_kp1, θ_tilde_prime_kp2, ykp1, Δk, α, γ, σ, λ; pruning_function = pruning_function, return_indices = true)
+
+        wms_tilde_kp1 = exp.(logwms_tilde_kp1)
 
         #Storage of the results
         θ_tilde_prime_kp1 = θ_tilde_prime_k_from_θ_tilde_k_CIR(θ_tilde_kp1, Δk, γ, σ)
-        Λ_tilde_prime_kp1 = Λ_tilde_prime_k_from_Λ_tilde_k_CIR(Λ_tilde_kp1)
+        # Λ_tilde_prime_kp1 = Λ_tilde_prime_k_from_Λ_tilde_k_CIR(Λ_tilde_kp1)
 
         yk = data[t]
         Λ_tilde_kp = Λ_tilde_k_from_Λ_tilde_prime_kp1_CIR(yk, Λ_tilde_prime_kp1) #Not stored, but better for consistency of notations.
@@ -243,12 +307,10 @@ function compute_all_log_cost_to_go_functions_CIR_pruning(δ, γ, σ, λ, data, 
         # New weight computation
         θ_tilde_kp1 = θ_tilde_k_from_θ_tilde_prime_kp1(ykp1, θ_tilde_prime_kp2)
 
-        pruned_Λ_tilde_prime_kp2, pruned_logwms_tilde_kp2 = pruning_function(Λ_tilde_prime_kp2, logwms_tilde_kp2)
-        logwms_tilde_kp1 = logwms_tilde_kp1_from_logwms_tilde_kp2(pruned_logwms_tilde_kp2, pruned_Λ_tilde_prime_kp2, θ_tilde_kp1, θ_tilde_prime_kp2, ykp1, Δk, α, γ, σ, λ)
+        logwms_tilde_kp1, Λ_tilde_prime_kp1 = logwms_tilde_kp1_from_logwms_tilde_kp2_pruning(logwms_tilde_kp2, Λ_tilde_prime_kp2, θ_tilde_kp1, θ_tilde_prime_kp2, ykp1, Δk, α, γ, σ, λ; pruning_function = pruning_function, return_indices = true)
 
         #Storage of the results
         θ_tilde_prime_kp1 = θ_tilde_prime_k_from_θ_tilde_k_CIR(θ_tilde_kp1, Δk, γ, σ)
-        Λ_tilde_prime_kp1 = Λ_tilde_prime_k_from_Λ_tilde_k_CIR(Λ_tilde_kp1)
 
         yk = data[t]
         Λ_tilde_kp = Λ_tilde_k_from_Λ_tilde_prime_kp1_CIR(yk, Λ_tilde_prime_kp1) #Not stored, but better for consistency of notations.
@@ -305,14 +367,10 @@ function compute_all_log_cost_to_go_functions_CIR_pruning_precomputed(δ, γ, σ
         # New weight computation
         θ_tilde_kp1 = θ_tilde_k_from_θ_tilde_prime_kp1(ykp1, θ_tilde_prime_kp2)
 
-        pruned_Λ_tilde_prime_kp2, pruned_logwms_tilde_kp2 = pruning_function(Λ_tilde_prime_kp2, logwms_tilde_kp2)
-
-        #@show maximum(pruned_Λ_tilde_prime_kp2)
-        logwms_tilde_kp1 = logwms_tilde_kp1_from_logwms_tilde_kp2_precomputed(pruned_logwms_tilde_kp2, pruned_Λ_tilde_prime_kp2, θ_tilde_kp1, θ_tilde_prime_kp2, ykp1, Δk, α, γ, σ, λ, precomputed_lgamma_α, precomputed_lfactorial)
+        logwms_tilde_kp1, Λ_tilde_prime_kp1 = logwms_tilde_kp1_from_logwms_tilde_kp2_precomputed_pruning(logwms_tilde_kp2, Λ_tilde_prime_kp2, θ_tilde_kp1, θ_tilde_prime_kp2, ykp1, Δk, α, γ, σ, λ, precomputed_lgamma_α, precomputed_lfactorial; pruning_function = pruning_function, return_indices = true)
 
         #Storage of the results
         θ_tilde_prime_kp1 = θ_tilde_prime_k_from_θ_tilde_k_CIR(θ_tilde_kp1, Δk, γ, σ)
-        Λ_tilde_prime_kp1 = Λ_tilde_prime_k_from_Λ_tilde_k_CIR(Λ_tilde_kp1)
 
         yk = data[t]
         Λ_tilde_kp = Λ_tilde_k_from_Λ_tilde_prime_kp1_CIR(yk, Λ_tilde_prime_kp1) #Not stored, but better for consistency of notations.
@@ -342,6 +400,7 @@ end
 
 function CIR_smoothing(δ, γ, σ, λ, data; silence = false)
     β = γ/σ^2
+    α = δ/2#Alternative parametrisation
 
 
     if !silence
@@ -372,7 +431,7 @@ function CIR_smoothing(δ, γ, σ, λ, data; silence = false)
             n = Λk[i]
             for j in eachindex(Λ_tilde_prime_kp1)
                 m = Λ_tilde_prime_kp1[j]
-                Λ_weights[d_CIR(m, n)] += w_tilde_kp1[j]*wk[i]
+                Λ_weights[d_CIR(m, n)] += w_tilde_kp1[j]*wk[i]*exp(logCmn_CIR(m, n, θ_tilde_prime_of_t[times[k+1]], θ_of_t[times[k]], α, β))
             end
         end
         Λ_weights = normalise(Λ_weights)
@@ -391,19 +450,8 @@ function CIR_smoothing(δ, γ, σ, λ, data; silence = false)
 
 end
 
-function CIR_smoothing_logscale_internals(δ, γ, σ, λ, data; silence = false)
-    β = γ/σ^2
 
-
-    if !silence
-        println("Filtering")
-    end
-    Λ_of_t, logwms_of_t, θ_of_t = filter_CIR_logweights(δ, γ, σ, λ, data; silence = silence)
-    if !silence
-        println("Cost to go")
-    end
-    Λ_tilde_prime_of_t, logwms_tilde_of_t, θ_tilde_prime_of_t = compute_all_log_cost_to_go_functions_CIR(δ, γ, σ, λ, data; silence = silence)
-
+function merge_filtering_and_cost_to_go_logweights(Λ_of_t, logwms_of_t, θ_of_t, Λ_tilde_prime_of_t, logwms_tilde_of_t, θ_tilde_prime_of_t, data, α, β)
     times = Λ_of_t |> keys |> collect |> sort
 
     Λ_of_t_smooth = Dict()
@@ -423,7 +471,8 @@ function CIR_smoothing_logscale_internals(δ, γ, σ, λ, data; silence = false)
             n = Λk[i]
             for j in eachindex(Λ_tilde_prime_kp1)
                 m = Λ_tilde_prime_kp1[j]
-                log_Λ_weights[d_CIR(m, n)] = logaddexp(log_Λ_weights[d_CIR(m, n)], logw_tilde_kp1[j] + logwk[i])
+                # log_Λ_weights[d_CIR(m, n)] = logaddexp(log_Λ_weights[d_CIR(m, n)], logw_tilde_kp1[j] + logwk[i])
+                log_Λ_weights[d_CIR(m, n)] = logaddexp(log_Λ_weights[d_CIR(m, n)], logw_tilde_kp1[j] + logwk[i] + logCmn_CIR(m, n, θ_tilde_prime_of_t[times[k+1]], θ_of_t[times[k]], α, β))
             end
         end
         Λ_weights = exp.(log_Λ_weights .- logsumexp(log_Λ_weights))
@@ -439,5 +488,21 @@ function CIR_smoothing_logscale_internals(δ, γ, σ, λ, data; silence = false)
         θ_of_t_smooth[times[end]] = θ_of_t[times[end]]
 
     return Λ_of_t_smooth, wms_of_t_smooth, θ_of_t_smooth
+end
+
+function CIR_smoothing_logscale_internals(δ, γ, σ, λ, data; silence = false)
+    β = γ/σ^2
+    α = δ/2#Alternative parametrisation
+
+    if !silence
+        println("Filtering")
+    end
+    Λ_of_t, logwms_of_t, θ_of_t = filter_CIR_logweights(δ, γ, σ, λ, data; silence = silence)
+    if !silence
+        println("Cost to go")
+    end
+    Λ_tilde_prime_of_t, logwms_tilde_of_t, θ_tilde_prime_of_t = compute_all_log_cost_to_go_functions_CIR(δ, γ, σ, λ, data; silence = silence)
+
+    return merge_filtering_and_cost_to_go_logweights(Λ_of_t, logwms_of_t, θ_of_t, Λ_tilde_prime_of_t, logwms_tilde_of_t, θ_tilde_prime_of_t, data, α, β)
 
 end

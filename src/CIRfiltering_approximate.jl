@@ -62,3 +62,52 @@ function filter_CIR_pruning(δ, γ, σ, λ, data, do_the_pruning::Function; sile
     return Λ_of_t, wms_of_t, θ_of_t
 
 end
+
+function filter_CIR_pruning_logweights(δ, γ, σ, λ, data, do_the_pruning::Function; silence = false)
+    Λ_of_t, wms_of_t, θ_of_t = filter_CIR_pruning(δ, γ, σ, λ, data, do_the_pruning::Function; silence = silence)
+    times = keys(data) |> collect |> sort
+    logwms_of_t = Dict(zip(times, [log.(wms_of_t[t]) for t in times]))
+    # @show keys(logwms_of_t)
+    for t in times
+        # @show length(Λ_of_t[t]), length(logwms_of_t[t])
+        # if length(Λ_of_t[t]) !== length(logwms_of_t[t])
+        #     error("Some weights were lost during log conversions")
+        # end
+        @assert !any(isnan.(logwms_of_t[t]))
+        # @show t
+        # @show sum(logwms_of_t[t])
+    end
+    return Λ_of_t, logwms_of_t, θ_of_t
+end
+
+#Finish this if it is ever needed.
+
+# function filter_CIR_pruning_logweights(δ, γ, σ, λ, data, do_the_pruning::Function; silence = false)
+#
+#     times = keys(data) |> collect |> sort
+#     Λ_of_t = Dict()
+#     wms_of_t = Dict()
+#     θ_of_t = Dict()
+#
+#     filtered_θ, filtered_Λ, filtered_wms = update_CIR_params([1.], δ, γ/σ^2, λ, [0], data[0])
+#     pruned_Λ, pruned_wms = do_the_pruning(filtered_Λ, filtered_wms)
+#
+#     Λ_of_t[0] = filtered_Λ
+#     wms_of_t[0] = filtered_wms # = 1.
+#     θ_of_t[0] = filtered_θ
+#
+#     for k in 1:(length(times)-1)
+#         if (!silence)
+#             println("Step index: $k")
+#             println("Number of components: $(length(filtered_Λ))")
+#         end
+#         filtered_θ, filtered_Λ, filtered_wms = get_next_filtering_distribution(pruned_Λ, pruned_wms, filtered_θ, times[k], times[k+1], δ, γ, σ, λ, data[times[k+1]])
+#         pruned_Λ, pruned_wms = do_the_pruning(filtered_Λ, filtered_wms)
+#         Λ_of_t[times[k+1]] = filtered_Λ
+#         wms_of_t[times[k+1]] = filtered_wms
+#         θ_of_t[times[k+1]] = filtered_θ
+#     end
+#
+#     return Λ_of_t, wms_of_t, θ_of_t
+#
+# end
