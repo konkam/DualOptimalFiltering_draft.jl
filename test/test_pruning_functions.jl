@@ -20,5 +20,8 @@
     Λ_of_t_kept, wms_of_t_kept = DualOptimalFiltering.keep_fixed_fraction(Λ_of_t[times[end]], wms_of_t[times[end]], 0.99)
     @test sum(wms_of_t_kept) >= 0.99
 
+    Λ_of_t_kept, wms_of_t_kept = DualOptimalFiltering.keep_fixed_fraction_logw(Λ_of_t[times[end]], log.(wms_of_t[times[end]]), 0.99)
+    @test logsumexp(wms_of_t_kept) >= log(0.99)
+
 
 end;

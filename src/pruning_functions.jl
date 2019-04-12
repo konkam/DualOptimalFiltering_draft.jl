@@ -40,15 +40,62 @@ function keep_fixed_number_of_logweights(Λ_of_t, log_wms_of_t, k)
     keep_above_threshold(Λ_of_t, log_wms_of_t, last_log_w)
 end
 
-function keep_fixed_fraction(Λ_of_t, wms_of_t, fraction)
-    #Could be made slightly faster by avoiding some inclusion tests.
-    #Could even use the threshold
-    sorted_wms_of_t = sort(wms_of_t)
-    wms_of_t_kept_sorted = sorted_wms_of_t[sorted_wms_of_t |> cumsum |> x -> Int.(x.>= 1-fraction) |> x -> Bool.(x)]
-    threshold = minimum(wms_of_t_kept_sorted)#If it is unique, then there should be no error
-    keep_above_threshold(Λ_of_t, wms_of_t, threshold)
+# function keep_fixed_fraction(Λ_of_t, wms_of_t, fraction)
+#     #Could be made slightly faster by avoiding some inclusion tests.
+#     #Could even use the threshold
+#     sorted_wms_of_t = sort(wms_of_t)
+#     wms_of_t_kept_sorted = sorted_wms_of_t[sorted_wms_of_t |> cumsum |> x -> Int.(x.>= 1-fraction) |> x -> Bool.(x)]
+#     threshold = minimum(wms_of_t_kept_sorted)#If it is unique, then there should be no error
+#     keep_above_threshold(Λ_of_t, wms_of_t, threshold)
+#
+#     # Λ_of_t_kept = [Λ_of_t[i] for i in 1:length(Λ_of_t) if wms_of_t[i] in wms_of_t_kept_sorted]
+#     # wms_of_t_kept = [wms_of_t[i] for i in 1:length(Λ_of_t) if wms_of_t[i] in wms_of_t_kept_sorted] #to preserve ordering
+#     # return Λ_of_t_kept,wms_of_t_kept
+# end
 
-    # Λ_of_t_kept = [Λ_of_t[i] for i in 1:length(Λ_of_t) if wms_of_t[i] in wms_of_t_kept_sorted]
-    # wms_of_t_kept = [wms_of_t[i] for i in 1:length(Λ_of_t) if wms_of_t[i] in wms_of_t_kept_sorted] #to preserve ordering
-    # return Λ_of_t_kept,wms_of_t_kept
+# function keep_fixed_fraction_of_total(Λ_of_t, wms_of_t, fraction, total)
+#     #Could be made slightly faster by avoiding some inclusion tests.
+#     #Could even use the threshold
+#     sorted_wms_of_t = sort(wms_of_t)
+#     wms_of_t_kept_sorted = sorted_wms_of_t[sorted_wms_of_t |> cumsum |> x -> Int.(x.>= total*(1-fraction)) |> x -> Bool.(x)]
+#     threshold = minimum(wms_of_t_kept_sorted)#If it is unique, then there should be no error
+#     keep_above_threshold(Λ_of_t, wms_of_t, threshold)
+#
+#     # Λ_of_t_kept = [Λ_of_t[i] for i in 1:length(Λ_of_t) if wms_of_t[i] in wms_of_t_kept_sorted]
+#     # wms_of_t_kept = [wms_of_t[i] for i in 1:length(Λ_of_t) if wms_of_t[i] in wms_of_t_kept_sorted] #to preserve ordering
+#     # return Λ_of_t_kept,wms_of_t_kept
+# end
+
+function keep_fixed_fraction(Λ_of_t, wms_of_t, fraction; total = 1.)
+    #This is not guaranteed to keep exactly the correct fraction, should be called "keep at least fraction". This keeps more when there are several weights equal to the threshold
+    sorted_wms_of_t = sort(wms_of_t, rev = true)
+    cumulative_sum::Float64 = 0.
+    i::Int64 = 0
+    max_i = length(sorted_wms_of_t)
+    # @show max_i
+    frac_times_total::Float64 = fraction * total
+    @inbounds while i <= max_i && cumulative_sum < frac_times_total
+        i +=1
+        # @show i
+        cumulative_sum += sorted_wms_of_t[i]
+    end
+    threshold = sorted_wms_of_t[i]
+    return keep_above_threshold(Λ_of_t, wms_of_t, threshold)
+end
+
+function keep_fixed_fraction_logw(Λ_of_t, logwms_of_t, fraction; logtotal = 0.)
+    #This is not guaranteed to keep exactly the correct fraction, should be called "keep at least fraction". This keeps more when there are several weights equal to the threshold
+    sorted_logwms_of_t = sort(logwms_of_t, rev = true)
+    cumulative_logsum::Float64 = -Inf
+    i::Int64 = 0
+    max_i = length(sorted_logwms_of_t)
+    # @show max_i
+    logfrac_times_total::Float64 = log(fraction) + logtotal
+    @inbounds while i <= max_i && cumulative_logsum < logfrac_times_total
+        i +=1
+        # @show i
+        cumulative_logsum = logaddexp(cumulative_logsum, sorted_logwms_of_t[i])
+    end
+    logthreshold = sorted_logwms_of_t[i]
+    return keep_above_threshold(Λ_of_t, logwms_of_t, logthreshold)
 end
