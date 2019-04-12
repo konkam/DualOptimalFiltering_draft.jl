@@ -40,20 +40,13 @@
 
     @test_nowarn DualOptimalFiltering.smooth_CIR_keep_fixed_number(δ, γ, σ, λ, data, 10; silence = false)
 
-    @test_nowarn DualOptimalFiltering.log_cost_to_go_CIR_keep_above_threshold(δ, γ, σ, λ, data, 10^(-20); silence = false)
+    @test_nowarn DualOptimalFiltering.log_cost_to_go_CIR_keep_above_threshold(δ, γ, σ, λ, data, -50; silence = false)
 
-    @test_nowarn DualOptimalFiltering.smooth_CIR_keep_above_threshold(δ, γ, σ, λ, data, 0.00001, 10^(-20); silence = false)
+    @test_nowarn DualOptimalFiltering.smooth_CIR_keep_above_threshold(δ, γ, σ, λ, data, 0.00001, -50; silence = false)
 
     @test_nowarn DualOptimalFiltering.log_cost_to_go_CIR_keep_fixed_fraction(δ, γ, σ, λ, data, 0.99; silence = false)
 
-    @test_nowarn DualOptimalFiltering.smooth_CIR_keep_above_threshold(δ, γ, σ, λ, data, 0.00001, 10^(-20); silence = false)
-
-
-
-
-
-
-
+    @test_nowarn DualOptimalFiltering.smooth_CIR_keep_fixed_fraction(δ, γ, σ, λ, data, 0.99; silence = false)
 
 
 
@@ -103,10 +96,10 @@
         end
     end
 
-    @test_nowarn DualOptimalFiltering.smooth_CIR_keep_fixed_number(δ, γ, σ, λ, data, 10; silence = false)
-
-    @test_nowarn DualOptimalFiltering.smooth_CIR_keep_above_threshold(δ, γ, σ, λ, data, 0.01, 10^(-20); silence = false)
-
-    @test_nowarn DualOptimalFiltering.smooth_CIR_keep_fixed_fraction(δ, γ, σ, λ, data, 0.9; silence = false)
+    # @test_nowarn DualOptimalFiltering.smooth_CIR_keep_fixed_number(δ, γ, σ, λ, data, 10; silence = false)
+    #
+    # @test_nowarn DualOptimalFiltering.smooth_CIR_keep_above_threshold(δ, γ, σ, λ, data, 0.01, 10^(-20); silence = false)
+    #
+    # @test_nowarn DualOptimalFiltering.smooth_CIR_keep_fixed_fraction(δ, γ, σ, λ, data, 0.9; silence = false)
 
 end;
