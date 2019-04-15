@@ -76,8 +76,12 @@ function logwms_tilde_kp1_from_logwms_tilde_kp2(logwms_tilde_kp2, Λ_tilde_prime
     return logwms_tilde_kp1
 end
 
+# function update_logweights_cost_to_go_CIR(logwms_tilde_kp2, Λ_tilde_prime_kp2, θ_tilde_prime_kp2, α, ykp1, λ)
+#     return Float64[logwms_tilde_kp2[k]  + logμπh(Λ_tilde_prime_kp2[k], θ_tilde_prime_kp2, α, ykp1; λ = λ) for k in eachindex(Λ_tilde_prime_kp2)]
+# end
+
 function update_logweights_cost_to_go_CIR(logwms_tilde_kp2, Λ_tilde_prime_kp2, θ_tilde_prime_kp2, α, ykp1, λ)
-    return Float64[logwms_tilde_kp2[k]  + logμπh(Λ_tilde_prime_kp2[k], θ_tilde_prime_kp2, α, ykp1; λ = λ) for k in eachindex(Λ_tilde_prime_kp2)]
+    return update_logweights_cost_to_go(logwms_tilde_kp2, Λ_tilde_prime_kp2, θ_tilde_prime_kp2, ykp1, (α = α, λ = λ), (m, θ, y, params) -> logμπh(m, θ, params[:α], y; λ = params[:λ]))
 end
 
 function update_logweights_cost_to_go_CIR_precomputed(logwms_tilde_kp2, Λ_tilde_prime_kp2, θ_tilde_prime_kp2, α, ykp1, λ, precomputed_lgamma_α, precomputed_lfactorial)

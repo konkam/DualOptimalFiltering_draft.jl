@@ -10,6 +10,8 @@
     @test_nowarn DualOptimalFiltering.pmn_CIR(5, 2, 0.2, 1.1, 1.2, 1.3)
     @test_nowarn DualOptimalFiltering.wms_tilde_kp1_from_wms_tilde_kp2([0.2,0.3,0.4,0.1], [3,2,4,7], 1.3, 1.1, [6], 0.4, 1.1, 1.3, 1.2, 1.)
 
+    @test_nowarn DualOptimalFiltering.update_logweights_cost_to_go_CIR(log.([0.2,0.3,0.4,0.1]), [3,2,4,7], 1.3, 1.1, [6], 0.4)
+
     @test_nowarn DualOptimalFiltering.logCmn_CIR(3, 4, 1.2, 1.6, 0.2, 0.6)
 
     ref =  DualOptimalFiltering.wms_tilde_kp1_from_wms_tilde_kp2([0.2,0.3,0.4,0.1], [3,2,4,7], 1.3, 1.1, [6], 0.4, 1.1, 1.3, 1.2, 1.)

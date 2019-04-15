@@ -5,6 +5,7 @@ using Printf
 
 export generate_CIR_trajectory, filter_CIR, filter_WF, bind_rows, Hellinger_dist_1D, dirichletkernel, CIR_smoothing,WF_smoothing
 
+include("general_smoothing_functions.jl")
 include("CommonUtilityFunctions.jl")
 include("CIRfiltering.jl")
 include("CIRfiltering_approximate.jl")
