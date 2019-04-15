@@ -471,7 +471,6 @@ function merge_filtering_and_cost_to_go_logweights(Λ_of_t, logwms_of_t, θ_of_t
             n = Λk[i]
             for j in eachindex(Λ_tilde_prime_kp1)
                 m = Λ_tilde_prime_kp1[j]
-                # log_Λ_weights[d_CIR(m, n)] = logaddexp(log_Λ_weights[d_CIR(m, n)], logw_tilde_kp1[j] + logwk[i])
                 log_Λ_weights[d_CIR(m, n)] = logaddexp(log_Λ_weights[d_CIR(m, n)], logw_tilde_kp1[j] + logwk[i] + logCmn_CIR(m, n, θ_tilde_prime_of_t[times[k+1]], θ_of_t[times[k]], α, β))
             end
         end
