@@ -53,7 +53,7 @@ function precompute_terms_ar(data::Dict{Float64,Array{Int64,2}}, sα::Number; di
 end
 
 function loghypergeom_pdf_using_precomputed(i, m, si::Integer, sm::Integer, log_binomial_coeff_ar_offset::Array{Float64,2})
-    return sum(log_binomial_coeff_ar_offset[m[k]+1,i[k]+1] for k in 1:length(m)) - log_binomial_coeff_ar_offset[sm+1, si+1]
+    return sum(log_binomial_coeff_ar_offset[m[k]+1,i[k]+1] for k in eachindex(m)) - log_binomial_coeff_ar_offset[sm+1, si+1]
 end
 
 function logpmmi_raw_precomputed(i, m, sm::Integer, si::Integer, t::Number, log_ν_ar::Array{Float64,2}, log_Cmmi_ar::Array{Float64,2}, log_binomial_coeff_ar_offset::Array{Float64,2})

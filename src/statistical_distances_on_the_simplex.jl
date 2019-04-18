@@ -151,7 +151,7 @@ function αΛ_to_α(α::Array{T,1}, Λ) where T<:Number
     # st = iterate(it)[2]
     st = 1
     res = Float64.(Λ |> flat2)
-    for i in 1:length(res)
+    for i in eachindex(res)
         # (ii, st) = next(it, st)
         (ii, st) = iterate(it, st)
         res[i] += ii

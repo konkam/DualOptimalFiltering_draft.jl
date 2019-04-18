@@ -318,7 +318,7 @@ end
 
 function sum_Λ_max_from_Λ(Λ)::Int64
     # n = zeros(Int64, length(Λ[1]))
-    # for k in 1:length(Λ)
+    # for k in eachindex(Λ)
     #     n .= max.(n, Λ[k])
     # end
     # return n
@@ -529,7 +529,7 @@ end
 function get_next_WF_filtering_distribution_and_loglikelihood_precomputed(current_Λ, current_wms, current_time, next_time, α, sα, next_y, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff)
     predicted_Λ, predicted_wms = predict_WF_params_precomputed(current_wms, sα, current_Λ, next_time-current_time, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff)
 
-    μν_prime_im1 = logsumexp(log(predicted_wms[k]) + logμπh_WF(α, predicted_Λ[k], vec(next_y)) for k in 1:length(predicted_Λ))# for the time being, because one only deal with single observations
+    μν_prime_im1 = logsumexp(log(predicted_wms[k]) + logμπh_WF(α, predicted_Λ[k], vec(next_y)) for k in eachindex(predicted_Λ))# for the time being, because one only deal with single observations
 
     filtered_Λ, filtered_wms = update_WF_params(predicted_wms, α, predicted_Λ, next_y)
 

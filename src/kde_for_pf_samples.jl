@@ -83,7 +83,7 @@ end
 function create_gamma_mixture_density_αβ(α_list::AbstractArray{T,1}, β_list::AbstractArray{U,1}, wms::AbstractArray{V,1}) where {T <: Real, U <: Real, V <: Real}
     #use 1/θ because of the way the Gamma distribution is parameterised in Julia Distributions.jl
     function res(x::Real)
-        sum(wms[i] * pdf(Gamma(α_list[i], 1/β_list[i]), x) for i in 1:length(wms))
+        sum(wms[i] * pdf(Gamma(α_list[i], 1/β_list[i]), x) for i in eachindex(wms))
     end
     return res
 end

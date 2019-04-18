@@ -2,7 +2,7 @@ using IterTools, DataStructures, SpecialFunctions
 
 function create_dirichlet_mixture(α::Array{T, 1}, Λ::Array{Array{U,1},1}) where {T <: Real, U <:Integer}
     α_mixt = Array{Array{T,1},1}(undef, length(Λ))
-    for i in 1:length(Λ)
+    for i in eachindex(Λ)
         α_mixt[i] = α .+ Λ[i]
     end
     return α_mixt
@@ -166,7 +166,7 @@ indices_of_tree_below(m::Union{AbstractArray{U, 1}, Tuple}) where U <: Integer =
 #
 #     res = Accumulator{Array{Int64,1}, Float64}()
 #
-#     for k in 1:length(Λ)
+#     for k in eachindex(Λ)
 #         res = merge(res, WF_prediction_for_one_m_debug_mem2(Λ[k], sα, t; wm = wms[k], debug = false))
 #     end
 #

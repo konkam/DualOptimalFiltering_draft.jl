@@ -3,8 +3,8 @@ function keep_above_threshold(Λ_of_t, wms_of_t, ε)
     # Anyway this has two passes on the weight vector, could be done in one pass
     wms_of_t_c = collect(wms_of_t)
     Λ_of_t_c = collect(Λ_of_t)
-    Λ_of_t_kept = [Λ_of_t_c[i] for i in 1:length(Λ_of_t_c) if wms_of_t_c[i] >= ε]
-    wms_of_t_kept = [wms_of_t_c[i] for i in 1:length(Λ_of_t_c) if wms_of_t_c[i] >= ε]
+    Λ_of_t_kept = [Λ_of_t_c[i] for i in eachindex(Λ_of_t_c) if wms_of_t_c[i] >= ε]
+    wms_of_t_kept = [wms_of_t_c[i] for i in eachindex(Λ_of_t_c) if wms_of_t_c[i] >= ε]
     return Λ_of_t_kept, wms_of_t_kept
 end
 
@@ -48,8 +48,8 @@ end
 #     threshold = minimum(wms_of_t_kept_sorted)#If it is unique, then there should be no error
 #     keep_above_threshold(Λ_of_t, wms_of_t, threshold)
 #
-#     # Λ_of_t_kept = [Λ_of_t[i] for i in 1:length(Λ_of_t) if wms_of_t[i] in wms_of_t_kept_sorted]
-#     # wms_of_t_kept = [wms_of_t[i] for i in 1:length(Λ_of_t) if wms_of_t[i] in wms_of_t_kept_sorted] #to preserve ordering
+#     # Λ_of_t_kept = [Λ_of_t[i] for i in eachindex(Λ_of_t) if wms_of_t[i] in wms_of_t_kept_sorted]
+#     # wms_of_t_kept = [wms_of_t[i] for i in eachindex(Λ_of_t) if wms_of_t[i] in wms_of_t_kept_sorted] #to preserve ordering
 #     # return Λ_of_t_kept,wms_of_t_kept
 # end
 
@@ -61,8 +61,8 @@ end
 #     threshold = minimum(wms_of_t_kept_sorted)#If it is unique, then there should be no error
 #     keep_above_threshold(Λ_of_t, wms_of_t, threshold)
 #
-#     # Λ_of_t_kept = [Λ_of_t[i] for i in 1:length(Λ_of_t) if wms_of_t[i] in wms_of_t_kept_sorted]
-#     # wms_of_t_kept = [wms_of_t[i] for i in 1:length(Λ_of_t) if wms_of_t[i] in wms_of_t_kept_sorted] #to preserve ordering
+#     # Λ_of_t_kept = [Λ_of_t[i] for i in eachindex(Λ_of_t) if wms_of_t[i] in wms_of_t_kept_sorted]
+#     # wms_of_t_kept = [wms_of_t[i] for i in eachindex(Λ_of_t) if wms_of_t[i] in wms_of_t_kept_sorted] #to preserve ordering
 #     # return Λ_of_t_kept,wms_of_t_kept
 # end
 

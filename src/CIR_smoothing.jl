@@ -44,7 +44,7 @@ function wms_tilde_kp1_from_wms_tilde_kp2(wms_tilde_kp2, Λ_tilde_prime_kp2, θ_
     wms_tilde_kp1 = zeros(t_CIR(ykp1, maximum(Λ_tilde_prime_kp2))+1)
     p = γ/σ^2*1/(θ_tilde_kp1*exp(2*γ*Δk) + γ/σ^2 - θ_tilde_kp1)
     # println(p)
-    for k in 1:length(Λ_tilde_prime_kp2)
+    for k in eachindex(Λ_tilde_prime_kp2)
         n = Λ_tilde_prime_kp2[k]
         t_ykp1_n = t_CIR(ykp1, n)
 
@@ -62,7 +62,7 @@ function logwms_tilde_kp1_from_logwms_tilde_kp2(logwms_tilde_kp2, Λ_tilde_prime
     logwms_tilde_kp1 = fill(-Inf, maximum(t_CIR(ykp1, maximum(Λ_tilde_prime_kp2)))+1)
     p = γ/σ^2*1/(θ_tilde_kp1*exp(2*γ*Δk) + γ/σ^2 - θ_tilde_kp1)
     # println(p)
-    for k in 1:length(Λ_tilde_prime_kp2)
+    for k in eachindex(Λ_tilde_prime_kp2)
         n = Λ_tilde_prime_kp2[k]
         t_ykp1_n = t_CIR(ykp1, n)
 
@@ -93,7 +93,7 @@ function predict_logweights_cost_to_go_CIR(updated_logwms_tilde_kp2, Λ_tilde_pr
 
     p = γ/σ^2*1/(θ_tilde_kp1*exp(2*γ*Δk) + γ/σ^2 - θ_tilde_kp1)
 
-    for k in 1:length(Λ_tilde_prime_kp2)
+    for k in eachindex(Λ_tilde_prime_kp2)
         n = Λ_tilde_prime_kp2[k]
         t_ykp1_n = t_CIR(ykp1, n)
 
@@ -125,7 +125,7 @@ function logwms_tilde_kp1_from_logwms_tilde_kp2_precomputed(logwms_tilde_kp2, Λ
     logwms_tilde_kp1 = fill(-Inf, maximum(t_CIR(ykp1, maximum(Λ_tilde_prime_kp2)))+1)
     p = γ/σ^2*1/(θ_tilde_kp1*exp(2*γ*Δk) + γ/σ^2 - θ_tilde_kp1)
     # println(p)
-    for k in 1:length(Λ_tilde_prime_kp2)
+    for k in eachindex(Λ_tilde_prime_kp2)
         n = Λ_tilde_prime_kp2[k]
         t_ykp1_n = t_CIR(ykp1, n)
 
@@ -160,7 +160,7 @@ function logwms_tilde_kp1_from_logwms_tilde_kp2_arb(logwms_tilde_kp2, Λ_tilde_p
     logwms_tilde_kp1 = fill(RR(-Inf), maximum(t_CIR(ykp1, maximum(Λ_tilde_prime_kp2)))+1)
     p = γ/σ^2*1/(θ_tilde_kp1*exp(2*γ*Δk) + γ/σ^2 - θ_tilde_kp1)
     # println(p)
-    for k in 1:length(Λ_tilde_prime_kp2)
+    for k in eachindex(Λ_tilde_prime_kp2)
         n = Λ_tilde_prime_kp2[k]
         t_ykp1_n = t_CIR(ykp1, n)
 

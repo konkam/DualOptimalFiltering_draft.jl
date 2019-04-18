@@ -169,7 +169,7 @@ end;
 
     tmp = DualOptimalFiltering.log_likelihood_CIR(δ, γ, σ, λ, data)
 
-    for t in 1:length(time_grid)
+    for t in eachindex(time_grid)
         @test tmp[time_grid[t]] ≈ [-9.316739337010942, -15.159852198559214, -20.35995442574231, -25.857131056368978, -30.968165950652903, -37.72357636605707, -43.89643355575996, -53.41447961431761, -60.84516445861371, -67.55501659305918][t]  atol = 5*10.0^(-5)
     end
 
@@ -218,7 +218,7 @@ end;
     @test_nowarn tmp = DualOptimalFiltering.log_likelihood_CIR_keep_above_threshold(δ, γ, σ, λ, data, 0.001; silence = false)
     @test_nowarn tmp = DualOptimalFiltering.log_likelihood_CIR_keep_fixed_number(δ, γ, σ, λ, data, 10; silence = false)
 
-    # for t in 1:length(time_grid)
+    # for t in eachindex(time_grid)
     #     @test tmp[time_grid[t]] ≈ [-5.48387, -11.6933, -15.3573, -18.6661, -22.2757, -28.1024, -32.6409, -39.4623, -43.8618, -48.6812][t]  atol = 5*10.0^(-5)
     # end
 

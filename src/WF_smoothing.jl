@@ -57,7 +57,7 @@ end
 function predict_logweights_cost_to_go_WF(updated_logwms_tilde_kp2, Λ_tilde_prime_kp2, α, sα, y_kp1, Δt, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff)
 
     res = Accumulator{Array{Int64,1}, Float64}()
-    for k in 1:length(Λ_tilde_prime_kp2)
+    for k in eachindex(Λ_tilde_prime_kp2)
         res = merge(logaddexp, res, predict_logweights_cost_to_go_WF_one_m(Λ_tilde_prime_kp2[k], α, sα, Δt, y_kp1, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff; logwm = updated_logwms_tilde_kp2[k]))
     end
 
@@ -90,7 +90,7 @@ function wms_tilde_kp1_from_wms_tilde_kp2_WF(wms_tilde_kp2::Array{Ty,1}, α, sα
 
     res = Accumulator{Array{Int64,1}, Float64}()
 
-    for k in 1:length(Λ_tilde_prime_kp2)
+    for k in eachindex(Λ_tilde_prime_kp2)
         res = merge(res, WF_backpropagation_for_one_m_precomputed(Λ_tilde_prime_kp2[k], α, sα, t, y_kp1, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff; wm = wms_tilde_kp2[k]))
     end
 
@@ -104,7 +104,7 @@ function logwms_tilde_kp1_from_logwms_tilde_kp2_WF(logwms_tilde_kp2::Array{Ty,1}
 
     res = Accumulator{Array{Int64,1}, Float64}()
 
-    for k in 1:length(Λ_tilde_prime_kp2)
+    for k in eachindex(Λ_tilde_prime_kp2)
         res = merge(logaddexp, res, WF_backpropagation_for_one_m_precomputed_logweights(Λ_tilde_prime_kp2[k], α, sα, t, y_kp1, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff; logwm = logwms_tilde_kp2[k]))
     end#Check that we are merging logdicts !!
 

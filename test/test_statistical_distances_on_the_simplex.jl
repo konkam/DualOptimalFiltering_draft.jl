@@ -8,7 +8,7 @@ end;
 
 res = DualOptimalFiltering.αΛ_to_α(1:3 |> collect, [[4,5,6], [1,3,2]])
 # println(res)
-for i in 1:length(res)
+for i in eachindex(res)
     @test  res[i] ==  [5, 7, 9, 2, 5, 5][i]
 end
 

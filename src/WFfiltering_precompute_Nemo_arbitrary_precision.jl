@@ -98,7 +98,7 @@ function precompute_terms_arb(data::Dict{Float64,Array{Int64,2}}, sα::Number; d
 end
 
 function hypergeom_pdf_using_precomputed_arb(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64, precomputed_binomial_coefficients_arb::Dict{Tuple{Int64, Int64}, Nemo.fmpz})
-    return prod(precomputed_binomial_coefficients_arb[(m[k],i[k])] for k in 1:length(m))*RR(1.)/precomputed_binomial_coefficients_arb[(sm, si)]
+    return prod(precomputed_binomial_coefficients_arb[(m[k],i[k])] for k in eachindex(m))*RR(1.)/precomputed_binomial_coefficients_arb[(sm, si)]
 end
 
 function pmmi_raw_precomputed_arb(i::Array{Int64,1}, m::Array{Int64,1}, sm::Int64, si::Int64, t::Number, ν_dict_arb::Dict{Tuple{Int64, Int64}, Nemo.arb}, Cmmi_dict_arb::Dict{Tuple{Int64, Int64}, Nemo.arb}, precomputed_binomial_coefficients_arb::Dict{Tuple{Int64, Int64}, Nemo.fmpz})
@@ -145,7 +145,7 @@ function predict_WF_params_precomputed_arb(wms::Array{Nemo.arb,1}, sα::Number, 
 
     res = Dict{Array{Int64,1},Nemo.arb}()
 
-    for k in 1:length(Λ)
+    for k in eachindex(Λ)
         merge_arb!(res, WF_prediction_for_one_m_precomputed_arb(Λ[k], sα, t, ν_dict_arb, Cmmi_dict_arb, precomputed_binomial_coefficients_arb; wm = wms[k]))
     end
 

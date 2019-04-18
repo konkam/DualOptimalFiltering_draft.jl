@@ -8,12 +8,12 @@ using Distributions, Random
     w = ones(size(X, 1))
     dirichletkernel([0.2,0.3,0.4, 0.1], X, 1.2, w, size(X, 1))
     res = [7.85877, 7.34332, 8.70397, 8.05658, 4.97756, 8.25494, 8.63194, 7.72478, 7.36807, 8.70078]
-    for i in 1:length(w)
+    for i in eachindex(w)
         @test w[i] .≈ res[i] atol=10.0^(-5)
     end
     X_list = [X[i,:] for i in 1:size(X,1)]
     dirichletkernel([0.2,0.3,0.4, 0.1], X, 1.2, w, size(X, 1))
-    for i in 1:length(w)
+    for i in eachindex(w)
         @test w[i] .≈ res[i] atol=10.0^(-5)
     end
 end;

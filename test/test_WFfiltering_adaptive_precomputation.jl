@@ -34,9 +34,9 @@ end;
     @test length(keys(wms_of_t)) == 3
     # @test_throws AssertionError filter_WF(α, data)
     times = keys(Λ_of_t) |> collect |> sort
-    for i in 1:length(keys(Λ_of_t))
+    for i in eachindex(keys(Λ_of_t))
         @test Λ_of_t[times[i]] == Λ_of_t_adaptive[times[i]]
-        for j in 1:length( wms_of_t[times[i]])
+        for j in eachindex( wms_of_t[times[i]])
             @test wms_of_t[times[i]][j] ≈ wms_of_t_adaptive[times[i]][j]
         end
     end

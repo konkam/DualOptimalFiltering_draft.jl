@@ -56,7 +56,7 @@ function precompute_terms(data::Dict{Float64,Array{Int64,2}}, sα::Number; digit
 end
 
 function loghypergeom_pdf_using_precomputed(i, m, si::Integer, sm::Integer, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64})  where T <: Integer
-    return sum(log_binomial_coeff_dict[(m[k],i[k])] for k in 1:length(m)) - log_binomial_coeff_dict[(sm, si)]
+    return sum(log_binomial_coeff_dict[(m[k],i[k])] for k in eachindex(m)) - log_binomial_coeff_dict[(sm, si)]
 end
 
 function logpmmi_raw_precomputed(i, m, sm::Integer, si::Integer, t::Number, log_ν_dict::Dict{Tuple{Int64, Int64}, Float64}, log_Cmmi_dict::Dict{Tuple{Int64, Int64}, Float64}, log_binomial_coeff_dict::Dict{Tuple{Int64, Int64}, Float64}) where T <: Integer
@@ -93,7 +93,7 @@ function predict_WF_params_precomputed(wms::Array{Ty,1}, sα::Ty, Λ::Array{Arra
 
     res = Accumulator{Array{Int64,1}, Float64}()
 
-    for k in 1:length(Λ)
+    for k in eachindex(Λ)
         res = merge(res, WF_prediction_for_one_m_precomputed(Λ[k], sα, t, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff; wm = wms[k]))
     end
 

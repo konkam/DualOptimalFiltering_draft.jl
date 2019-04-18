@@ -47,7 +47,7 @@ end;
     @test maximum([maximum(collect(Λ_of_t[t]) .- collect(Λ_of_t_logweights[t])) for t in times]) == 0
     @test θ_of_t_logweights == θ_of_t
     for t in times
-        for i in 1:length(logweights_of_t[t])
+        for i in eachindex(logweights_of_t[t])
             @test logweights_of_t[t][i] ≈ wms_of_t[t][i] atol=10.0^(-10)
         end
     end

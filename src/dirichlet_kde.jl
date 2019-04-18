@@ -12,7 +12,7 @@ end
 
 function dirichletkernel(x::RealVector, xdata::RealMatrix, λ::Real, w::Vector, n::Int; log = false)
     # w .= mapslices(xdatavec -> dirichletkernel_oneval(x, xdatavec, λ), xdata, 2) |> vec
-    for i in 1:length(w)
+    for i in eachindex(w)
         w[i] = dirichletkernel_oneval(x, xdata[i,:], λ; log = log)
     end
     nothing
@@ -20,7 +20,7 @@ end
 
 function dirichletkernel(x::RealVector, xdata::Array{Array{Float64,1},1}, λ::Real, w::Vector, n::Int; log = false)
     # w .= mapslices(xdatavec -> dirichletkernel_oneval(x, xdatavec, λ), xdata, 2) |> vec
-    for i in 1:length(w)
+    for i in eachindex(w)
         w[i] = dirichletkernel_oneval(x, xdata[i], λ; log = log)
     end
     nothing

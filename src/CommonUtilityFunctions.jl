@@ -66,7 +66,7 @@ end
 #     return sum(log_binomial_safe_but_slow.(m,i)) - log_binomial_safe_but_slow(sm, si)
 # end
 function loghypergeom_pdf(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64)
-    return sum(log_binomial_safe_but_slow(m[k],i[k]) for k in 1:length(m)) - log_binomial_safe_but_slow(sm, si)
+    return sum(log_binomial_safe_but_slow(m[k],i[k]) for k in eachindex(m)) - log_binomial_safe_but_slow(sm, si)
 end
 
 # function loghypergeom_pdf_inner_mem(i::Array{Int64,1}, m::Array{Int64,1}, si::Int64, sm::Int64)

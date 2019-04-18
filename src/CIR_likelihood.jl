@@ -141,7 +141,7 @@ function next_log_wms_prime_from_log_wms1D(log_wms, Λ, Δt, θ, γ, σ)
     all_u = zeros(maxΛ+1)
     all_u .= -Inf
     p = γ/σ^2*1/(θ*exp(2*γ*Δt) + γ/σ^2 - θ)
-    @inbounds for k in 1:length(Λ)
+    @inbounds for k in eachindex(Λ)
         m = Λ[k]
         for n in 0:m
             idx = n+1
