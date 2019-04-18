@@ -15,6 +15,12 @@
 
     @test_nowarn DualOptimalFiltering.WF_backpropagation_for_one_m_precomputed([1,2,1], 0.2*ones(3), sum(0.2*ones(3)), 0.5, [2,3,4], log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset; wm = 1)
 
+    @test_nowarn DualOptimalFiltering.update_logweights_cost_to_go_WF(log.([0.2,0.3,0.4,0.1]), [[1,3,1],[7,4,1],[2,1,5],[3,2,4]], 0.2*ones(3), [2,3,4])
+
+
+
+
+
     res =  DualOptimalFiltering.wms_tilde_kp1_from_wms_tilde_kp2_WF([0.6, 0.4], 0.2*ones(3), sum(0.2*ones(3)), [[1,2,1],[1,2,1]], 0.5, [2,3,4], log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset) |> (x-> Dict(zip(x[1], x[2])))
 
     ref =  DualOptimalFiltering.WF_backpropagation_for_one_m_precomputed([1,2,1], 0.2*ones(3), sum(0.2*ones(3)), 0.5, [2,3,4], log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset; wm = 1)
@@ -37,6 +43,24 @@
         @test exp(res[k]) ≈ ref[k]
     end
 
+    res_tmp =  DualOptimalFiltering.logwms_tilde_kp1_from_logwms_tilde_kp2_WF_pruning(log.([0.6, 0.4]), 0.2*ones(3), sum(0.2*ones(3)), [[1,2,1],[1,5,3]], 0.5, [2,3,4], log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset, (x, y) -> (x, y))
+
+    res = Dict(zip(res_tmp[1], res_tmp[2]))
+
+    for k in keys(ref)
+        @test exp(res[k]) ≈ ref[k]
+    end
+
+     updated_logwms_tilde_kp2 = DualOptimalFiltering.update_logweights_cost_to_go_WF(log.([0.6, 0.4]), [[1,2,1],[1,5,3]], 0.2*ones(3), [2,3,4])
+
+     res_tmp = DualOptimalFiltering.predict_logweights_cost_to_go_WF(updated_logwms_tilde_kp2, [[1,2,1],[1,5,3]], 0.2*ones(3), sum(0.2*ones(3)), [2,3,4], 0.5, log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset)
+
+    res = Dict(zip(res_tmp[1], res_tmp[2]))
+
+     for k in keys(ref)
+         @test exp(res[k]) ≈ ref[k]
+     end
+
     @test_nowarn DualOptimalFiltering.compute_all_cost_to_go_functions_WF(α, data_1D, log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset)
 
     ref = DualOptimalFiltering.compute_all_cost_to_go_functions_WF(α, data_1D, log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset)
@@ -49,6 +73,13 @@
         end
     end
 
+    res = DualOptimalFiltering.compute_all_log_cost_to_go_functions_WF_adaptive_precomputation_ar_pruning(α, data_1D, log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset, 0, (x,y) -> (x,y))
+
+    for k in keys(ref[2])
+        for l in eachindex(ref[2][k])
+            @test exp(res[2][k][l]) ≈ ref[2][k][l]
+        end
+    end
 
     #sort of a rough test of the pre-computation, some -Inf or NA should propagate to the results if pre-computation was failing
     smmax = values(data) |> sum |> sum
@@ -67,6 +98,17 @@
 
     ref = DualOptimalFiltering.WF_smoothing(α, data; silence = false)
     res = DualOptimalFiltering.WF_smoothing_log_internals(α, data; silence = false)
+
+    for k in keys(ref[2])
+        refk = Dict(zip(ref[1][k], ref[2][k]))
+        resk = Dict(zip(res[1][k], res[2][k]))
+        for l in keys(refk)
+            @test resk[l] ≈ refk[l] atol=10^(-14)
+        end
+    end
+
+    res = DualOptimalFiltering.WF_smoothing_pruning(α, data, (x,y)->(x,y); silence = false)
+
 
     for k in keys(ref[2])
         refk = Dict(zip(ref[1][k], ref[2][k]))
