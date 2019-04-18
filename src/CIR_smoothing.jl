@@ -455,7 +455,7 @@ function CIR_smoothing(δ, γ, σ, λ, data; silence = false)
 end
 
 
-function merge_filtering_and_cost_to_go_logweights(Λ_of_t, logwms_of_t, θ_of_t, Λ_tilde_prime_of_t, logwms_tilde_of_t, θ_tilde_prime_of_t, data, α, β)
+function merge_filtering_and_cost_to_go_logweights_CIR(Λ_of_t, logwms_of_t, θ_of_t, Λ_tilde_prime_of_t, logwms_tilde_of_t, θ_tilde_prime_of_t, data, α, β)
     times = Λ_of_t |> keys |> collect |> sort
 
     Λ_of_t_smooth = Dict()
@@ -506,6 +506,6 @@ function CIR_smoothing_logscale_internals(δ, γ, σ, λ, data; silence = false)
     end
     Λ_tilde_prime_of_t, logwms_tilde_of_t, θ_tilde_prime_of_t = compute_all_log_cost_to_go_functions_CIR(δ, γ, σ, λ, data; silence = silence)
 
-    return merge_filtering_and_cost_to_go_logweights(Λ_of_t, logwms_of_t, θ_of_t, Λ_tilde_prime_of_t, logwms_tilde_of_t, θ_tilde_prime_of_t, data, α, β)
+    return merge_filtering_and_cost_to_go_logweights_CIR(Λ_of_t, logwms_of_t, θ_of_t, Λ_tilde_prime_of_t, logwms_tilde_of_t, θ_tilde_prime_of_t, data, α, β)
 
 end
