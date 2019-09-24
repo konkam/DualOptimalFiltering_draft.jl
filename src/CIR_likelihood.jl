@@ -95,7 +95,7 @@ function next_Λ_from_Λ_prime(Λ_prime, y, t)
 end
 
 function θ_prime_from_θ_CIR(θ, Δt, γ, σ)
-    return γ/σ^2* θ*exp(2*γ*Δt)/(θ*exp(2*γ*Δt)+γ/σ^2-θ)
+    return γ/σ^2 * θ*exp(2*γ*Δt)/(θ*exp(2*γ*Δt)+γ/σ^2-θ)
 end
 
 function θ_from_θ_prime(y, θ_prime, T)
