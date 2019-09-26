@@ -53,6 +53,17 @@ end;
     end
 end;
 
+@testset "CIR filtering and prediction tests" begin
+    X = DualOptimalFiltering.generate_CIR_trajectory(range(0, stop = 2, length = 20), 3, 3., 0.5, 1);
+    Y = map(λ -> rand(Poisson(λ),10), X);
+    data = Dict(zip(range(0, stop = 2, length = 20), Y))
+    Λ_of_t, logwms_of_t, θ_of_t, Λ_pred_of_t, logwms_pred_of_t, θ_pred_of_t = DualOptimalFiltering.filter_predict_CIR_logweights(3., 0.5, 1.,1.,data);
+    [@test isreal(k) for k in Λ_pred_of_t |> keys]
+    [@test isinteger(sum(k)) for k in Λ_pred_of_t |> values]
+    [@test isreal(sum(k)) for k in logwms_pred_of_t |> values]
+    [@test isreal(k) for k in θ_of_t |> values]
+end;
+
 @testset "CIR approximate filtering tests" begin
     Random.seed!(4)
 
