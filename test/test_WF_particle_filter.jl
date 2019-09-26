@@ -17,7 +17,7 @@ using FeynmanKacParticleFilters
     Mt = DualOptimalFiltering.create_transition_kernels_WF(data_WF3, α_vec)
     RS(W) = rand(Categorical(W), length(W))
 
-    @test data_WF3[time_grid_WF3[2]] == [2, 4, 4]
+    # @test data_WF3[time_grid_WF3[2]] == [2, 4, 4]
     @test_nowarn Mt[time_grid_WF3[2]](α_vec / sum(α_vec))
     @test_nowarn pf_adaptive = FeynmanKacParticleFilters.generic_particle_filtering_adaptive_resampling_logweights(Mt, logGt, Nparts, RS)
 
