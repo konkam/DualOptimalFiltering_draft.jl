@@ -1,5 +1,5 @@
 # using SpecialFunctions, StatsFuns, Base.Iterators
-using Nemo
+# using Nemo
 
 """
     prod_2_gammas_arb(α1::arb, β1::arb, α2::arb, β2::arb)
