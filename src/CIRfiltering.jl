@@ -248,19 +248,13 @@ function filter_predict_CIR_logweights(δ, γ, σ, λ, data; silence = false)
         predicted_θ, predicted_Λ, predicted_logweights = predict_CIR_params_logweights(filtered_logweights, δ, filtered_θ, γ, σ, filtered_Λ, times[k+1]-times[k])
         filtered_θ, filtered_Λ, filtered_logweights = update_CIR_params_logweights(predicted_logweights, δ, predicted_θ, λ, predicted_Λ, data[times[k+1]])
 
-        Λ_pred_of_t[times[k]] = predicted_Λ
-        logwms_pred_of_t[times[k]] = predicted_logweights
-        θ_pred_of_t[times[k]] = predicted_θ
+        Λ_pred_of_t[times[k+1]] = predicted_Λ
+        logwms_pred_of_t[times[k+1]] = predicted_logweights
+        θ_pred_of_t[times[k+1]] = predicted_θ
         Λ_of_t[times[k+1]] = filtered_Λ
         logwms_of_t[times[k+1]] = filtered_logweights
         θ_of_t[times[k+1]] = filtered_θ
     end
-
-    k = length(times)-1
-    predicted_θ, predicted_Λ, predicted_logweights = predict_CIR_params_logweights(logwms_of_t[times[end-1]], δ, θ_of_t[times[end-1]], γ, σ, Λ_of_t[times[end-1]], times[end]-times[end-1])
-    Λ_pred_of_t[times[end]] = predicted_Λ
-    logwms_pred_of_t[times[end]] = predicted_logweights
-    θ_pred_of_t[times[end]] = predicted_θ
 
     return Λ_of_t, logwms_of_t, θ_of_t, Λ_pred_of_t, logwms_pred_of_t, θ_pred_of_t
 
