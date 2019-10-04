@@ -1,11 +1,17 @@
 using Roots
 using Distributions
 
-function create_mixture_density(δ, θ, Λ, wms)
+function create_Gamma_mixture_density(δ, θ, Λ, wms)
     #use 1/θ because of the way the Gamma distribution is parameterised in Julia Distributions.jl
     return x -> sum(wms.*Float64[pdf(Gamma(δ/2 + m, 1/θ),x) for m in Λ])
 end
 
+function sample_from_Gamma_mixture(δ, θ, Λ, wms)
+    #use 1/θ because of the way the Gamma distribution is parameterised in Julia Distributions.jl
+
+    latent_mixture_idx = rand(Categorical(wms))
+    return rand(Gamma(δ/2 + Λ[latent_mixture_idx], 1/θ))
+end
 function create_gamma_mixture_parameters(δ, θ, Λ)
     α = [δ/2 + m for m in Λ]
     β = [θ for m in Λ]

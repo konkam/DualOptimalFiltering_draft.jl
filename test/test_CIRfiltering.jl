@@ -1,4 +1,6 @@
-@test DualOptimalFiltering.create_mixture_density(0.5, 1., [3], [1.])(3) |> isreal
+@test DualOptimalFiltering.create_Gamma_mixture_density(0.5, 1., [3], [1.])(3) |> isreal
+
+@test DualOptimalFiltering.sample_from_Gamma_mixture(0.5, 1., [3], [1.]) |> isreal
 
 @test DualOptimalFiltering.compute_quantile_mixture_hpi(1.5, 0.4, [3,4], [0.3, 0.7], 0.05) |> isreal
 
