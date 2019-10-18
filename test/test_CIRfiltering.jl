@@ -6,6 +6,8 @@
 
 @test DualOptimalFiltering.compute_quantile_mixture_hpi(1., 1., [0], [1], 0.025) ≈ quantile(Gamma(1 ./ 2 + 0, 1/1.),0.025) atol=10.0^(-5)
 
+@test Float64(DualOptimalFiltering.gamma_logpdf_arb(3, 4, 2.)) ≈ logpdf(Gamma(3,1/4), 2.)
+
 # DualOptimalFiltering.update_CIR_params([0.5, 0.5], 1., θ, 1., [0, 1], [5]) |> println
 
 @testset "update CIR Tests" begin

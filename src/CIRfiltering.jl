@@ -6,6 +6,19 @@ function create_Gamma_mixture_density(δ, θ, Λ, wms)
     return x -> sum(wms.*Float64[pdf(Gamma(δ/2 + m, 1/θ),x) for m in Λ])
 end
 
+function gamma_logpdf_arb(α, β, x)
+    #Parametrised with shape, rate
+    β_arb = RR(β)
+    α_arb = RR(α)
+    x_arb = RR(x)
+    return α_arb*log(β_arb) - Nemo.lgamma(α_arb) + (α_arb-1)*log(x_arb) - β_arb*x_arb
+end
+
+function create_Gamma_mixture_density_arb(δ, θ, Λ, wms)
+    #use 1/θ because of the way the Gamma distribution is parameterised in Julia Distributions.jl
+    return x -> sum(wms.*Float64[exp(gamma_logpdf_arb(δ/2 + m, θ, x))  for m in Λ])
+end
+
 function sample_from_Gamma_mixture(δ, θ, Λ, wms)
     #use 1/θ because of the way the Gamma distribution is parameterised in Julia Distributions.jl
 
