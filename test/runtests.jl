@@ -15,7 +15,7 @@ println("Testing CIR smoothing approx")
 @time include("test_CIR_smoothing_approximate.jl")
 
 println("Testing CIR joint smoothing")
-@time include("test_joint_smoothing_CIR.jl")
+@time include("test_CIR_joint_smoothing.jl")
 
 
 println("Testing WF filtering")
