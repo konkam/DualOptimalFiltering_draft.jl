@@ -55,7 +55,7 @@
 
     data = Dict(zip(range(0, stop = 2, length = 20), Y))
     δ, γ, σ, λ = 3., 0.5, 1., 1.
-    Λ_of_t, logwms_of_t, θ_of_t, Λ_pred_of_t, logwms_pred_of_t, θ_pred_of_t = DualOptimalFiltering.filter_predict_CIR_logweights(δ, γ, σ, data);
+    Λ_of_t, logwms_of_t, θ_of_t, Λ_pred_of_t, logwms_pred_of_t, θ_pred_of_t = DualOptimalFiltering.filter_predict_CIR_logweights(δ, γ, σ, λ, data);
 
     Random.seed!(0)
     @test_nowarn DualOptimalFiltering.sample_1_trajectory_from_joint_smoothing_CIR(δ, γ, σ, Λ_of_t, logwms_of_t, θ_of_t, Λ_pred_of_t, logwms_pred_of_t, θ_pred_of_t, data)
