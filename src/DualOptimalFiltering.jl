@@ -34,5 +34,6 @@ include("WF_particle_filter.jl")
 include("exact_L2_distances.jl")
 include("exact_L2_distances_arb.jl")
 include("kde_for_pf_samples.jl")
-include("joint_smoothing_CIR.jl")
+include("CIR_joint_smoothing.jl")
+include("CIR_full_inference.jl")
 end # module
