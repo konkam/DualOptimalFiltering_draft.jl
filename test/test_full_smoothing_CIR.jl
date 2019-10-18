@@ -1,5 +1,5 @@
 
-@testset "test high level statistical distances" begin
+@testset "test full smoothing CIR" begin
     @test_nowarn DualOptimalFiltering.θ_primeΔ(0.1, 1.1, 1.2)
     @test_nowarn DualOptimalFiltering.μmθk(3, 6, 1.2, 3.1, 1.4)
 
