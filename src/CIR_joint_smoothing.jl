@@ -104,7 +104,7 @@ end
 function select_κM_logw(xip1, θ, θ_primeΔt, U, log_filtering_weights, filtering_indices, Δt, δ, γ, σ, pred_dens_val)
     k = 0
     logs = -Inf
-    while k < 10^1
+    while k < 10^4
         logw_tilde_k = logpdf(Gamma(δ/2+k, 1/θ_primeΔt*exp(-2*γ*Δt)), xip1) - log(pred_dens_val)# Careful about the parametrisation of Gamma
         for idx in eachindex(filtering_indices)
             m = filtering_indices[idx]
@@ -152,7 +152,7 @@ function sample_1_trajectory_from_joint_smoothing_CIR(δ, γ, σ, Λ_of_t, logwm
     xT = sample_from_Gamma_mixture(δ, θ_of_t[times[end]], Λ_of_t[times[end]], exp.(logwms_of_t[times[end]]))
     sample_trajectory[end] = xT
     for i in (ntimes-1):-1:1
-        println("i=$i, xp1=$(sample_trajectory[i+1])")
+        # println("i=$i, xp1=$(sample_trajectory[i+1])")
         ti = times[i]
         tip1 = times[i+1]
         Δt = tip1-ti
