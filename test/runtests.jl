@@ -11,12 +11,15 @@ println("Testing CIR filtering")
 
 println("Testing CIR smoothing")
 @time include("test_CIR_smoothing.jl")
+
 println("Testing CIR smoothing approx")
 @time include("test_CIR_smoothing_approximate.jl")
 
 println("Testing CIR joint smoothing")
 @time include("test_CIR_joint_smoothing.jl")
 
+println("Testing CIR full inference")
+@time include("test_CIR_full_inference.jl")
 
 println("Testing WF filtering")
 @time include("test_WFfiltering.jl")
