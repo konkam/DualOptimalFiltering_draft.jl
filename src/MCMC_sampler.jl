@@ -40,8 +40,12 @@ function discard_warmup(chain, percentage)
     end
 end
 
+function estimate_step_size(total_number_of_iterations, desired_final_size)
+    return floor(total_number_of_iterations/final_size)
+end
+
 function thin_chain(chain, final_size)
-    step = floor(size(chain, 2)/final_size)
+    step = estimate_step_size(size(chain, 2), final_size)
     if step <= 1.
         return chain
     else
