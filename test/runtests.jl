@@ -61,3 +61,6 @@ println("Testing the adaptive precomputing filtering functions")
 
 println("Testing the kde functions")
 @time include("test_kde_for_pf_samples.jl")
+
+println("Testing the MCMC sampler")
+@time include("test_MCMC_sampler.jl")

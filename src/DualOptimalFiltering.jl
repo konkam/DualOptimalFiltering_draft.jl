@@ -36,4 +36,5 @@ include("exact_L2_distances_arb.jl")
 include("kde_for_pf_samples.jl")
 include("CIR_joint_smoothing.jl")
 include("CIR_full_inference.jl")
+include("MCMC_sampler.jl")
 end # module
