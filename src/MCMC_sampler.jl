@@ -1,3 +1,5 @@
+using Logging
+
 function draw_next_sample(state, Jtsym_rand::Function, unnormalised_logposterior::Function)
     new_state = Jtsym_rand(state)
     logr::Float64 = unnormalised_logposterior(new_state)::Float64 - unnormalised_logposterior(state)::Float64
@@ -23,6 +25,9 @@ function get_mcmc_samples_bare(nsamp, starting_state, Jtsym_rand_create::Functio
     @assert size(Jtsym_rand(starting_state)) == size(starting_state)
 
     @inbounds for i in 2:(nsamp+1)
+        if mod(nsamp, 10) == 0
+            @info "$i iterations out of $nsamp"
+        end
         chain[:,i] = draw_next_sample(chain[:,i-1], Jtsym_rand, unnormalised_logposterior)
     end
     return chain
@@ -41,7 +46,7 @@ function discard_warmup(chain, percentage)
 end
 
 function estimate_step_size(total_number_of_iterations, desired_final_size)
-    return floor(total_number_of_iterations/final_size)
+    return floor(total_number_of_iterations/desired_final_size)
 end
 
 function thin_chain(chain, final_size)
