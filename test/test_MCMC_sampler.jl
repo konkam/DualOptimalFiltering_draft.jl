@@ -38,6 +38,6 @@
 
     unnormalised_logposterior_vec(v) = unnormalised_logposterior(v...)
 
-    @test_nowarn DualOptimalFiltering.get_mcmc_samples(3, [1.,1.,1.], DualOptimalFiltering.Jtnorm_create, unnormalised_logposterior_vec)
+    @test_nowarn DualOptimalFiltering.get_mcmc_samples(15, [1.,1.,1.], DualOptimalFiltering.Jtnorm_create, unnormalised_logposterior_vec)
 
 end;
