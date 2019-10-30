@@ -2,9 +2,14 @@ function θ_primeΔ(Δt, γ, σ)
     γ/σ^2 / (exp(2*γ*Δt)-1)
 end
 
-function μmθk(k, m, θ, δ, θ_primeΔt)
+function μmθk_slow(k, m, θ, δ, θ_primeΔt)
     pdf(NegativeBinomial(δ/2 + m ,θ/(θ_primeΔt+θ)), k)
 end
+
+function μmθk(k, m, θ, δ, θ_primeΔt)
+    exp(logμmθk2(k, m, θ, δ, θ_primeΔt))
+end
+
 function logμmθk(k, m, θ, δ, θ_primeΔt)
     logpdf(NegativeBinomial(δ/2 + m ,θ/(θ_primeΔt+θ)), k)
 end
