@@ -7,18 +7,27 @@ function μmθk_slow(k, m, θ, δ, θ_primeΔt)
 end
 
 function μmθk(k, m, θ, δ, θ_primeΔt)
-    exp(logμmθk2(k, m, θ, δ, θ_primeΔt))
+    exp(logμmθk3(k, m, θ, δ, θ_primeΔt))
 end
 
 function logμmθk(k, m, θ, δ, θ_primeΔt)
     logpdf(NegativeBinomial(δ/2 + m ,θ/(θ_primeΔt+θ)), k)
 end
 function logμmθk2(k, m, θ, δ, θ_primeΔt)
+    # Note that there is some room for optimisation by pre-computing the lgamma(α+k) and using lgamma(α+1) = lgamma(α) + ln(z)
     α = δ/2+m
     β = θ
     λ = θ_primeΔt
     SpecialFunctions.lgamma(α+k) - (α+k)*log(λ+β) + k*log(λ) + α*log(β) - SpecialFunctions.lgamma(α) - SpecialFunctions.lgamma(k+1)
 end
+function logμmθk3(k, m, θ, δ, θ_primeΔt)
+    # Note that there is some room for optimisation by pre-computing the lgamma(α+k) and using lgamma(α+1) = lgamma(α) + ln(z)
+    α = δ/2+m
+    β = θ
+    λ = θ_primeΔt
+    return sum(log(α + i) for i in 0:(k-1)) - (α+k)*log(λ+β) + k*log(λ) + α*log(β) - SpecialFunctions.lgamma(k+1)
+end
+
 
 function logμmθk_arb(k, m, θ, δ, θ_primeΔt)
     α = RR(δ/2) + m
