@@ -20,7 +20,7 @@ function joint_loglikelihood_CIR(data, trajectory, times, δ, γ, σ, λ)
     return hidden_signal_loglikelihood_CIR(trajectory, times, δ, γ, σ) + emitted_data_conditional_loglikelihood_CIR(data, trajectory, times, λ)
 end
 
-function joint_sampler_CIR(data, λ, prior_logpdf, θ_init, niter; final_chain_length = 1000)
+function joint_sampler_CIR(data, λ, prior_logpdf, θ_init, niter; final_chain_length = 1000, silence = false)
 
     trajectory_chain = Array{Float64,2}(undef, niter, length(data |> keys))
     parameter_chain = Array{Float64,2}(undef, niter, 3)
@@ -41,10 +41,19 @@ function joint_sampler_CIR(data, λ, prior_logpdf, θ_init, niter; final_chain_l
 
     for it in 1:niter
 
+        print_every = max(1, floor(niter/20))
+
+        if !silence && mod(it, print_every) == 0
+            @info "$it iterations out of $niter"
+        end
+
         # Sample trajectory
 
         Λ_of_t, logwms_of_t, θ_of_t, Λ_pred_of_t, logwms_pred_of_t, θ_pred_of_t = DualOptimalFiltering.filter_predict_CIR_logweights(θ_it[1], θ_it[2], θ_it[3], λ, data, silence = true)
         X_it = sample_1_trajectory_from_joint_smoothing_CIR(θ_it[1], θ_it[2], θ_it[3], Λ_of_t, logwms_of_t, θ_of_t, Λ_pred_of_t, logwms_pred_of_t, θ_pred_of_t, data)
+
+        @debug "iteration $it"
+        @debug "trajectory" X_it
 
         # Metropolis-Hastings step
 
