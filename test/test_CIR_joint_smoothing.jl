@@ -3,6 +3,8 @@
     @test_nowarn DualOptimalFiltering.θ_primeΔ(0.1, 1.1, 1.2)
     @test_nowarn DualOptimalFiltering.μmθk(3, 6, 1.2, 3.1, 1.4)
 
+    @test DualOptimalFiltering.logμmθk2(3, 6, 1.2, 3.1, 1.4) ≈ DualOptimalFiltering.logμmθk3(3, 6, 1.2, 3.1, 1.4)
+
     Random.seed!(0)
     times_sim = range(0, stop = 20, length = 20)
     X = DualOptimalFiltering.generate_CIR_trajectory(times_sim, 3, 3., 0.5, 1);
