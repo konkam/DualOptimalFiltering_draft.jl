@@ -4,6 +4,7 @@
     @test_nowarn DualOptimalFiltering.μmθk(3, 6, 1.2, 3.1, 1.4)
 
     @test DualOptimalFiltering.logμmθk2(3, 6, 1.2, 3.1, 1.4) ≈ DualOptimalFiltering.logμmθk3(3, 6, 1.2, 3.1, 1.4)
+    @test DualOptimalFiltering.logμmθk2(0, 6, 1.2, 3.1, 1.4) ≈ DualOptimalFiltering.logμmθk3(0, 6, 1.2, 3.1, 1.4)
 
     Random.seed!(0)
     times_sim = range(0, stop = 20, length = 20)
