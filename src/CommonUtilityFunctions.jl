@@ -60,12 +60,12 @@ end
 
 "Converts a dictionary to a new dictionary with log values"
 function convert_weights_to_logweights(weights_dict)
-    return Dict(k => log(v) for (k,v) in weights_dict)
+    return Dict(k => log.(v) for (k,v) in weights_dict)
 end
 
 "Converts a dictionary to a new dictionary with exponential values"
 function convert_logweights_to_weights(weights_dict)
-    return Dict(k => exp(v) for (k,v) in weights_dict)
+    return Dict(k => exp.(v) for (k,v) in weights_dict)
 end
 
 # @memoize function log_binomial_safe_but_slow_mem(n::Int64, k::Int64)
