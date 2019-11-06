@@ -63,6 +63,9 @@
     Random.seed!(0)
     @test_nowarn DualOptimalFiltering.sample_1_trajectory_from_joint_smoothing_CIR_logweights(δ, γ, σ, Λ_of_t, logwms_of_t, θ_of_t, Λ_pred_of_t, logwms_pred_of_t, θ_pred_of_t, data)
 
+    @test_nowarn DualOptimalFiltering.sample_1_trajectory_from_joint_smoothing_CIR_logweights(δ, γ, σ, Λ_of_t, logwms_of_t |> DualOptimalFiltering.convert_logweights_to_weights, θ_of_t, Λ_pred_of_t, logwms_pred_of_t |> DualOptimalFiltering.convert_logweights_to_weights, θ_pred_of_t, data)
+
+
     ntraj = 100
 
     ## A graphical test. Commented out to allow tests to pass

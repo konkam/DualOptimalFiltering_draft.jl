@@ -67,7 +67,7 @@ using DataStructures, StatsFuns
     @test DualOptimalFiltering.normalise(aa) |> values |> sum == 1
 
 
-    aa = Dict(i => j for (i, j) in zip(1:5, Float64.(2:6)))
+    aa = Dict(i => j for (i, j) in zip(1:4, [[5,6],[2],[0.5,0.6,3],[2,2]]))
     @test_nowarn DualOptimalFiltering.convert_weights_to_logweights(aa)
     @test_nowarn DualOptimalFiltering.convert_logweights_to_weights(aa)
 
