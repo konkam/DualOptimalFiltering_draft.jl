@@ -102,14 +102,14 @@ function select_κM(xip1, θ, θ_primeΔt, U, filtering_weights, filtering_indic
     # Some checks seem to show that numerical precision seems OK
     k = 0
     s = 0
-    while k < 10^3
+    while k < 10^4
         w_tilde_k = pdf(Gamma(δ/2+k, 1/θ_primeΔt*exp(-2*γ*Δt)), xip1)/pred_dens_val# Careful about the parametrisation of Gamma
         for idx in eachindex(filtering_indices)
             m = filtering_indices[idx]
             s += w_tilde_k * filtering_weights[idx] * μmθk(k, m, θ, δ, θ_primeΔt)
-            println("k=$k, m=$m, s=$s, U=$U")
-            println("w_tilde_k=$w_tilde_k, wm=$(filtering_weights[idx]), mumk=$(μmθk(k, m, θ, δ, θ_primeΔt))")
-            println("mumk=$(μmθk(k, m, θ, δ, θ_primeΔt)), with parameters $((k, m, θ, δ, θ_primeΔt))")
+            # println("k=$k, m=$m, s=$s, U=$U")
+            # println("w_tilde_k=$w_tilde_k, wm=$(filtering_weights[idx]), mumk=$(μmθk(k, m, θ, δ, θ_primeΔt))")
+            # println("mumk=$(μmθk(k, m, θ, δ, θ_primeΔt)), with parameters $((k, m, θ, δ, θ_primeΔt))")
             if s >= U
                 return k, m
             end
@@ -177,6 +177,27 @@ function sample_1_trajectory_from_joint_smoothing_CIR_logweights(δ, γ, σ, Λ_
         # predictive_dens_ip1 = DualOptimalFiltering.create_Gamma_mixture_density(δ, θ_pred_of_t[tip1], Λ_pred_of_t[tip1], exp.(logwms_pred_of_t[tip1]))(sample_trajectory[i+1])
         predictive_dens_ip1 = compute_normalisation_constant(sample_trajectory[i+1], θ_of_t[ti], θ_primeΔ(Δt, γ, σ), exp.(logwms_of_t[ti]), Λ_of_t[ti], Δt, δ, γ, σ)
         sample_trajectory[i] = backward_sampling_CIR_logw(sample_trajectory[i+1], logwms_of_t[ti], Λ_of_t[ti], predictive_dens_ip1, Δt, δ, γ, σ, θ_of_t[ti])
+    end
+    return sample_trajectory
+end
+
+function sample_1_trajectory_from_joint_smoothing_CIR(δ, γ, σ, Λ_of_t, wms_of_t, θ_of_t, Λ_pred_of_t, wms_pred_of_t, θ_pred_of_t, data)
+
+    ntimes = length(Λ_of_t)
+    times = Λ_of_t |> keys |> collect |> sort
+    sample_trajectory = zeros(ntimes)
+
+
+    xT = sample_from_Gamma_mixture(δ, θ_of_t[times[end]], Λ_of_t[times[end]], wms_of_t[times[end]])
+    sample_trajectory[end] = xT
+    for i in (ntimes-1):-1:1
+        # println("i=$i, xp1=$(sample_trajectory[i+1])")
+        ti = times[i]
+        tip1 = times[i+1]
+        Δt = tip1-ti
+        # predictive_dens_ip1 = DualOptimalFiltering.create_Gamma_mixture_density(δ, θ_pred_of_t[tip1], Λ_pred_of_t[tip1], exp.(logwms_pred_of_t[tip1]))(sample_trajectory[i+1])
+        predictive_dens_ip1 = compute_normalisation_constant(sample_trajectory[i+1], θ_of_t[ti], θ_primeΔ(Δt, γ, σ), wms_of_t[ti], Λ_of_t[ti], Δt, δ, γ, σ)
+        sample_trajectory[i] = backward_sampling_CIR(sample_trajectory[i+1], wms_of_t[ti], Λ_of_t[ti], predictive_dens_ip1, Δt, δ, γ, σ, θ_of_t[ti])
     end
     return sample_trajectory
 end
