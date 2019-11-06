@@ -160,7 +160,7 @@ function select_κM_logw_arb(xip1, θ, θ_primeΔt, U, log_filtering_weights, fi
     error("problem with the sum, could not get a sample")
 end
 
-function sample_1_trajectory_from_joint_smoothing_CIR(δ, γ, σ, Λ_of_t, logwms_of_t, θ_of_t, Λ_pred_of_t, logwms_pred_of_t, θ_pred_of_t, data)
+function sample_1_trajectory_from_joint_smoothing_CIR_logweights(δ, γ, σ, Λ_of_t, logwms_of_t, θ_of_t, Λ_pred_of_t, logwms_pred_of_t, θ_pred_of_t, data)
 
     ntimes = length(Λ_of_t)
     times = Λ_of_t |> keys |> collect |> sort

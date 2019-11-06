@@ -53,7 +53,7 @@
 
     @test_nowarn DualOptimalFiltering.backward_sampling_CIR(xip1, [1], [1], predictive_dens_ip1(xip1), Δt, δ, γ, σ, 1.)
 
-    @test_nowarn DualOptimalFiltering.sample_1_trajectory_from_joint_smoothing_CIR(δ, γ, σ, Λ_of_t, logwms_of_t, θ_of_t, Λ_pred_of_t, logwms_pred_of_t, θ_pred_of_t, data)
+    @test_nowarn DualOptimalFiltering.sample_1_trajectory_from_joint_smoothing_CIR_logweights(δ, γ, σ, Λ_of_t, logwms_of_t, θ_of_t, Λ_pred_of_t, logwms_pred_of_t, θ_pred_of_t, data)
 
 
     data = Dict(zip(range(0, stop = 2, length = 20), Y))
@@ -61,7 +61,7 @@
     Λ_of_t, logwms_of_t, θ_of_t, Λ_pred_of_t, logwms_pred_of_t, θ_pred_of_t = DualOptimalFiltering.filter_predict_CIR_logweights(δ, γ, σ, λ, data);
 
     Random.seed!(0)
-    @test_nowarn DualOptimalFiltering.sample_1_trajectory_from_joint_smoothing_CIR(δ, γ, σ, Λ_of_t, logwms_of_t, θ_of_t, Λ_pred_of_t, logwms_pred_of_t, θ_pred_of_t, data)
+    @test_nowarn DualOptimalFiltering.sample_1_trajectory_from_joint_smoothing_CIR_logweights(δ, γ, σ, Λ_of_t, logwms_of_t, θ_of_t, Λ_pred_of_t, logwms_pred_of_t, θ_pred_of_t, data)
 
     ntraj = 100
 
@@ -72,7 +72,7 @@
     # R"1:$ntraj %>%
     #     lapply(function(xx) tibble(idx = xx, x = as.numeric($times))) %>%
     #     bind_rows() %>%
-    #     mutate(y =  $(vcat([DualOptimalFiltering.sample_1_trajectory_from_joint_smoothing_CIR(δ, γ, σ, Λ_of_t, logwms_of_t, θ_of_t, Λ_pred_of_t, logwms_pred_of_t, θ_pred_of_t, data) for k in 1:ntraj]...))) %>%
+    #     mutate(y =  $(vcat([DualOptimalFiltering.sample_1_trajectory_from_joint_smoothing_CIR_logweights(δ, γ, σ, Λ_of_t, logwms_of_t, θ_of_t, Λ_pred_of_t, logwms_pred_of_t, θ_pred_of_t, data) for k in 1:ntraj]...))) %>%
     #     ggplot(aes(x=x, y=y) ) +
     #       stat_density_2d(aes(fill = ..density..), geom = 'raster', contour = FALSE) +
     #       scale_fill_distiller(palette= 'Spectral', direction=1) +
@@ -89,7 +89,7 @@
     # R"1:$ntraj %>%
     #     lapply(function(xx) tibble(idx = xx, x = as.numeric($times))) %>%
     #     bind_rows() %>%
-    #     mutate(y =  $(vcat([DualOptimalFiltering.sample_1_trajectory_from_joint_smoothing_CIR(δ, γ, σ, Λ_of_t, logwms_of_t, θ_of_t, Λ_pred_of_t, logwms_pred_of_t, θ_pred_of_t, data) for k in 1:ntraj]...))) %>%
+    #     mutate(y =  $(vcat([DualOptimalFiltering.sample_1_trajectory_from_joint_smoothing_CIR_logweights(δ, γ, σ, Λ_of_t, logwms_of_t, θ_of_t, Λ_pred_of_t, logwms_pred_of_t, θ_pred_of_t, data) for k in 1:ntraj]...))) %>%
     #     ggplot(aes(x=x, y=y, group = idx) ) +
     #     geom_line(colour = '#333333', alpha = 0.1) +
     #     theme_bw()  +
