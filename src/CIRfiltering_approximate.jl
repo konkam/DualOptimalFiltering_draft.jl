@@ -63,6 +63,44 @@ function filter_CIR_pruning(δ, γ, σ, λ, data, do_the_pruning::Function; sile
 
 end
 
+function filter_predict_CIR_pruning(δ, γ, σ, λ, data, do_the_pruning::Function; silence = false)
+
+    times = keys(data) |> collect |> sort
+    Λ_of_t = Dict()
+    wms_of_t = Dict()
+    θ_of_t = Dict()
+    Λ_pred_of_t = Dict()
+    wms_pred_of_t = Dict()
+    θ_pred_of_t = Dict()
+
+    filtered_θ, filtered_Λ, filtered_wms = update_CIR_params([1.], δ, γ/σ^2, λ, [0], data[0])
+    pruned_Λ, pruned_wms = do_the_pruning(filtered_Λ, filtered_wms)
+
+    Λ_of_t[0] = filtered_Λ
+    wms_of_t[0] = filtered_wms # = 1.
+    θ_of_t[0] = filtered_θ
+
+    for k in 1:(length(times)-1)
+        if (!silence)
+            println("Step index: $k")
+            println("Number of components: $(length(filtered_Λ))")
+        end
+        predicted_θ, predicted_Λ, predicted_wms = predict_CIR_params(filtered_wms, δ, filtered_θ, γ, σ, filtered_Λ, times[k+1]-times[k])
+        filtered_θ, filtered_Λ, filtered_wms = update_CIR_params(predicted_wms, δ, predicted_θ, λ, predicted_Λ, data[times[k+1]])
+        pruned_Λ, pruned_wms = do_the_pruning(filtered_Λ, filtered_wms)
+
+        Λ_pred_of_t[times[k+1]] = predicted_Λ
+        wms_pred_of_t[times[k+1]] = predicted_wms
+        θ_pred_of_t[times[k+1]] = predicted_θ
+        Λ_of_t[times[k+1]] = filtered_Λ
+        wms_of_t[times[k+1]] = filtered_wms
+        θ_of_t[times[k+1]] = filtered_θ
+    end
+
+    return Λ_of_t, wms_of_t, θ_of_t, Λ_pred_of_t, wms_pred_of_t, θ_pred_of_t
+
+end
+
 function filter_CIR_pruning_logweights(δ, γ, σ, λ, data, do_the_pruning::Function; silence = false)
     Λ_of_t, wms_of_t, θ_of_t = filter_CIR_pruning(δ, γ, σ, λ, data, do_the_pruning::Function; silence = silence)
     times = keys(data) |> collect |> sort

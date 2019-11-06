@@ -97,4 +97,12 @@ end;
     end
 
     Λ_of_t, wms_of_t = DualOptimalFiltering.filter_CIR_pruning_logweights(3., 0.5, 1.,1., data, prune_keeping_fixed_number; silence = false)
+    @test length(keys(Λ_of_t)) == 20
+    @test length(keys(wms_of_t)) == 20
+
+    Λ_of_t, wms_of_t, θ_of_t, Λ_pred_of_t, wms_pred_of_t, θ_pred_of_t = DualOptimalFiltering.filter_predict_CIR_pruning(3., 0.5, 1.,1., data, prune_keeping_fixed_number; silence = false)
+    @test length(keys(Λ_of_t)) == 20
+    @test length(keys(wms_of_t)) == 20
+    @test length(keys(Λ_pred_of_t)) == 19
+    @test length(keys(wms_pred_of_t)) == 19
 end;
