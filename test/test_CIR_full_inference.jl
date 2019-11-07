@@ -27,4 +27,6 @@ using ExactWrightFisher, Distributions
 
     @test_nowarn DualOptimalFiltering.joint_sampler_CIR_keep_fixed_number(data, λ, prior_logpdf, [1.,1.,1.], 10, 2; final_chain_length = 10)
 
+    @test_nowarn DualOptimalFiltering.joint_sampler_CIR_keep_fixed_number_nopred(data, λ, prior_logpdf, [1.,1.,1.], 10, 2; final_chain_length = 10)
+
 end;
