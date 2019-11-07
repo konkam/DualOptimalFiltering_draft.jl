@@ -28,7 +28,8 @@ function logμmθk3(k, m, θ, δ, θ_primeΔt)
     if k==0
         return α*(log(β)-log(λ+β))
     else
-        return sum(log(α + i) for i in 0:(k-1)) - (α+k)*log(λ+β) + k*log(λ) + α*log(β) - SpecialFunctions.lgamma(k+1)
+        # return sum(log(α + i) for i in 0:(k-1)) - (α+k)*log(λ+β) + k*log(λ) + α*log(β) - SpecialFunctions.lgamma(k+1)
+        return log_pochammer(α, k) - (α+k)*log(λ+β) + k*log(λ) + α*log(β) - SpecialFunctions.lgamma(k+1)
     end
 end
 
