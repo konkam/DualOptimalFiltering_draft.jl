@@ -37,4 +37,5 @@ include("kde_for_pf_samples.jl")
 include("CIR_joint_smoothing.jl")
 include("CIR_full_inference.jl")
 include("MCMC_sampler.jl")
+include("CIR_reparam.jl")
 end # module

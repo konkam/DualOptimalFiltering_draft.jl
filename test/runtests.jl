@@ -43,6 +43,10 @@ println("Testing Dirichlet Kernel Density Estimate")
 println("Testing the exact CIR likelihood functions")
 @time include("test_CIR_likelihood.jl")
 #
+
+println("Testing the CIR reparametrisation functions")
+@time include("test_CIR_reparam.jl")
+
 println("Testing the WF particle filtering functions")
 @time include("test_WF_particle_filter.jl")
 #
