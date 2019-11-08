@@ -1,10 +1,25 @@
 
 @testset "test full smoothing CIR" begin
-    @test_nowarn DualOptimalFiltering.θ_primeΔ(0.1, 1.1, 1.2)
-    @test_nowarn DualOptimalFiltering.μmθk(3, 6, 1.2, 3.1, 1.4)
 
-    @test DualOptimalFiltering.logμmθk2(3, 6, 1.2, 3.1, 1.4) ≈ DualOptimalFiltering.logμmθk3(3, 6, 1.2, 3.1, 1.4)
-    @test DualOptimalFiltering.logμmθk2(0, 6, 1.2, 3.1, 1.4) ≈ DualOptimalFiltering.logμmθk3(0, 6, 1.2, 3.1, 1.4)
+    δ = 3.1
+
+    @test_nowarn DualOptimalFiltering.θ_primeΔ(0.1, 1.1, 1.2)
+    @test_nowarn DualOptimalFiltering.μmθk(3, 6, 1.2, δ, 1.4)
+
+    @test DualOptimalFiltering.logμmθk2(3, 6, 1.2, δ, 1.4) ≈ DualOptimalFiltering.logμmθk3(3, 6, 1.2, δ, 1.4)
+    @test DualOptimalFiltering.logμmθk2(3, 6, 1.2, δ, 1.4) ≈ DualOptimalFiltering.logμmθk4(3, 6, 1.2, δ, 1.4)
+    @test DualOptimalFiltering.logμmθk2(0, 6, 1.2, δ, 1.4) ≈ DualOptimalFiltering.logμmθk3(0, 6, 1.2, δ, 1.4)
+    @test DualOptimalFiltering.logμmθk2(0, 6, 1.2, δ, 1.4) ≈ DualOptimalFiltering.logμmθk4(0, 6, 1.2, δ, 1.4)
+
+    @test_nowarn DualOptimalFiltering.precompute_log_pochammer_for_logμmθk(δ, 50, 50)
+
+    precomputed_terms = DualOptimalFiltering.precompute_log_pochammer_for_logμmθk(δ, 50, 50)
+
+    @test DualOptimalFiltering.log_pochammer_precomputed(5, 10, precomputed_terms) == DualOptimalFiltering.log_pochammer(δ/2+5, 10)
+
+    @test DualOptimalFiltering.logμmθk2(3, 6, 1.2, δ, 1.4) ≈ DualOptimalFiltering.logμmθk5(3, 6, 1.2, δ, 1.4, precomputed_terms)
+    @test DualOptimalFiltering.logμmθk2(0, 6, 1.2, δ, 1.4) ≈ DualOptimalFiltering.logμmθk5(0, 6, 1.2, δ, 1.4, precomputed_terms)
+
 
     Random.seed!(0)
     times_sim = range(0, stop = 20, length = 20)
@@ -30,7 +45,30 @@
     #     println(DualOptimalFiltering.create_Gamma_mixture_density(δ, θ_pred_of_t[tip1], Λ_pred_of_t[tip1], exp.(logwms_pred_of_t[tip1]))(xip1)-DualOptimalFiltering.compute_normalisation_constant(xip1, θ_of_t[ti], DualOptimalFiltering.θ_primeΔ(Δt, γ, σ), exp.(logwms_of_t[ti]), Λ_of_t[ti], Δt, δ, γ, σ))
     # end
 
+    @test_nowarn DualOptimalFiltering.compute_normalisation_constant(xip1, θ_of_t[ti], DualOptimalFiltering.θ_primeΔ(Δt, γ, σ), exp.(logwms_of_t[ti]), Λ_of_t[ti], Δt, δ, γ, σ)
+
+    ref = DualOptimalFiltering.compute_normalisation_constant(xip1, θ_of_t[ti], DualOptimalFiltering.θ_primeΔ(Δt, γ, σ), exp.(logwms_of_t[ti]), Λ_of_t[ti], Δt, δ, γ, σ)
+
+    mmax = maximum(maximum.(values(Λ_of_t)))
+    precomputed_terms = Array{Float64, 2}(undef, mmax+1, 10^3)
+
+    res = DualOptimalFiltering.compute_normalisation_constant_adaptive_precomputation(xip1, θ_of_t[ti], DualOptimalFiltering.θ_primeΔ(Δt, γ, σ), exp.(logwms_of_t[ti]), Λ_of_t[ti], Δt, δ, γ, σ, precomputed_terms, 0, mmax)
+
+    @test ref == res[1]
+
+
     @test_nowarn DualOptimalFiltering.backward_sampling_CIR(xip1, exp.(logwms_of_t[ti]), Λ_of_t[ti], predictive_dens_ip1(xip1), diff(times) |> mean, δ, γ, σ, θ_of_t[ti])
+
+    Random.seed!(0)
+    ref = DualOptimalFiltering.backward_sampling_CIR(xip1, exp.(logwms_of_t[ti]), Λ_of_t[ti], predictive_dens_ip1(xip1), diff(times) |> mean, δ, γ, σ, θ_of_t[ti])
+
+    precomputed_terms = DualOptimalFiltering.precompute_log_pochammer_for_logμmθk(δ, 500, 500)
+
+
+    Random.seed!(0)
+    res = DualOptimalFiltering.backward_sampling_CIR_precomputed(xip1, exp.(logwms_of_t[ti]), Λ_of_t[ti], predictive_dens_ip1(xip1), diff(times) |> mean, δ, γ, σ, θ_of_t[ti], precomputed_terms)
+
+    @test ref == res
 
     @test_nowarn DualOptimalFiltering.backward_sampling_CIR_logw(xip1, logwms_of_t[ti], Λ_of_t[ti], predictive_dens_ip1(xip1), diff(times) |> mean, δ, γ, σ, θ_of_t[ti])
 
@@ -69,6 +107,10 @@
     Random.seed!(0)
     res = DualOptimalFiltering.sample_1_trajectory_from_joint_smoothing_CIR(δ, γ, σ, Λ_of_t, logwms_of_t |> DualOptimalFiltering.convert_logweights_to_weights, θ_of_t, Λ_pred_of_t, logwms_pred_of_t |> DualOptimalFiltering.convert_logweights_to_weights, θ_pred_of_t, data)
 
+    @test ref == res
+
+    Random.seed!(0)
+    res = DualOptimalFiltering.sample_1_trajectory_from_joint_smoothing_CIR_precompute(δ, γ, σ, Λ_of_t, logwms_of_t |> DualOptimalFiltering.convert_logweights_to_weights, θ_of_t, Λ_pred_of_t, logwms_pred_of_t |> DualOptimalFiltering.convert_logweights_to_weights, θ_pred_of_t, data)
     @test ref == res
 
 
