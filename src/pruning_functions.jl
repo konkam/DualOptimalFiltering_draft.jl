@@ -99,3 +99,12 @@ function keep_fixed_fraction_logw(Λ_of_t, logwms_of_t, fraction; logtotal = 0.)
     logthreshold = sorted_logwms_of_t[i]
     return keep_above_threshold(Λ_of_t, logwms_of_t, logthreshold)
 end
+
+function prune_all_dicts(Λ_of_ts, wms_of_ts, pruning_function)
+    Λ_of_ts_pruned = Dict()
+    wms_of_ts_pruned = Dict()
+    for k in keys(Λ_of_ts)
+        Λ_of_ts_pruned[k], wms_of_ts_pruned[k] = pruning_function(Λ_of_ts[k], wms_of_ts[k])
+    end
+    return Λ_of_ts_pruned, wms_of_ts_pruned
+end
