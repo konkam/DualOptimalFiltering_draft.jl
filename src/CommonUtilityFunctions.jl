@@ -212,11 +212,23 @@ end
 
 function log_pochammer(x::Real, n::Integer)
     if n==0
-        return 0
+        return 0.
     elseif n==1
         return log(x)
     else
         return sum(log(x + i) for i in 0:(n-1))
+    end
+end
+
+using Memoize
+@memoize function log_pochammer_rec(x::Real, n::Integer)
+    # @info "n=$n"
+    if n==0
+        return 0.
+    elseif n==1
+        return log(x)
+    else
+        return log(x + n - 1)  + log_pochammer_rec(x, n-1)
     end
 end
 

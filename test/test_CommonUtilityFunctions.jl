@@ -49,6 +49,8 @@ using DataStructures, StatsFuns
     @test_nowarn DualOptimalFiltering.log_pochammer(0.5, 5)
     @test DualOptimalFiltering.log_pochammer(0.5, 0) == 0
     @test DualOptimalFiltering.log_pochammer(0.5, 1) == log(0.5)
+    @test  DualOptimalFiltering.log_pochammer_rec(0.5, 5) == DualOptimalFiltering.log_pochammer(0.5, 5)
+    @test  DualOptimalFiltering.log_pochammer_rec(1.5, 50) == DualOptimalFiltering.log_pochammer(1.5, 50)
 
     for k in 1:10
         Random.seed!(k)
