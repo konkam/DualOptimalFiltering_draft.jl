@@ -42,7 +42,7 @@ function precompute_lgamma_α(α, data)
 end
 
 function precompute_lfactorial(data)
-    return  SpecialFunctions.lfactorial.(1:maximum(maximum.(values(data))))
+    return  SpecialFunctions.logfactorial.(1:maximum(maximum.(values(data))))
 end
 
 # logμπh = logμπh_another_param
