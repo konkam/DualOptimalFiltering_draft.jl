@@ -47,7 +47,7 @@ end
 #     J = length(y)
 #     function lpga(m)
 # #         θ^(δ/2+m) / (θ+λ)^(δ/2+m+ny) * gamma(δ/2+m+ny)/gamma(δ/2+m)/prod([factorial(yi) for yi in y])
-#         lres = (δ/2+m)*log(θ) - (δ/2+m+ny)*log(θ+J*λ) + lgamma(δ/2+m+ny) - lgamma(δ/2+m) - sum([lfactorial(yi) for yi in y])
+#         lres = (δ/2+m)*log(θ) - (δ/2+m+ny)*log(θ+J*λ) + lgamma(δ/2+m+ny) - lgamma(δ/2+m) - sum([SpecialFunctions.logfactorial(yi) for yi in y])
 #         return lres
 #     end
 #

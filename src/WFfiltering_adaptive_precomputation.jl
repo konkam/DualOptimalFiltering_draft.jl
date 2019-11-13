@@ -22,11 +22,11 @@ end
 
 # function log_denominator_Cmmi_nosign(si::Int64, k::Int64, sm::Int64, sα::Number)
 #     if k==0
-#         return lfactorial(si) - si*log(2) + log_descending_fact_no0(2*sm + sα - 2, si)
+#         return SpecialFunctions.logfactorial(si) - si*log(2) + log_descending_fact_no0(2*sm + sα - 2, si)
 #     elseif k==si
-#         return lfactorial(si) - si*log(2) + log_descending_fact_no0(2*sm + sα - si-1, si)
+#         return SpecialFunctions.logfactorial(si) - si*log(2) + log_descending_fact_no0(2*sm + sα - si-1, si)
 #     else
-#         return -1.0 .* si * log(2) + lfactorial(k) + lfactorial(si-k) + log_descending_fact_no0(2*sm + sα - 2*k - 2, si-k) + log_descending_fact_no0(2*sm + sα - k - 1, k)
+#         return -1.0 .* si * log(2) + SpecialFunctions.logfactorial(k) + SpecialFunctions.logfactorial(si-k) + log_descending_fact_no0(2*sm + sα - 2*k - 2, si-k) + log_descending_fact_no0(2*sm + sα - k - 1, k)
 #     end
 # end
 # take(cycle([1,-1]), 11)

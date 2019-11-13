@@ -9,16 +9,16 @@ function logμπh_NegBin(m::Integer, θ, α, y::AbstractArray{T, 1}; λ = 1) whe
     n = length(y)
     p = θ/(θ+n*λ)
     # Be careful that the NegativeBinomial is not parameterised as in Wikipedia, p replaced by 1-p
-    return logpdf(NegativeBinomial(α + m, p), s) + lfactorial(s)-s*log(n) - sum(lfactorial.(y))
+    return logpdf(NegativeBinomial(α + m, p), s) + SpecialFunctions.logfactorial(s)-s*log(n) - sum(SpecialFunctions.logfactorial.(y))
 end
 
 function logμπh(m::Integer, θ, α, y::Integer; λ = 1)
-    return y*log(λ) + (α+m)*log(θ) + lgamma_local(m+y+α) - lfactorial(y) - lgamma_local(α+m) - (y+α+m) * log(θ + λ)
+    return y*log(λ) + (α+m)*log(θ) + lgamma_local(m+y+α) - SpecialFunctions.logfactorial(y) - lgamma_local(α+m) - (y+α+m) * log(θ + λ)
 end
 function logμπh(m::Integer, θ, α, y::AbstractArray{T, 1}; λ = 1) where T <: Integer
     s = sum(y)
     n = length(y)
-    return s*log(λ) + (α+m)*log(θ) + lgamma_local(m+s+α) - sum(lfactorial.(y)) - lgamma_local(α+m) - (s+α+m) * log(θ + n*λ)
+    return s*log(λ) + (α+m)*log(θ) + lgamma_local(m+s+α) - sum(SpecialFunctions.logfactorial.(y)) - lgamma_local(α+m) - (s+α+m) * log(θ + n*λ)
 end
 
 function logμπh_arb(m::Integer, θ, α, y::AbstractArray{T, 1}; λ = 1) where T <: Integer
