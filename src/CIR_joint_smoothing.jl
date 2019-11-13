@@ -155,7 +155,7 @@ function compute_normalisation_constant_precomputed(xip1, θ, θ_primeΔt, filte
         end
         s += Δs
         k += 1
-        # println("k=$k, Δs=$Δs")
+        # @info "k=$k, Δs=$Δs"
     end
     return s
 end
@@ -163,9 +163,9 @@ end
 function compute_normalisation_constant_adaptive_precomputation(xip1, θ, θ_primeΔt, filtering_weights, filtering_indices, Δt, δ, γ, σ, precomputed_terms, last_k, mmax)
     # Careful that this can fail if the increments are not monotonous, i.e. Δs=0 for some values, then starts increasing. Could add a lower limit on k
     s = 0
-    Δs = 1
+    Δs_rel = 1
     k=0
-    while k <= 10^2 || (Δs > 0 && k <= 10^4)
+    while s <= 0 || k <= 10^2 || (Δs_rel > 0 && k <= 10^4)
 
         if k > last_k
             last_k = k
@@ -179,9 +179,10 @@ function compute_normalisation_constant_adaptive_precomputation(xip1, θ, θ_pri
             Δs += xx * filtering_weights[idx] * exp(logμmθk5(k, m, θ, δ, θ_primeΔt, precomputed_terms))
         end
         s += Δs
+        Δs_rel = Δs/s
         k += 1
-        # println("k=$k, Δs=$Δs")
     end
+    # @info "k=$k, Δs_rel=$Δs_rel"
     return s, last_k
 end
 
@@ -217,7 +218,7 @@ function select_κM(xip1, θ, θ_primeΔt, U, filtering_weights, filtering_indic
         end
         k += 1
     end
-    error("problem with the sum, could not get a sample")
+    error("did not manage to select k, weights do not sum to 1")
 end
 
 function select_κM_precomputed(xip1, θ, θ_primeΔt, U, filtering_weights, filtering_indices, Δt, δ, γ, σ, pred_dens_val, precomputed_terms)
@@ -234,7 +235,7 @@ function select_κM_precomputed(xip1, θ, θ_primeΔt, U, filtering_weights, fil
         end
         k += 1
     end
-    error("problem with the sum, could not get a sample")
+    error("did not manage to select k, weights do not sum to 1")
 end
 
 function select_κM_logw(xip1, θ, θ_primeΔt, U, log_filtering_weights, filtering_indices, Δt, δ, γ, σ, pred_dens_val)
@@ -254,7 +255,7 @@ function select_κM_logw(xip1, θ, θ_primeΔt, U, log_filtering_weights, filter
         end
         k += 1
     end
-    error("problem with the sum, could not get a sample")
+    error("did not manage to select k, weights do not sum to 1")
 end
 
 function select_κM_logw_arb(xip1, θ, θ_primeΔt, U, log_filtering_weights, filtering_indices, Δt, δ, γ, σ, pred_dens_val)
@@ -275,7 +276,7 @@ function select_κM_logw_arb(xip1, θ, θ_primeΔt, U, log_filtering_weights, fi
         end
         k += 1
     end
-    error("problem with the sum, could not get a sample")
+    error("did not manage to select k, weights do not sum to 1")
 end
 
 function sample_1_trajectory_from_joint_smoothing_CIR_logweights(δ, γ, σ, Λ_of_t, logwms_of_t, θ_of_t, Λ_pred_of_t, logwms_pred_of_t, θ_pred_of_t, data)
