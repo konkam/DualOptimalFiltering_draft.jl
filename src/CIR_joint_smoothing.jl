@@ -18,7 +18,7 @@ function logμmθk2(k, m, θ, δ, θ_primeΔt)
     α = δ/2+m
     β = θ
     λ = θ_primeΔt
-    SpecialFunctions.lgamma(α+k) - (α+k)*log(λ+β) + k*log(λ) + α*log(β) - SpecialFunctions.lgamma(α) - SpecialFunctions.lgamma(k+1)
+    lgamma_local(α+k) - (α+k)*log(λ+β) + k*log(λ) + α*log(β) - lgamma_local(α) - lgamma_local(k+1)
 end
 
 function logμmθk3(k, m, θ, δ, θ_primeΔt)
@@ -29,8 +29,8 @@ function logμmθk3(k, m, θ, δ, θ_primeΔt)
     if k==0
         return α*(log(β)-log(λ+β))
     else
-        # return sum(log(α + i) for i in 0:(k-1)) - (α+k)*log(λ+β) + k*log(λ) + α*log(β) - SpecialFunctions.lgamma(k+1)
-        return log_pochammer(α, k) - (α+k)*log(λ+β) + k*log(λ) + α*log(β) - SpecialFunctions.lgamma(k+1)
+        # return sum(log(α + i) for i in 0:(k-1)) - (α+k)*log(λ+β) + k*log(λ) + α*log(β) - lgamma_local(k+1)
+        return log_pochammer(α, k) - (α+k)*log(λ+β) + k*log(λ) + α*log(β) - lgamma_local(k+1)
     end
 end
 
@@ -44,8 +44,8 @@ function logμmθk4(k, m, θ, δ, θ_primeΔt)
     if k==0
         return α*(log(β)-log(λ+β))
     else
-        # return sum(log(α + i) for i in 0:(k-1)) - (α+k)*log(λ+β) + k*log(λ) + α*log(β) - SpecialFunctions.lgamma(k+1)
-        return log_pochammer_mem(α, k) - (α+k)*log(λ+β) + k*log(λ) + α*log(β) - SpecialFunctions.lgamma(k+1)
+        # return sum(log(α + i) for i in 0:(k-1)) - (α+k)*log(λ+β) + k*log(λ) + α*log(β) - lgamma_local(k+1)
+        return log_pochammer_mem(α, k) - (α+k)*log(λ+β) + k*log(λ) + α*log(β) - lgamma_local(k+1)
     end
 end
 
@@ -73,8 +73,8 @@ function logμmθk5(k, m, θ, δ, θ_primeΔt, precomputed_terms)
     if k==0
         return α*(log(β)-log(λ+β))
     else
-        # return sum(log(α + i) for i in 0:(k-1)) - (α+k)*log(λ+β) + k*log(λ) + α*log(β) - SpecialFunctions.lgamma(k+1)
-        return log_pochammer_precomputed(m, k, precomputed_terms) - (α+k)*log(λ+β) + k*log(λ) + α*log(β) - SpecialFunctions.lgamma(k+1)
+        # return sum(log(α + i) for i in 0:(k-1)) - (α+k)*log(λ+β) + k*log(λ) + α*log(β) - lgamma_local(k+1)
+        return log_pochammer_precomputed(m, k, precomputed_terms) - (α+k)*log(λ+β) + k*log(λ) + α*log(β) - lgamma_local(k+1)
     end
 end
 

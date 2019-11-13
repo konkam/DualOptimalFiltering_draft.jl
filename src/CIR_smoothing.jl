@@ -36,7 +36,7 @@ end
 
 
 function logCmn_CIR(m, n, θback_k, θ_k, α, β)
-    return SpecialFunctions.lgamma(α) - SpecialFunctions.lgamma(α+m) - SpecialFunctions.lgamma(α+n) - α*log(β) + (α+m)*log(θback_k) + (α+n)*log(θ_k) + SpecialFunctions.lgamma(α+m+n) - (α+m+n) * log(θback_k + θ_k-β)
+    return lgamma_local(α) - lgamma_local(α+m) - lgamma_local(α+n) - α*log(β) + (α+m)*log(θback_k) + (α+n)*log(θ_k) + lgamma_local(α+m+n) - (α+m+n) * log(θback_k + θ_k-β)
 end
 
 

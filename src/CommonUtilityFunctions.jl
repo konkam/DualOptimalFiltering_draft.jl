@@ -259,3 +259,5 @@ function logaddexp(x::Nemo.arb, y::Nemo.arb)
     isfinite(x) && isfinite(y) || return max(x,y)
     x > y ? x + log1p(exp(y - x)) : y + log1p(exp(x - y))
 end
+
+lgamma_local(x) = SpecialFunctions.logabsgamma(x)[1]

@@ -16,7 +16,7 @@ julia> log_int_prod_2_Gammas(2, 0.5, 1, 0.5) #==  log(0.5^2*0.5 )
 """
 function log_int_prod_2_Gammas(α1, β1, α2, β2)
     @assert α1 + α2 > 1 "The formula for the L2 distance is only valid for α1 + α2 > 1"
-    return α1 * log(β1) + α2 * log(β2) + SpecialFunctions.lgamma(α1 + α2 - 1) - SpecialFunctions.lgamma(α1) - SpecialFunctions.lgamma(α2) - (α1 + α2 - 1) * log(β1 + β2)
+    return α1 * log(β1) + α2 * log(β2) + lgamma_local(α1 + α2 - 1) - lgamma_local(α1) - lgamma_local(α2) - (α1 + α2 - 1) * log(β1 + β2)
 end
 
 """
@@ -93,7 +93,7 @@ julia> lmvbeta([1,1])
 ```
 """
 function lmvbeta(α::AbstractArray{T,1}) where T <: Real
-    return sum(SpecialFunctions.lgamma.(α)) - SpecialFunctions.lgamma(sum(α))
+    return sum(lgamma_local.(α)) - lgamma_local(sum(α))
 end
 
 

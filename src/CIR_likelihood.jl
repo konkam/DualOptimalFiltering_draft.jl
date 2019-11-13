@@ -13,12 +13,12 @@ function logμπh_NegBin(m::Integer, θ, α, y::AbstractArray{T, 1}; λ = 1) whe
 end
 
 function logμπh(m::Integer, θ, α, y::Integer; λ = 1)
-    return y*log(λ) + (α+m)*log(θ) + SpecialFunctions.lgamma(m+y+α) - lfactorial(y) - SpecialFunctions.lgamma(α+m) - (y+α+m) * log(θ + λ)
+    return y*log(λ) + (α+m)*log(θ) + lgamma_local(m+y+α) - lfactorial(y) - lgamma_local(α+m) - (y+α+m) * log(θ + λ)
 end
 function logμπh(m::Integer, θ, α, y::AbstractArray{T, 1}; λ = 1) where T <: Integer
     s = sum(y)
     n = length(y)
-    return s*log(λ) + (α+m)*log(θ) + SpecialFunctions.lgamma(m+s+α) - sum(lfactorial.(y)) - SpecialFunctions.lgamma(α+m) - (s+α+m) * log(θ + n*λ)
+    return s*log(λ) + (α+m)*log(θ) + lgamma_local(m+s+α) - sum(lfactorial.(y)) - lgamma_local(α+m) - (s+α+m) * log(θ + n*λ)
 end
 
 function logμπh_arb(m::Integer, θ, α, y::AbstractArray{T, 1}; λ = 1) where T <: Integer
@@ -38,7 +38,7 @@ function logμπh_precomputed(m::Integer, θ, α, y::AbstractArray{T, 1}, precom
 end
 
 function precompute_lgamma_α(α, data)
-    return SpecialFunctions.lgamma.(i + α for i in 0:sum(sum.(values(data))))
+    return lgamma_local.(i + α for i in 0:sum(sum.(values(data))))
 end
 
 function precompute_lfactorial(data)
