@@ -4,7 +4,7 @@ function logμπh_WF(α::AbstractArray{T, 1}, m::Union{AbstractArray{U, 1}, Tupl
     ## Needs to be written for multiple observations too
     sy = sum(y)
     sα = sum(α)
-    return SpecialFunctions.logfactorial(sy) - sum(SpecialFunctions.logfactorial(.(y)) + sum(log_pochammer.(α .+ m, y)) - log_pochammer(sα + sum(m), sy)
+    return SpecialFunctions.logfactorial(sy) - sum(SpecialFunctions.logfactorial.(y)) + sum(log_pochammer.(α .+ m, y)) - log_pochammer(sα + sum(m), sy)
 end
 
 function compute_next_Λ_max(current_Λ_max::Array{T, 1}, y::Array{T, 1}) where T <: Integer
