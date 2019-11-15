@@ -108,3 +108,11 @@ function prune_all_dicts(Λ_of_ts, wms_of_ts, pruning_function)
     end
     return Λ_of_ts_pruned, wms_of_ts_pruned
 end
+function prune_all_dicts(Λ_of_ts::Dict{Float64, Array{Int64,1}}, wms_of_ts::Dict{Float64, Array{Float64,1}}, pruning_function::Function)
+    Λ_of_ts_pruned = Dict{Float64, Array{Int64,1}}()
+    wms_of_ts_pruned = Dict{Float64, Array{Float64,1}}()
+    for k in keys(Λ_of_ts)
+        Λ_of_ts_pruned[k], wms_of_ts_pruned[k] = pruning_function(Λ_of_ts[k], wms_of_ts[k])
+    end
+    return Λ_of_ts_pruned, wms_of_ts_pruned
+end

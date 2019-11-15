@@ -1,7 +1,7 @@
 using Logging
 
-function draw_next_sample(state, Jtsym_rand::Function, unnormalised_logposterior::Function)
-    new_state = Jtsym_rand(state)
+function draw_next_sample(state::T, Jtsym_rand::Function, unnormalised_logposterior::Function) where T
+    new_state::T = Jtsym_rand(state)
     logr::Float64 = unnormalised_logposterior(new_state)::Float64 - unnormalised_logposterior(state)::Float64
     if logr > 0
         return new_state

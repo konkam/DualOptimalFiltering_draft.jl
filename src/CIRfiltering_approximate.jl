@@ -36,9 +36,9 @@ end
 function filter_CIR_pruning(δ, γ, σ, λ, data, do_the_pruning::Function; silence = false)
 
     times = keys(data) |> collect |> sort
-    Λ_of_t = Dict()
-    wms_of_t = Dict()
-    θ_of_t = Dict()
+    Λ_of_t = Dict{Float64, Array{Int64,1}}()
+    wms_of_t = Dict{Float64, Array{Float64,1}}()
+    θ_of_t = Dict{Float64, Float64}()
 
     filtered_θ, filtered_Λ, filtered_wms = update_CIR_params([1.], δ, γ/σ^2, λ, [0], data[0])
     pruned_Λ, pruned_wms = do_the_pruning(filtered_Λ, filtered_wms)
@@ -66,12 +66,12 @@ end
 function filter_predict_CIR_pruning(δ, γ, σ, λ, data, do_the_pruning::Function; silence = false)
 
     times = keys(data) |> collect |> sort
-    Λ_of_t = Dict()
-    wms_of_t = Dict()
-    θ_of_t = Dict()
-    Λ_pred_of_t = Dict()
-    wms_pred_of_t = Dict()
-    θ_pred_of_t = Dict()
+    Λ_of_t = Dict{Float64, Array{Int64,1}}()
+    wms_of_t = Dict{Float64, Array{Float64,1}}()
+    θ_of_t = Dict{Float64, Float64}()
+    Λ_pred_of_t = Dict{Float64, Array{Int64,1}}()
+    wms_pred_of_t = Dict{Float64, Array{Float64,1}}()
+    θ_pred_of_t = Dict{Float64, Float64}()
 
     filtered_θ, filtered_Λ, filtered_wms = update_CIR_params([1.], δ, γ/σ^2, λ, [0], data[0])
     pruned_Λ, pruned_wms = do_the_pruning(filtered_Λ, filtered_wms)

@@ -166,9 +166,9 @@ end
 function filter_CIR_debug(δ, γ, σ, λ, data)
 
     times = keys(data) |> collect |> sort
-    Λ_of_t = Dict()
-    wms_of_t = Dict()
-    θ_of_t = Dict()
+    Λ_of_t = Dict{Float64, Array{Int64,1}}()
+    wms_of_t = Dict{Float64, Array{Float64,1}}()
+    θ_of_t = Dict{Float64, Float64}()
 
     filtered_θ, filtered_Λ, filtered_wms = update_CIR_params([1.], δ, γ/σ^2, λ, [0], data[times[1]])
 
@@ -190,9 +190,9 @@ end
 function filter_CIR(δ, γ, σ, λ, data; silence = false)
 
     times = keys(data) |> collect |> sort
-    Λ_of_t = Dict()
-    wms_of_t = Dict()
-    θ_of_t = Dict()
+    Λ_of_t = Dict{Float64, Array{Int64,1}}()
+    wms_of_t = Dict{Float64, Array{Float64,1}}()
+    θ_of_t = Dict{Float64, Float64}()
 
     filtered_θ, filtered_Λ, filtered_wms = update_CIR_params([1.], δ, γ/σ^2, λ, [0], data[0])
 
@@ -218,9 +218,9 @@ end
 function filter_CIR_logweights(δ, γ, σ, λ, data; silence = false)
 
     times = keys(data) |> collect |> sort
-    Λ_of_t = Dict()
-    logwms_of_t = Dict()
-    θ_of_t = Dict()
+    Λ_of_t = Dict{Float64, Array{Int64,1}}()
+    logwms_of_t = Dict{Float64, Array{Float64,1}}()
+    θ_of_t = Dict{Float64, Float64}()
 
     filtered_θ, filtered_Λ, filtered_logweights = update_CIR_params_logweights([0.], δ, γ/σ^2, λ, [0], data[0])
 
@@ -246,12 +246,12 @@ end
 
 function filter_predict_CIR_logweights(δ, γ, σ, λ, data; silence = false)
     times = keys(data) |> collect |> sort
-    Λ_of_t = Dict()
-    logwms_of_t = Dict()
-    θ_of_t = Dict()
-    Λ_pred_of_t = Dict()
-    logwms_pred_of_t = Dict()
-    θ_pred_of_t = Dict()
+    Λ_of_t = Dict{Float64, Array{Int64,1}}()
+    logwms_of_t = Dict{Float64, Array{Float64,1}}()
+    θ_of_t = Dict{Float64, Float64}()
+    Λ_pred_of_t = Dict{Float64, Array{Int64,1}}()
+    logwms_pred_of_t = Dict{Float64, Array{Float64,1}}()
+    θ_pred_of_t = Dict{Float64, Float64}()
 
     filtered_θ, filtered_Λ, filtered_logweights = update_CIR_params_logweights([0.], δ, γ/σ^2, λ, [0], data[0])
 
