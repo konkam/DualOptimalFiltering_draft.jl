@@ -45,6 +45,8 @@
     #     println(DualOptimalFiltering.create_Gamma_mixture_density(δ, θ_pred_of_t[tip1], Λ_pred_of_t[tip1], exp.(logwms_pred_of_t[tip1]))(xip1)-DualOptimalFiltering.compute_normalisation_constant(xip1, θ_of_t[ti], DualOptimalFiltering.θ_primeΔ(Δt, γ, σ), exp.(logwms_of_t[ti]), Λ_of_t[ti], Δt, δ, γ, σ))
     # end
 
+    Δt = times |> diff |> mean
+
     @test_nowarn DualOptimalFiltering.compute_normalisation_constant(xip1, θ_of_t[ti], DualOptimalFiltering.θ_primeΔ(Δt, γ, σ), exp.(logwms_of_t[ti]), Λ_of_t[ti], Δt, δ, γ, σ)
 
     ref = DualOptimalFiltering.compute_normalisation_constant(xip1, θ_of_t[ti], DualOptimalFiltering.θ_primeΔ(Δt, γ, σ), exp.(logwms_of_t[ti]), Λ_of_t[ti], Δt, δ, γ, σ)
@@ -147,5 +149,48 @@
     #     geom_line(data = tibble(x = as.numeric($times), y = $X), aes(group = NULL)) +
     #     geom_point(data = tibble(x = as.numeric($times), y = $(vcat(Y...))), aes(group = NULL))
     # "
+
+end;
+
+@testset "stringent test for full smoothing CIR" begin
+
+    function simulate_CIR_data(;Nsteps_CIR = 200)
+        Random.seed!(2)
+
+        δ = 3.
+        γ = 2.5
+        σ = 2.
+        Nobs = 2
+        dt_CIR = 0.011
+        # max_time = .1
+        # max_time = 0.001
+        λ = 1.
+
+        time_grid_CIR = [k*dt_CIR for k in 0:(Nsteps_CIR-1)]
+        X_CIR = generate_CIR_trajectory(time_grid_CIR, 3, δ, γ, σ)
+        Y_CIR = map(λ -> rand(Poisson(λ), Nobs), X_CIR);
+        data_CIR = Dict(zip(time_grid_CIR, Y_CIR))
+        return data_CIR, Y_CIR, X_CIR, time_grid_CIR, δ, γ, σ, λ
+    end
+
+    data_CIR, Y_CIR, X_CIR, times, δ, γ, σ, λ = simulate_CIR_data(;Nsteps_CIR = 800)
+
+    θ_it_δγ_param = (δ, γ, σ)
+
+
+    Λ_of_t, wms_of_t, θ_of_t = DualOptimalFiltering.filter_CIR_keep_fixed_number(δ, γ, σ, λ, data_CIR, 10; silence = false)
+
+    fixed_number = 50
+
+    function prune_keeping_fixed_number(Λ_of_t, wms_of_t)
+        Λ_of_t_kept, wms_of_t_kept = DualOptimalFiltering.keep_fixed_number_of_weights(Λ_of_t, wms_of_t, fixed_number)
+        return Λ_of_t_kept, DualOptimalFiltering.normalise(wms_of_t_kept)
+    end
+
+
+    Λ_of_t_pruned, wms_of_t_pruned =  DualOptimalFiltering.prune_all_dicts(Λ_of_t, wms_of_t, prune_keeping_fixed_number)
+
+
+    @test_nowarn DualOptimalFiltering.sample_1_trajectory_from_joint_smoothing_CIR_precompute(θ_it_δγ_param[1], θ_it_δγ_param[2], θ_it_δγ_param[3], Λ_of_t_pruned, wms_of_t_pruned, θ_of_t, 1, 1, 1, data_CIR)
 
 end;
