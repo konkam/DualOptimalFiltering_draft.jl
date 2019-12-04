@@ -11,8 +11,18 @@ function μmθk(k, m, θ, δ, θ_primeΔt)
 end
 
 function logμmθk(k, m, θ, δ, θ_primeΔt)
-    logpdf(NegativeBinomial(δ/2 + m ,θ/(θ_primeΔt+θ)), k)
+    logpdf(NegativeBinomial(δ/2 + m, θ/(θ_primeΔt+θ)), k)
 end
+
+function NegativeBinomial_logpdf(k, r, p)
+    return log_pochammer(r, k) - lgamma_local(k+1) + r*log(p) + k*log(1-p)
+end
+
+function NegativeBinomial_logpdf_literal(k, r, p)
+    return lgamma_local(k+r) - logfactorial(k) - lgamma_local(r) + r*log(p) + k*log(1-p)
+    # return lgamma_local(k+r) - logfactorial(k) - lgamma_local(r) + k*log(p) + r*log(1-p)
+end
+
 function logμmθk2(k, m, θ, δ, θ_primeΔt)
     # Note that there is some room for optimisation by pre-computing the lgamma(α+k) and using lgamma(α+1) = lgamma(α) + ln(z)
     α = δ/2+m
@@ -22,7 +32,7 @@ function logμmθk2(k, m, θ, δ, θ_primeΔt)
 end
 
 function logμmθk3(k, m, θ, δ, θ_primeΔt)
-    # Note that there is some room for optimisation by pre-computing the lgamma(α+k) and using lgamma(α+1) = lgamma(α) + ln(z)
+    # Note that there is some room for optimisation by pre-computing the lgamma(α+k) and using lgamma(α+1) = lgamma(α) + ln(α)
     α = δ/2+m
     β = θ
     λ = θ_primeΔt

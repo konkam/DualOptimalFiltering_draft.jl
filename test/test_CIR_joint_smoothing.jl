@@ -6,6 +6,11 @@
     @test_nowarn DualOptimalFiltering.θ_primeΔ(0.1, 1.1, 1.2)
     @test_nowarn DualOptimalFiltering.μmθk(3, 6, 1.2, δ, 1.4)
 
+    @test DualOptimalFiltering.NegativeBinomial_logpdf(5, 0.6, 0.2) ≈ logpdf(NegativeBinomial(0.6, 0.2), 5)
+
+    @test DualOptimalFiltering.μmθk(3, 6, 1.2, δ, 1.4) ≈ DualOptimalFiltering.μmθk_slow(3, 6, 1.2, δ, 1.4)
+
+    @test DualOptimalFiltering.logμmθk2(3, 6, 1.2, δ, 1.4) ≈ DualOptimalFiltering.logμmθk(3, 6, 1.2, δ, 1.4)
     @test DualOptimalFiltering.logμmθk2(3, 6, 1.2, δ, 1.4) ≈ DualOptimalFiltering.logμmθk3(3, 6, 1.2, δ, 1.4)
     @test DualOptimalFiltering.logμmθk2(3, 6, 1.2, δ, 1.4) ≈ DualOptimalFiltering.logμmθk4(3, 6, 1.2, δ, 1.4)
     @test DualOptimalFiltering.logμmθk2(0, 6, 1.2, δ, 1.4) ≈ DualOptimalFiltering.logμmθk3(0, 6, 1.2, δ, 1.4)
