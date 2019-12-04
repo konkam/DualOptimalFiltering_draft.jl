@@ -261,11 +261,12 @@ function logaddexp(x::Nemo.arb, y::Nemo.arb)
 end
 
 lgamma_local(x) = SpecialFunctions.logabsgamma(x)[1]
-const precomputed_gamma = SpecialFunctions.logfactorial.(1:10000)
+const precomputed_lfact = SpecialFunctions.logfactorial.(1:10000)
 function lgamma_local(x::Integer)
-    if x < 10000 && x > 0
-        return precomputed_gamma[x+1]
+    if x < 10000 && x > 2
+        return precomputed_lfact[x-1]
     else
-        return SpecialFunctions.logfactorial(x)
+        # return SpecialFunctions.logfactorial(x)
+        return SpecialFunctions.logabsgamma(x)[1]
     end
 end

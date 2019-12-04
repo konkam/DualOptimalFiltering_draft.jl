@@ -81,4 +81,8 @@ using DataStructures, StatsFuns
     for k in keys(aa)
         @test res[k] == aa[k]
     end
+
+    @test DualOptimalFiltering.lgamma_local(2) ≈ SpecialFunctions.logabsgamma(2)[1]
+
+    @test DualOptimalFiltering.lgamma_local(5) ≈ SpecialFunctions.logabsgamma(5)[1]
 end;
