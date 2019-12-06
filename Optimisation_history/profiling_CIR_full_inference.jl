@@ -24,9 +24,9 @@ end
 
 data_CIR, Y_CIR, X_CIR, times, δ, γ, σ, λ = simulate_CIR_data(;Nsteps_CIR = 1000)
 a, b, σ_prime = DualOptimalFiltering.reparam_CIR(δ, γ, σ)
-prior_a = Truncated(Normal(5, 4), 0, Inf)
-prior_b = Truncated(Normal(5, 4), 0, Inf)
-prior_σ_prime = Truncated(Normal(5, 4), 0, Inf)
+prior_a = truncated(Normal(5, 4), 0, Inf)
+prior_b = truncated(Normal(5, 4), 0, Inf)
+prior_σ_prime = truncated(Normal(5, 4), 0, Inf)
 const prior_logpdf(ai, bi, σ_primei)::Float64 = logpdf(prior_a, ai) + logpdf(prior_b, bi) + logpdf(prior_σ_prime, σ_primei)
 
 
