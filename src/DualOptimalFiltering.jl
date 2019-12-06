@@ -38,4 +38,5 @@ include("CIR_joint_smoothing.jl")
 include("CIR_full_inference.jl")
 include("MCMC_sampler.jl")
 include("CIR_reparam.jl")
+include("CIR_parameter_inference_given_traj.jl")
 end # module
