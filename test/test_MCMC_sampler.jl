@@ -18,9 +18,9 @@
         return data_CIR, X_CIR,  δ, γ, σ, λ
     end
     data_CIR, X_CIR,  δ, γ, σ, λ = simulate_CIR_data(;Nsteps_CIR = 40)
-    prior_δ = Truncated(Normal(5, 4), 0, Inf)
-    prior_γ = Truncated(Normal(5, 4), 0, Inf)
-    prior_σ = Truncated(Normal(5, 4), 0, Inf)
+    prior_δ = truncated(Normal(5, 4), 0, Inf)
+    prior_γ = truncated(Normal(5, 4), 0, Inf)
+    prior_σ = truncated(Normal(5, 4), 0, Inf)
     prior_logpdf(δi, γi, σi) = logpdf(prior_δ, δi) + logpdf(prior_γ, γi) + logpdf(prior_σ, σi)
 
     function unnormalised_logposterior(δ, γ, σ)::Float64

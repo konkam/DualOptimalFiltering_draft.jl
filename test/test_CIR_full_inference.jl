@@ -18,9 +18,9 @@ using ExactWrightFisher, Distributions
     @test_nowarn DualOptimalFiltering.joint_loglikelihood_CIR(data, X, times, δ, γ, σ, λ)
 
 
-    prior_δ = Truncated(Normal(5, 4), 0, Inf)
-    prior_γ = Truncated(Normal(5, 4), 0, Inf)
-    prior_σ = Truncated(Normal(5, 4), 0, Inf)
+    prior_δ = truncated(Normal(5, 4), 0, Inf)
+    prior_γ = truncated(Normal(5, 4), 0, Inf)
+    prior_σ = truncated(Normal(5, 4), 0, Inf)
     prior_logpdf(δi, γi, σi) = logpdf(prior_δ, δi) + logpdf(prior_γ, γi) + logpdf(prior_σ, σi)
 
     @test_nowarn DualOptimalFiltering.joint_sampler_CIR(data, λ, prior_logpdf, [1.,1.,1.], 10, final_chain_length = 10)

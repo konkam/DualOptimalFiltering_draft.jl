@@ -20,9 +20,9 @@
 
     @test DualOptimalFiltering.reparam_joint_loglikelihood_CIR(data, X, times, a, b, σ_prime, λ) == DualOptimalFiltering.joint_loglikelihood_CIR(data, X, times, δ, γ, σ, λ)
 
-    prior_a = Truncated(Normal(5, 4), 0, Inf)
-    prior_b = Truncated(Normal(5, 4), 0, Inf)
-    prior_σ_prime = Truncated(Normal(5, 4), 0, Inf)
+    prior_a = truncated(Normal(5, 4), 0, Inf)
+    prior_b = truncated(Normal(5, 4), 0, Inf)
+    prior_σ_prime = truncated(Normal(5, 4), 0, Inf)
     prior_logpdf(ai, bi, σ_primei) = logpdf(prior_a, ai) + logpdf(prior_b, bi) + logpdf(prior_σ_prime, σ_primei)
 
     @test_nowarn DualOptimalFiltering.joint_sampler_CIR_reparam_keep_fixed_number_precompute(data, λ, prior_logpdf, 10, 2; final_chain_length = 10)
