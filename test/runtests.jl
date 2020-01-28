@@ -1,5 +1,5 @@
 using Test, Distributions, Random
-using DualOptimalFiltering
+using DualOptimalFiltering_proof
 # Run tests
 @time @test 1 == 1
 

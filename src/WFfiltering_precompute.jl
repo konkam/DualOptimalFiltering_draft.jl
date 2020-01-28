@@ -145,7 +145,7 @@ end
 
 function get_log_dict(dict)
     k_dict = keys(dict)
-    log_dict = Dict(zip(k_dict, Float64.(log.([DualOptimalFiltering.RR(dict[k]) for k in k_dict]) )))
+    log_dict = Dict(zip(k_dict, Float64.(log.([RR(dict[k]) for k in k_dict]) )))
     if any(isnan.(log_dict |> values |> collect))
         error("Log transformation of the dict returned at least one NaN, please check the precision of the values of the dict")
     else
@@ -154,7 +154,7 @@ function get_log_dict(dict)
 end
 
 function precompute_log_terms_arb(data::Dict{Float64,Array{Int64,2}}, sα::Number; digits_after_comma_for_time_precision = 4, override = false)
-    ν_dict, Cmmi_dict, precomputed_binomial_coefficients = DualOptimalFiltering.precompute_terms_arb(data, sα; digits_after_comma_for_time_precision = digits_after_comma_for_time_precision, override = override)
+    ν_dict, Cmmi_dict, precomputed_binomial_coefficients = precompute_terms_arb(data, sα; digits_after_comma_for_time_precision = digits_after_comma_for_time_precision, override = override)
     return get_log_dict(ν_dict), get_log_dict(Cmmi_dict), get_log_dict(precomputed_binomial_coefficients)
 end
 

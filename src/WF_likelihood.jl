@@ -116,7 +116,7 @@ function update_logwms_prime_to_i_from_logwms_i3!(sα::Real, logwms_i, logwms_pr
 
 #             shifted_id_m::NTuple{length(K), Int64} = m .+ 1
             shifted_id_m = m .+ 1
-#             @views logwms_prime[shifted_id_m...] = logaddexp(logwms_prime[shifted_id_m...], logwms_i[shifted_id_n...] + DualOptimalFiltering.logpmmi_precomputed(i, n, sn, si, Δt_ip1, sα, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict))
+#             @views logwms_prime[shifted_id_m...] = logaddexp(logwms_prime[shifted_id_m...], logwms_i[shifted_id_n...] + DualOptimalFiltering_proof.logpmmi_precomputed(i, n, sn, si, Δt_ip1, sα, log_ν_dict, log_Cmmi_dict, log_binomial_coeff_dict))
             logwms_prime[shifted_id_m...] = logaddexp(logwms_prime[shifted_id_m...], logwms_i[shifted_id_n...] + logpmmi_precomputed(i, n, sn, si, Δt_ip1, sα, precomputed_log_ν, precomputed_log_Cmmi, precomputed_log_binomial_coeff))
 #             logwms_prime[shifted_id_m...] = logaddexp(logwms_prime[shifted_id_m...], logwms_i[shifted_id_n...]+1)
         end

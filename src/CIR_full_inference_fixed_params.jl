@@ -1,5 +1,5 @@
 using Revise
-using DualOptimalFiltering, Random, Distributions, RCall, DataFrames, DataFramesMeta, Optim, FeynmanKacParticleFilters, BenchmarkTools, ProfileView, MCMCDiagnostics
+using DualOptimalFiltering_proof, Random, Distributions, RCall, DataFrames, DataFramesMeta, Optim, FeynmanKacParticleFilters, BenchmarkTools, ProfileView, MCMCDiagnostics
 
 R"library(tidyverse)"
 
@@ -24,7 +24,7 @@ end
 
 data_CIR, Y_CIR, X_CIR, times, δ, γ, σ, λ = simulate_CIR_data(;Nsteps_CIR = 1000)
 
-a, b, σ_prime = DualOptimalFiltering.reparam_CIR(δ, γ, σ)
+a, b, σ_prime = DualOptimalFiltering_proof.reparam_CIR(δ, γ, σ)
 
 prior_a = truncated(Normal(5, 4), 0, Inf)
 prior_b = truncated(Normal(5, 4), 0, Inf)
@@ -33,7 +33,7 @@ const prior_logpdf(ai, bi, σ_primei)::Float64 = logpdf(prior_a, ai) + logpdf(pr
 
 prior_logpdf(a, b, σ_prime)
 
-@time parameter_chain, trajectory_chain = DualOptimalFiltering.joint_sampler_CIR_reparam_keep_fixed_number_precompute(data_CIR, λ, prior_logpdf, 5000, 20; final_chain_length = 1000, silence = false, jump_sizes = (.5, .5, 0.), θ_init = (1., 1., σ_prime))
+@time parameter_chain, trajectory_chain = DualOptimalFiltering_proof.joint_sampler_CIR_reparam_keep_fixed_number_precompute(data_CIR, λ, prior_logpdf, 5000, 20; final_chain_length = 1000, silence = false, jump_sizes = (.5, .5, 0.), θ_init = (1., 1., σ_prime))
 
 println("Acceptance rate = $(parameter_chain[:,1] |> x -> length(unique(x))/length(x))")
 

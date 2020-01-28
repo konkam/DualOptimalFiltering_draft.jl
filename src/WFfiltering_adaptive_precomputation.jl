@@ -1,4 +1,4 @@
-using DualOptimalFiltering, ExactWrightFisher
+using DualOptimalFiltering_proof, ExactWrightFisher
 using StatsFuns, SpecialFunctions, Base.Iterators
 
 # function λm(sm::Int64, sα::Number)

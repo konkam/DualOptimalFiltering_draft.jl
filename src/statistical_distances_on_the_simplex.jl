@@ -1,6 +1,6 @@
 using RCall, Pkg
 
-R"""Rcpp::sourceCpp($(joinpath(dirname(pathof(DualOptimalFiltering)), "dirichlet_mixture_gsl.cpp")))
+R"""Rcpp::sourceCpp($(joinpath(dirname(pathof(DualOptimalFiltering_proof)), "dirichlet_mixture_gsl.cpp")))
 # create_dirichlet_mixture_gsl = function(alpha, lambda, weights){
 #     lambda_vec = unlist(lambda)
 #     dirichlet_mixture = function(x){
@@ -86,7 +86,7 @@ R"compute_L2_distance_between_two_mixtures_of_Dirichlet_alpha = function (alpha_
 # end
 
 function compute_hellinger_distance_between_two_Dirichlet_mixtures_alpha(α1, weights_1, α2, weights_2, K::Int64)
-    R"""Rcpp::sourceCpp($(joinpath(dirname(pathof(DualOptimalFiltering)), "dirichlet_mixture_gsl.cpp")))
+    R"""Rcpp::sourceCpp($(joinpath(dirname(pathof(DualOptimalFiltering_proof)), "dirichlet_mixture_gsl.cpp")))
     create_dirichlet_mixture_gsl_alpha = function(alpha, weights){
         dirichlet_mixture = function(x){
             ddirichlet_mixture_gsl_arma(x, alpha, weights)
@@ -117,7 +117,7 @@ end
 # end
 
 function compute_L2_distance_between_two_Dirichlet_mixtures_alpha(α1, weights_1, α2, weights_2, K::Int64)
-    R"""Rcpp::sourceCpp($(joinpath(dirname(pathof(DualOptimalFiltering)), "dirichlet_mixture_gsl.cpp")))
+    R"""Rcpp::sourceCpp($(joinpath(dirname(pathof(DualOptimalFiltering_proof)), "dirichlet_mixture_gsl.cpp")))
     create_dirichlet_mixture_gsl_alpha = function(alpha, weights){
         dirichlet_mixture = function(x){
             ddirichlet_mixture_gsl_arma(x, alpha, weights)

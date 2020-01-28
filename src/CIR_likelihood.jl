@@ -107,8 +107,8 @@ T_CIR(y, θ; λ = 1) = θ + λ*length(y)
 function next_wms_from_wms_prime(wms_prime, Λ_prime, y, θ_prime, α)#update
     #Make sure we deal correctly with weights equal to 0
     #Probably harmonise what can be improved in the filtering algorithm
-    unnormalised_wms = wms_prime .* DualOptimalFiltering.μπh(Λ_prime, θ_prime, α, y)
-    return unnormalised_wms |> DualOptimalFiltering.normalise
+    unnormalised_wms = wms_prime .* DualOptimalFiltering_proof.μπh(Λ_prime, θ_prime, α, y)
+    return unnormalised_wms |> DualOptimalFiltering_proof.normalise
 end
 
 function next_logwms_from_log_wms_prime1D(log_wms_prime, Λ_prime, y, θ_prime, α)#update

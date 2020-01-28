@@ -1,4 +1,4 @@
- using Revise, DualOptimalFiltering, Random, Distributions, RCall, DataFrames, DataFramesMeta, Optim, FeynmanKacParticleFilters, BenchmarkTools, MCMCDiagnostics
+ using Revise, DualOptimalFiltering_proof, Random, Distributions, RCall, DataFrames, DataFramesMeta, Optim, FeynmanKacParticleFilters, BenchmarkTools, MCMCDiagnostics
  R"library(tidyverse)"
 
 # R"pdf('test.pdf')
@@ -27,7 +27,7 @@ end
 
 data_CIR, Y_CIR, X_CIR, times, δ, γ, σ, λ = simulate_CIR_data(;Nsteps_CIR = 5000)
 
-a, b, σ_prime = DualOptimalFiltering.reparam_CIR(δ, γ, σ)
+a, b, σ_prime = DualOptimalFiltering_proof.reparam_CIR(δ, γ, σ)
 
 prior_a = truncated(Normal(5, 4), 0, Inf)
 prior_b = truncated(Normal(5, 4), 0, Inf)
@@ -35,7 +35,7 @@ prior_σ_prime = truncated(Normal(5, 4), 0, Inf)
 const prior_logpdf(ai, bi, σ_primei)::Float64 = logpdf(prior_a, ai) + logpdf(prior_b, bi) + logpdf(prior_σ_prime, σ_primei)
 
 
-f = () -> DualOptimalFiltering.param_sampler(X_CIR, times, prior_logpdf, [1.,1.,1.], 5000; final_chain_length = 1000, silence = false)
+f = () -> DualOptimalFiltering_proof.param_sampler(X_CIR, times, prior_logpdf, [1.,1.,1.], 5000; final_chain_length = 1000, silence = false)
 
 mcmc_chains = [f() for i in 1:3];
 

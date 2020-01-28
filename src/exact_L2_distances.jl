@@ -69,7 +69,7 @@ Compute the log of ``\\int_{\\nabla_K} Dir(α1)Dir(α2)`` exactly. This formula 
 
 # Examples
 ```julia-repl
-julia> DualOptimalFiltering.log_int_prod_2_Dir([1,1], [1,1])
+julia> DualOptimalFiltering_proof.log_int_prod_2_Dir([1,1], [1,1])
 0.0
 julia> log_int_prod_2_Gammas(2, 0.5, 1, 0.5) #==  log(0.5^2*0.5 )
 -0.6931471805599453
@@ -123,20 +123,20 @@ function log_L2_dist_Dirichlet_mixtures(logw1::RealVector, αlist_1::Array{T, 1}
     return 0.5*log_squared_L2_dist
 end
 
-# DualOptimalFiltering.log_L2_dist_Dirichlet_mixtures(log.([0.2,0.3,0.5]), [[1,2,3],[1,2,4],[5,3,2]], log.([0.6,0.4]), [[1,2,1],[4,2,3]])
+# DualOptimalFiltering_proof.log_L2_dist_Dirichlet_mixtures(log.([0.2,0.3,0.5]), [[1,2,3],[1,2,4],[5,3,2]], log.([0.6,0.4]), [[1,2,1],[4,2,3]])
 # #
-# DualOptimalFiltering.log_L2_dist_Dirichlet_mixtures(log.([0.2,0.3,0.5]), [[1,2,3],[1,2,4],[5,3,2]], log.([0.2,0.3,0.5]), [[1,2,3],[1,2,4],[5,3,2]])
+# DualOptimalFiltering_proof.log_L2_dist_Dirichlet_mixtures(log.([0.2,0.3,0.5]), [[1,2,3],[1,2,4],[5,3,2]], log.([0.2,0.3,0.5]), [[1,2,3],[1,2,4],[5,3,2]])
 #
 #
-# DualOptimalFiltering.log_L2_dist_Dirichlet_mixtures(log.([0.2,0.3,0.5]), [[1,2,3],[1,2,4],[5,3,2]], log.([0.200001,0.3,0.5] |> DualOptimalFiltering.normalise), [[1,2,3],[1,2,4],[5,3,2]])
+# DualOptimalFiltering_proof.log_L2_dist_Dirichlet_mixtures(log.([0.2,0.3,0.5]), [[1,2,3],[1,2,4],[5,3,2]], log.([0.200001,0.3,0.5] |> DualOptimalFiltering_proof.normalise), [[1,2,3],[1,2,4],[5,3,2]])
 #
-# DualOptimalFiltering.log_L2_dist_Dirichlet_mixtures(log.([0.2,0.3,0.5]), [[1,2,3],[1,2,4],[5,3,2]], log.([0.2000001,0.3,0.5] |> DualOptimalFiltering.normalise), [[1,2,3],[1,2,4],[5,3,2]])
+# DualOptimalFiltering_proof.log_L2_dist_Dirichlet_mixtures(log.([0.2,0.3,0.5]), [[1,2,3],[1,2,4],[5,3,2]], log.([0.2000001,0.3,0.5] |> DualOptimalFiltering_proof.normalise), [[1,2,3],[1,2,4],[5,3,2]])
 #
-# DualOptimalFiltering.log_L2_dist_Dirichlet_mixtures(log.([0.2,0.3,0.5]), [[1,2,3],[1,2,4],[5,3,2]], log.([0.20000001,0.3,0.5] |> DualOptimalFiltering.normalise), [[1,2,3],[1,2,4],[5,3,2]])
+# DualOptimalFiltering_proof.log_L2_dist_Dirichlet_mixtures(log.([0.2,0.3,0.5]), [[1,2,3],[1,2,4],[5,3,2]], log.([0.20000001,0.3,0.5] |> DualOptimalFiltering_proof.normalise), [[1,2,3],[1,2,4],[5,3,2]])
 #
-# DualOptimalFiltering.log_L2_dist_Dirichlet_mixtures(log.([0.2,0.3,0.5]), [[1,2,3],[1,2,4],[5,3,2]], log.([0.2000000001,0.3,0.5] |> DualOptimalFiltering.normalise), [[1,2,3],[1,2,4],[5,3,2]])
+# DualOptimalFiltering_proof.log_L2_dist_Dirichlet_mixtures(log.([0.2,0.3,0.5]), [[1,2,3],[1,2,4],[5,3,2]], log.([0.2000000001,0.3,0.5] |> DualOptimalFiltering_proof.normalise), [[1,2,3],[1,2,4],[5,3,2]])
 #
-# import DualOptimalFiltering.RR
+# import DualOptimalFiltering_proof.RR
 #
 # ExactWrightFisher.signed_logsumexp([log(RR(3.00000000000001)), log(RR(3)), log(RR(6))],[1,1,-1])
 #

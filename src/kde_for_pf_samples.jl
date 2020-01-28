@@ -113,7 +113,7 @@ julia> xdata = rand(Dirichlet([0.3,5.,2.3]), 5)
 ```
 """
 function create_Dirichlet_kde_mixture_parameters(xdata::RealMatrix)
-    λ = DualOptimalFiltering.bwlcv(xdata, dirichletkernel)
+    λ = DualOptimalFiltering_proof.bwlcv(xdata, dirichletkernel)
     # if bw == 0
     #     bw = bwlcv(smp, gammakernel)
     # end
@@ -126,7 +126,7 @@ function create_Dirichlet_kde_mixture_parameters(xdata::RealMatrix)
 end
 
 function create_Dirichlet_kde_mixture_parameters(xdata::Array{Array{Float64,1},1})
-    λ = DualOptimalFiltering.bwlcv(xdata, dirichletkernel)
+    λ = DualOptimalFiltering_proof.bwlcv(xdata, dirichletkernel)
     # if bw == 0
     #     bw = bwlcv(smp, gammakernel)
     # end

@@ -1,4 +1,4 @@
-module DualOptimalFiltering
+module DualOptimalFiltering_proof
 
 # package code goes here
 using Printf

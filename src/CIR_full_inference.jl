@@ -49,7 +49,7 @@ function joint_sampler_CIR(data, λ, prior_logpdf, θ_init, niter; final_chain_l
 
         # Sample trajectory
 
-        Λ_of_t, logwms_of_t, θ_of_t, Λ_pred_of_t, logwms_pred_of_t, θ_pred_of_t = DualOptimalFiltering.filter_predict_CIR_logweights(θ_it[1], θ_it[2], θ_it[3], λ, data, silence = true)
+        Λ_of_t, logwms_of_t, θ_of_t, Λ_pred_of_t, logwms_pred_of_t, θ_pred_of_t = DualOptimalFiltering_proof.filter_predict_CIR_logweights(θ_it[1], θ_it[2], θ_it[3], λ, data, silence = true)
         X_it = sample_1_trajectory_from_joint_smoothing_CIR_logweights(θ_it[1], θ_it[2], θ_it[3], Λ_of_t, logwms_of_t, θ_of_t, Λ_pred_of_t, logwms_pred_of_t, θ_pred_of_t, data)
 
         @debug "iteration $it"
@@ -99,7 +99,7 @@ function joint_sampler_CIR_pruning(data, λ, prior_logpdf, θ_init, niter, do_th
         # Sample trajectory
 
         #Not using the logfunction because not implemented yet
-        Λ_of_t, wms_of_t, θ_of_t, Λ_pred_of_t, wms_pred_of_t, θ_pred_of_t = DualOptimalFiltering.filter_predict_CIR_pruning(θ_it[1], θ_it[2], θ_it[3], λ, data, do_the_pruning, silence = true)
+        Λ_of_t, wms_of_t, θ_of_t, Λ_pred_of_t, wms_pred_of_t, θ_pred_of_t = DualOptimalFiltering_proof.filter_predict_CIR_pruning(θ_it[1], θ_it[2], θ_it[3], λ, data, do_the_pruning, silence = true)
         # logwms_of_t = log.(wms_of_t)
         # logwms_pred_of_t = log.(wms_pred_of_t)
         X_it = sample_1_trajectory_from_joint_smoothing_CIR(θ_it[1], θ_it[2], θ_it[3], Λ_of_t, wms_of_t, θ_of_t, Λ_pred_of_t, wms_pred_of_t, θ_pred_of_t, data)
@@ -151,7 +151,7 @@ function joint_sampler_CIR_pruning_nopred(data, λ, prior_logpdf, θ_init, niter
         # Sample trajectory
 
         #Not using the logfunction because not implemented yet
-        Λ_of_t, wms_of_t, θ_of_t = DualOptimalFiltering.filter_CIR_pruning(θ_it[1], θ_it[2], θ_it[3], λ, data, do_the_pruning, silence = true)
+        Λ_of_t, wms_of_t, θ_of_t = DualOptimalFiltering_proof.filter_CIR_pruning(θ_it[1], θ_it[2], θ_it[3], λ, data, do_the_pruning, silence = true)
         # logwms_of_t = log.(wms_of_t)
         # logwms_pred_of_t = log.(wms_pred_of_t)
         X_it = sample_1_trajectory_from_joint_smoothing_CIR(θ_it[1], θ_it[2], θ_it[3], Λ_of_t, wms_of_t, θ_of_t, 1, 1, 1, data)
@@ -203,7 +203,7 @@ function joint_sampler_CIR_pruning_precompute(data, λ, prior_logpdf, θ_init, n
         # Sample trajectory
 
         #Not using the logfunction because not implemented yet
-        Λ_of_t, wms_of_t, θ_of_t = DualOptimalFiltering.filter_CIR_pruning(θ_it[1], θ_it[2], θ_it[3], λ, data, do_the_pruning, silence = true)
+        Λ_of_t, wms_of_t, θ_of_t = DualOptimalFiltering_proof.filter_CIR_pruning(θ_it[1], θ_it[2], θ_it[3], λ, data, do_the_pruning, silence = true)
         Λ_of_t_pruned, wms_of_t_pruned =  prune_all_dicts(Λ_of_t, wms_of_t, do_the_pruning)
         # logwms_of_t = log.(wms_of_t)
         # logwms_pred_of_t = log.(wms_pred_of_t)

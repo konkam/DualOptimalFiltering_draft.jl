@@ -303,7 +303,7 @@ function sample_1_trajectory_from_joint_smoothing_CIR_logweights(δ, γ, σ, Λ_
         ti = times[i]
         tip1 = times[i+1]
         Δt = tip1-ti
-        # predictive_dens_ip1 = DualOptimalFiltering.create_Gamma_mixture_density(δ, θ_pred_of_t[tip1], Λ_pred_of_t[tip1], exp.(logwms_pred_of_t[tip1]))(sample_trajectory[i+1])
+        # predictive_dens_ip1 = DualOptimalFiltering_proof.create_Gamma_mixture_density(δ, θ_pred_of_t[tip1], Λ_pred_of_t[tip1], exp.(logwms_pred_of_t[tip1]))(sample_trajectory[i+1])
         predictive_dens_ip1 = compute_normalisation_constant(sample_trajectory[i+1], θ_of_t[ti], θ_primeΔ(Δt, γ, σ), exp.(logwms_of_t[ti]), Λ_of_t[ti], Δt, δ, γ, σ)
         sample_trajectory[i] = backward_sampling_CIR_logw(sample_trajectory[i+1], logwms_of_t[ti], Λ_of_t[ti], predictive_dens_ip1, Δt, δ, γ, σ, θ_of_t[ti])
     end
@@ -323,7 +323,7 @@ function sample_1_trajectory_from_joint_smoothing_CIR(δ, γ, σ, Λ_of_t, wms_o
         ti = times[i]
         tip1 = times[i+1]
         Δt = tip1-ti
-        # predictive_dens_ip1 = DualOptimalFiltering.create_Gamma_mixture_density(δ, θ_pred_of_t[tip1], Λ_pred_of_t[tip1], exp.(logwms_pred_of_t[tip1]))(sample_trajectory[i+1])
+        # predictive_dens_ip1 = DualOptimalFiltering_proof.create_Gamma_mixture_density(δ, θ_pred_of_t[tip1], Λ_pred_of_t[tip1], exp.(logwms_pred_of_t[tip1]))(sample_trajectory[i+1])
         predictive_dens_ip1 = compute_normalisation_constant(sample_trajectory[i+1], θ_of_t[ti], θ_primeΔ(Δt, γ, σ), wms_of_t[ti], Λ_of_t[ti], Δt, δ, γ, σ)
         sample_trajectory[i] = backward_sampling_CIR(sample_trajectory[i+1], wms_of_t[ti], Λ_of_t[ti], predictive_dens_ip1, Δt, δ, γ, σ, θ_of_t[ti])
     end

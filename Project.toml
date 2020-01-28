@@ -1,4 +1,4 @@
-name = "DualOptimalFiltering"
+name = "DualOptimalFiltering_proof"
 uuid = "4abc1bc0-c194-11e8-24a1-c168f2b1c514"
 authors = ["konkam <guillaume.konkamking.work@gmail.com>"]
 version = "0.1.0"

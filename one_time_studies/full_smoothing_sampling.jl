@@ -1,4 +1,4 @@
-using Revise, DualOptimalFiltering, Random, Distributions, RCall, DataFrames, DataFramesMeta, Optim, FeynmanKacParticleFilters, BenchmarkTools, MCMCDiagnostics
+using Revise, DualOptimalFiltering_proof, Random, Distributions, RCall, DataFrames, DataFramesMeta, Optim, FeynmanKacParticleFilters, BenchmarkTools, MCMCDiagnostics
 R"library(tidyverse)"
 
 # R"pdf('test.pdf')
@@ -29,7 +29,7 @@ data_CIR, Y_CIR, X_CIR, times, δ, γ, σ, λ = simulate_CIR_data(;Nsteps_CIR = 
 
 ntraj = 100
 
-Λ_of_t, logwms_of_t, θ_of_t = DualOptimalFiltering.filter_CIR_logweights(δ, γ, σ, λ, data_CIR);
+Λ_of_t, logwms_of_t, θ_of_t = DualOptimalFiltering_proof.filter_CIR_logweights(δ, γ, σ, λ, data_CIR);
 
 
 # A graphical test. Commented out to allow tests to pass
@@ -37,7 +37,7 @@ ntraj = 100
 R"1:$ntraj %>%
     lapply(function(xx) tibble(idx = xx, x = as.numeric($times))) %>%
     bind_rows() %>%
-    mutate(y =  $(vcat([DualOptimalFiltering.sample_1_trajectory_from_joint_smoothing_CIR_logweights(δ, γ, σ, Λ_of_t, logwms_of_t, θ_of_t, 1, 1, 1, data_CIR) for k in 1:ntraj]...))) %>%
+    mutate(y =  $(vcat([DualOptimalFiltering_proof.sample_1_trajectory_from_joint_smoothing_CIR_logweights(δ, γ, σ, Λ_of_t, logwms_of_t, θ_of_t, 1, 1, 1, data_CIR) for k in 1:ntraj]...))) %>%
     ggplot(aes(x=x, y=y) ) +
       stat_density_2d(aes(fill = ..density..), geom = 'raster', contour = FALSE) +
       scale_fill_distiller(palette= 'Spectral', direction=1) +
@@ -54,7 +54,7 @@ R"1:$ntraj %>%
 R"1:$ntraj %>%
     lapply(function(xx) tibble(idx = xx, x = as.numeric($times))) %>%
     bind_rows() %>%
-    mutate(y =  $(vcat([DualOptimalFiltering.sample_1_trajectory_from_joint_smoothing_CIR_logweights(δ, γ, σ, Λ_of_t, logwms_of_t, θ_of_t, 1, 1, 1, data_CIR) for k in 1:ntraj]...))) %>%
+    mutate(y =  $(vcat([DualOptimalFiltering_proof.sample_1_trajectory_from_joint_smoothing_CIR_logweights(δ, γ, σ, Λ_of_t, logwms_of_t, θ_of_t, 1, 1, 1, data_CIR) for k in 1:ntraj]...))) %>%
     ggplot(aes(x=x, y=y, group = idx) ) +
     geom_line(colour = '#333333', alpha = 0.1) +
     theme_bw()  +

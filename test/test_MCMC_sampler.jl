@@ -33,11 +33,11 @@
     end
 
     full_likelihood(δ, γ, σ, λ, data, fun::Function)::Float64 = fun(δ, γ, σ, λ, data)[maximum(keys(data))]
-    full_likelihood(δ, γ, σ, λ, data)::Float64 = full_likelihood(δ, γ, σ, λ, data, DualOptimalFiltering.log_likelihood_CIR)
+    full_likelihood(δ, γ, σ, λ, data)::Float64 = full_likelihood(δ, γ, σ, λ, data, DualOptimalFiltering_proof.log_likelihood_CIR)
 
 
     unnormalised_logposterior_vec(v) = unnormalised_logposterior(v...)
 
-    @test_nowarn DualOptimalFiltering.get_mcmc_samples(15, [1.,1.,1.], DualOptimalFiltering.Jtnorm_create, unnormalised_logposterior_vec)
+    @test_nowarn DualOptimalFiltering_proof.get_mcmc_samples(15, [1.,1.,1.], DualOptimalFiltering_proof.Jtnorm_create, unnormalised_logposterior_vec)
 
 end;

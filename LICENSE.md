@@ -1,4 +1,4 @@
-The DualOptimalFiltering.jl package is licensed under the GNU Public License, Version 3.0+:
+The DualOptimalFiltering_proof.jl package is licensed under the GNU Public License, Version 3.0+:
 
 > Copyright (c) 2018: konkam.
 > This program is free software: you can redistribute it and/or modify

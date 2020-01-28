@@ -312,7 +312,7 @@ function WF_smoothing(α, data; silence = false)
         println("Cost to go")
     end
 
-    data_1D = DualOptimalFiltering.prepare_WF_dat_1D_2D(data)[1]
+    data_1D = DualOptimalFiltering_proof.prepare_WF_dat_1D_2D(data)[1]
 
 
     Λ_tilde_prime_of_t, wms_tilde_of_t = compute_all_cost_to_go_functions_WF_adaptive_precomputation_ar(α, data_1D, log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset, sm_max_so_far; silence = silence)
@@ -368,7 +368,7 @@ function WF_smoothing_log_internals(α, data; silence = false)
         println("Cost to go")
     end
 
-    data_1D = DualOptimalFiltering.prepare_WF_dat_1D_2D(data)[1]
+    data_1D = DualOptimalFiltering_proof.prepare_WF_dat_1D_2D(data)[1]
 
 
     Λ_tilde_prime_of_t, logwms_tilde_of_t = compute_all_log_cost_to_go_functions_WF_adaptive_precomputation_ar(α, data_1D, log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset, sm_max_so_far; silence = silence)
@@ -454,7 +454,7 @@ function WF_smoothing_pruning(α, data, pruning_function::Function; silence = fa
         println("Cost to go")
     end
 
-    data_1D = DualOptimalFiltering.prepare_WF_dat_1D_2D(data)[1]
+    data_1D = DualOptimalFiltering_proof.prepare_WF_dat_1D_2D(data)[1]
 
 
     Λ_tilde_prime_of_t, logwms_tilde_of_t = compute_all_log_cost_to_go_functions_WF_adaptive_precomputation_ar_pruning(α, data_1D, log_ν_ar, log_Cmmi_ar, log_binomial_coeff_ar_offset, sm_max_so_far, pruning_function; silence = silence)

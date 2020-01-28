@@ -53,7 +53,7 @@ function joint_sampler_CIR_reparam_pruning_precompute(data, λ, prior_logpdf, ni
 
         #Not using the logfunction because not implemented yet
         θ_it_δγ_param = inverse_reparam_CIR(θ_it...)
-        Λ_of_t, wms_of_t, θ_of_t = DualOptimalFiltering.filter_CIR_pruning(θ_it_δγ_param[1], θ_it_δγ_param[2], θ_it_δγ_param[3], λ, data, do_the_pruning, silence = true)
+        Λ_of_t, wms_of_t, θ_of_t = DualOptimalFiltering_proof.filter_CIR_pruning(θ_it_δγ_param[1], θ_it_δγ_param[2], θ_it_δγ_param[3], λ, data, do_the_pruning, silence = true)
         Λ_of_t_pruned, wms_of_t_pruned =  prune_all_dicts(Λ_of_t, wms_of_t, do_the_pruning)
         # logwms_of_t = log.(wms_of_t)
         # logwms_pred_of_t = log.(wms_pred_of_t)

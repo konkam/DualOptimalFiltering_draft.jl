@@ -343,8 +343,8 @@ function compute_all_log_cost_to_go_functions_CIR_pruning_precomputed(δ, γ, σ
     θ0_CIR = γ/σ^2
 
 
-    precomputed_lgamma_α = DualOptimalFiltering.precompute_lgamma_α(α, data)
-    precomputed_lfactorial = DualOptimalFiltering.precompute_lfactorial(data)
+    precomputed_lgamma_α = DualOptimalFiltering_proof.precompute_lgamma_α(α, data)
+    precomputed_lfactorial = DualOptimalFiltering_proof.precompute_lfactorial(data)
 
     Λ_tilde_prime_of_t = Dict()
     logwms_tilde_of_t = Dict()
