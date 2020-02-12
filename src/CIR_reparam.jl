@@ -1,6 +1,7 @@
 #Reparametrisation using mean, scale, etc.
 # First param: dXt = (δσ^2-2γXt)dt + 2σ√(Xt)dBt
 # New param dXt = a(b-Xt)dt + σ'√(Xt)dBt (https://en.wikipedia.org/wiki/Cox%E2%80%93Ingersoll%E2%80%93Ross_model)
+using LinearAlgebra
 
 function reparam_CIR(δ, γ, σ)
     a = 2*γ
@@ -22,7 +23,7 @@ function reparam_joint_loglikelihood_CIR(data, trajectory, times, a, b, σ_prime
 end
 
 
-function joint_sampler_CIR_reparam_pruning_precompute(data, λ, prior_logpdf, niter, do_the_pruning::Function; final_chain_length = 1000, silence = false, jump_sizes = (0.5, 0.5, 0.5), θ_init = (1.,1.,1.))
+function joint_sampler_CIR_reparam_pruning_precompute(data, λ, prior_logpdf, niter, do_the_pruning::Function; final_chain_length = 1000, silence = false, jump_sizes = 0.5*Matrix(I,3,3), θ_init = [1.,1.,1.])
 
     trajectory_chain = Array{Float64,2}(undef, niter, length(data |> keys))
     parameter_chain = Array{Float64,2}(undef, niter, 3)
@@ -39,7 +40,7 @@ function joint_sampler_CIR_reparam_pruning_precompute(data, λ, prior_logpdf, ni
 
     θ_it = θ_init
 
-    Jtsym_rand(θ) = rand.(Normal.(0, jump_sizes)) .+ θ
+    Jtsym_rand(θ) = rand(MvNormal(zeros(3), jump_sizes)) .+ θ
 
     for it in 1:niter
 
@@ -77,7 +78,7 @@ function joint_sampler_CIR_reparam_pruning_precompute(data, λ, prior_logpdf, ni
     return parameter_chain, trajectory_chain
 end
 
-function joint_sampler_CIR_reparam_keep_fixed_number_precompute(data, λ, prior_logpdf, niter, fixed_number::Int64; final_chain_length = 1000, silence = false, jump_sizes = (0.5, 0.5, 0.5), θ_init = (1.,1.,1.))
+function joint_sampler_CIR_reparam_keep_fixed_number_precompute(data, λ, prior_logpdf, niter, fixed_number::Int64; final_chain_length = 1000, silence = false, jump_sizes = 0.5*Matrix(I,3,3), θ_init = [1.,1.,1.])
     # println("filter_WF_mem2")
 
     function prune_keeping_fixed_number(Λ_of_t, wms_of_t)
